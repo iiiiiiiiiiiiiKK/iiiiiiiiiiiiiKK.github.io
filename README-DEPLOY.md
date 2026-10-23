@@ -2,7 +2,7 @@
 
 基于 [Naresh-Khatri/3d-portfolio](https://github.com/Naresh-Khatri/3d-portfolio) 改造。
 
-**主站：GitHub Pages** → <https://github.com/iiiiiiiiiiiiiKK/iiiiiiiiiiiiiKK.github.io>，自定义域名 `321.market`（DNS 记录待加，见 [`DOMAIN-321.market.md`](./DOMAIN-321.market.md)）。
+**主站：GitHub Pages** → <https://github.com/iiiiiiiiiiiiiKK/iiiiiiiiiiiiiKK.github.io>，线上地址 <https://321.market>（已绑定并启用 HTTPS，细节见 [`DOMAIN-321.market.md`](./DOMAIN-321.market.md)）。
 
 **备用：Cloudflare Pages** → 项目 `adam-portfolio`，<https://adam-portfolio.pages.dev>（同一份 `out/`，仍可使用）。
 
