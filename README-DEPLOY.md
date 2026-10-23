@@ -1,10 +1,10 @@
 # 部署说明（Adam 个人站）
 
-基于 [Naresh-Khatri/3d-portfolio](https://github.com/Naresh-Khatri/3d-portfolio) 改造，托管在 **Cloudflare Pages**。
+基于 [Naresh-Khatri/3d-portfolio](https://github.com/Naresh-Khatri/3d-portfolio) 改造。
 
-- 项目名：`adam-portfolio`
-- 线上地址：<https://adam-portfolio.pages.dev>
-- 目标域名：`321.market`（待绑定，见文末）
+**主站：GitHub Pages** → <https://github.com/iiiiiiiiiiiiiKK/iiiiiiiiiiiiiKK.github.io>，自定义域名 `321.market`（DNS 记录待加，见 [`DOMAIN-321.market.md`](./DOMAIN-321.market.md)）。
+
+**备用：Cloudflare Pages** → 项目 `adam-portfolio`，<https://adam-portfolio.pages.dev>（同一份 `out/`，仍可使用）。
 
 ---
 
@@ -33,14 +33,16 @@
 | 导航、页脚 | `src/components/header/config.ts`、`src/components/footer/config.ts` |
 | 项目截图 | `public/assets/projects-screenshots/<项目 id>/landing.png` |
 
-改完重新部署即可：
+改完推上去就行 —— push 到 `main` 会自动构建并发布到 GitHub Pages：
 
 ```powershell
 cd site-3d
-pnpm build          # 产出 out/
+git add -A
+git commit -m "update"
+git push            # 本机需要代理：git -c http.sslVerify=false push origin main
 ```
 
-## 3. 部署到 Cloudflare Pages
+## 3. 部署到 Cloudflare Pages（备用线路）
 
 一次性准备（仓库外，避免污染前端依赖）：
 
@@ -62,19 +64,11 @@ node deploy-tools/node_modules/wrangler/bin/wrangler.js pages deploy site-3d/out
 
 ## 4. 绑定 321.market
 
-`321.market` 目前 DNS 在 **DNSPod**（`archery.dnspod.net` / `ellipse.dnspod.net`），不在这个 Cloudflare 账户里。
-Pages 的 apex 域名必须先是一个 Cloudflare zone，所以步骤是：
+见专门文档：[`DOMAIN-321.market.md`](./DOMAIN-321.market.md)。
 
-1. Cloudflare 控制台 → **Add a site** → 输入 `321.market` → 选 Free 套餐
-   （当前 API 令牌没有 `zone:create` 权限，这一步只能在面板点，或者换一个带该权限的令牌）
-2. Cloudflare 给出两条 NS，例如 `xxx.ns.cloudflare.com` / `yyy.ns.cloudflare.com`
-3. 去 DNSPod 把 `321.market` 的 NS 改成这两条
-4. 生效后（通常几分钟到几小时），Cloudflare 会自动为 Pages 建好 CNAME，`321.market` 变成 Active
-5. 控制台 Pages → adam-portfolio → Custom domains，确认 `321.market` 和 `www.321.market` 都是 Active
+一句话总结：主站走 **GitHub Pages**，需要在 DNSPod 加 4 条 A 记录（`185.199.108-111.153`）+ 1 条 `www` CNAME，不需要动 NS、不影响已有的 `worddna` / `cyberhuman` / `web` 子域名。
 
-> 子域名 `worddna.321.market` 现在指向 GitHub Pages，切 NS 后需要在 Cloudflare 里补一条同样的 CNAME，否则会失效。
-
-**不做 NS 迁移的替代方案**：只绑子域名（如 `www.321.market` 或 `site.321.market`），在 DNSPod 加一条 `CNAME → adam-portfolio.pages.dev` 即可，apex 域名必须走上面的 zone 流程。
+如果用 **Cloudflare Pages** 绑裸域名，则必须把 `321.market` 整个 zone 迁到 Cloudflare（换 NS），步骤见上文的 zone 流程。
 
 ## 5. R2 备份（可选）
 
