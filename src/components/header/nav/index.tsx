@@ -35,7 +35,7 @@ const Index: React.FC<IndexProps> = ({ setIsActive }) => {
       onClick={() => setIsActive(false)}
       className={cn(styles.nav, "relative")}
     >
-      <div className={cn(styles.wrapper, 'flex justify-end sm:justify-start')}>
+      <div className={cn(styles.wrapper, "flex justify-end sm:justify-start")}>
         <div className={styles.container}>
           <Body
             links={links}
@@ -49,7 +49,8 @@ const Index: React.FC<IndexProps> = ({ setIsActive }) => {
           isActive={selectedLink.isActive}
         />
       </div>
-      {/* Subtle reduced-motion control, tucked into the bottom-right of the menu.
+      {/* Reduced-motion control lives in normal flow below the links so it can
+          never overlap the last nav item (Contact) on any viewport.
           Stop propagation so toggling motion doesn't also close the menu. */}
       <motion.div
         initial={{ opacity: 0 }}
@@ -57,7 +58,7 @@ const Index: React.FC<IndexProps> = ({ setIsActive }) => {
         exit={{ opacity: 0 }}
         transition={{ delay: 0.5, duration: 0.4 }}
         onClick={(e) => e.stopPropagation()}
-        className="absolute bottom-0 right-0"
+        className="mt-8 flex justify-end pb-2"
       >
         <MotionToggle />
       </motion.div>

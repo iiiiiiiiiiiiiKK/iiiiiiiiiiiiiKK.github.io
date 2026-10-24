@@ -60,9 +60,10 @@ function GitHubStarsButton({
   const [isCompleted, setIsCompleted] = useState(false);
   const [displayParticles, setDisplayParticles] = useState(false);
 
+  // An explicit `href` (e.g. a profile URL) wins over the derived repo URL.
   const repoUrl = useMemo(
-    () => `https://github.com/${username}/${repo}`,
-    [username, repo],
+    () => (props.href as string) || `https://github.com/${username}/${repo}`,
+    [username, repo, props.href],
   );
 
   const handleDisplayParticles = useCallback(() => {

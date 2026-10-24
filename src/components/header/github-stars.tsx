@@ -1,24 +1,24 @@
 import { config } from "@/data/config";
-import { getGithubStars } from "@/lib/github-stars";
 import { GitHubStarsButton } from "../ui/shadcn-io/github-stars-button";
 
-export default async function GitHubStars({ className }: { className?: string }) {
-  if (!config.githubUsername || !config.githubRepo) return null;
-
-  let stars: number;
-  try {
-    stars = await getGithubStars();
-  } catch (err) {
-    // don't fail the render/build on a github outage or rate limit
-    console.error(err);
-    return null;
-  }
+/**
+ * Header star badge.
+ *
+ * Renders `config.github.stars` verbatim — a hard-coded number, so the header
+ * never fires a GitHub API request (no rate limits, no build-time network
+ * dependency). To show the live count later, set `stars: 0` and fill in
+ * `config.github.repo`; the button then links to that repository.
+ */
+export default function GitHubStars({ className }: { className?: string }) {
+  const { stars, link, username, repo } = config.github;
+  if (!stars) return null;
 
   return (
     <GitHubStarsButton
-      username={config.githubUsername}
-      repo={config.githubRepo}
+      username={username}
+      repo={repo || username}
       stars={stars}
+      href={link}
       className={className}
     />
   );

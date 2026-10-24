@@ -13,20 +13,28 @@ import { SectionHeader } from "./section-header";
 import SectionWrapper from "../ui/section-wrapper";
 
 const ContactSection = () => {
+  const { titleLines, cardTitle, descriptionPrefix, descriptionSuffix } =
+    config.contact;
+
   return (
     <SectionWrapper id="contact" className="min-h-screen max-w-7xl mx-auto ">
-      <SectionHeader id='contact' className="relative mb-14" title={
-        <>
-          找我聊点
-          <br />
-          正经事
-        </>} />
+      <SectionHeader
+        id="contact"
+        className="relative mb-14"
+        title={
+          <>
+            {titleLines[0]}
+            <br />
+            {titleLines[1]}
+          </>
+        }
+      />
       <div className="grid grid-cols-1 md:grid-cols-2 z-[9999] mx-4">
         <Card className="min-w-7xl bg-white/70 dark:bg-black/70 backdrop-blur-sm rounded-xl mt-10 md:mt-20">
           <CardHeader>
-            <CardTitle className="text-4xl">联系我</CardTitle>
+            <CardTitle className="text-4xl">{cardTitle}</CardTitle>
             <CardDescription>
-              直接发邮件到{" "}
+              {descriptionPrefix}{" "}
               <a
                 target="_blank"
                 href={`mailto:${config.email}`}
@@ -34,7 +42,7 @@ const ContactSection = () => {
               >
                 {config.email}
               </a>{" "}
-              ，或者在下面留个话。
+              {descriptionSuffix}
             </CardDescription>
           </CardHeader>
           <CardContent>

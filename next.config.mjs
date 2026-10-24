@@ -1,12 +1,19 @@
 /** @type {import('next').NextConfig} */
+// Set NEXT_PUBLIC_BASE_PATH when the site is published as a GitHub Pages
+// *project* site (https://<user>.github.io/<repo>/). Leave it empty for a
+// user/apex site so every asset stays at the domain root.
+const basePath = process.env.NEXT_PUBLIC_BASE_PATH || "";
+
 const nextConfig = {
   reactStrictMode: true,
-  // Static export: the whole site is prerendered to plain HTML/CSS/JS so it can
-  // be served straight off Cloudflare Pages (no server runtime required).
+  // Pure static export: everything is prerendered to HTML/CSS/JS so it can be
+  // served from any static host (GitHub Pages, Cloudflare Pages, Vercel, R2).
   output: "export",
   trailingSlash: true,
+  basePath: basePath || undefined,
+  assetPrefix: basePath || undefined,
   images: {
-    // No Next.js image optimizer in a static export.
+    // No image optimizer in a static export.
     unoptimized: true,
   },
 };

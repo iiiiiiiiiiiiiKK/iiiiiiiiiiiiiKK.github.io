@@ -99,7 +99,7 @@ const HeroSection = () => {
                           variant={"outline"}
                           className="block w-full overflow-hidden"
                         >
-                          聊聊合作
+                          联系我
                         </Button>
                       </Link>
                     </TooltipTrigger>
