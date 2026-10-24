@@ -1,0 +1,93 @@
+---
+title: "把 Linux 沙箱塞进手机后，这个开源 App 让我重新理解了 AI Agent"
+publishedAt: "2026-10-20"
+summary: "手机里的 Siri 听不懂人话，第三方 AI App 又只能在云端跑——你的健康数据、聊天记录、日程信息，全部要上传到别人服务器。每一次「Hey Siri」背后，都是一次隐私裸奔。MacStories 编辑 Federi…"
+image: "/assets/blog-images/linux-app-ai-agent-8yqt04/img01.webp"
+tags: ["AI", "Agent", "开源"]
+author: "Adam"
+---
+![](/assets/blog-images/linux-app-ai-agent-8yqt04/img01.webp)
+
+## 一、开篇：为什么你需要这个工具？
+
+手机里的 Siri 听不懂人话，第三方 AI App 又只能在云端跑——你的健康数据、聊天记录、日程信息，全部要上传到别人服务器。每一次「Hey Siri」背后，都是一次隐私裸奔。MacStories 编辑 Federico Viticci 直接评价它：「很长一段时间以来，我见过最让人惊艳的独立 App。」OpenMinis 用一个原生 App，把 AI Agent 从云端拉回你的口袋。
+
+## 二、项目简介：一句话说明它是什么
+
+OpenMinis 是**跨平台的端侧 AI Agent 应用**，完全免费且开源。它把 Claude、GPT、Gemini 等主流模型装进一个原生移动壳子里，再塞给它一台真正能用的 Linux 沙箱计算机。项目在 GitHub 已斩获 3327 颗 Star，主仓库采用 Swift + Kotlin 双端实现，iOS 与 Android 同时支持。
+
+## 三、核心功能深度解析
+
+### 1. 自带 Linux 沙箱的 AI Agent
+
+OpenMinis 在设备内部启动一个完整的 Alpine Linux 环境（iOS 通过 iSH，Android 通过 PRoot），AI Agent 可以在里面装包、跑脚本、操作真实文件。这意味着它不只是「聊天机器人」，而是真正能执行命令、产出结果的数字员工。
+
+### 2. 全方位的设备系统集成
+
+Agent 通过工具接口直接调用 Health、Calendar、Reminders、Contacts、HomeKit、Bluetooth、Clipboard、Media、Alarms 等系统能力。MacStories 把它评价为「iOS 上 Siri AI 应该成为的样子」，原因就在于此——它能把你设备上的每一项能力都编排起来。
+
+### 3. 浏览器自动化与 Skills 体系
+
+Agent 可以替你浏览网页、操作页面；Skills 是一个带 `SKILL.md` 的文件夹，按需加载，并且兼容 Claude、Codex、OpenClaw、Hermes Agent 的现成技能。`MinisSkills` 仓库已经收录了 TTS、搜索、健康分析、媒体下载等适配技能。
+
+### 4. Workspace 与 iCloud 同步
+
+通过 `minis://workspace/` 协议，每个 Workspace 都是独立的上下文环境，iCloud 同步保证你在 iPhone、iPad、Mac 之间无缝接力。原生代码还会把重活转给系统（Native Offloads），沙箱只负责通用逻辑。
+
+![](/assets/blog-images/linux-app-ai-agent-8yqt04/img02.webp)
+
+## 四、技术亮点与性能数据
+
+OpenMinis 的工程结构相当扎实：`src/ios/` 用 SwiftUI 承载主 App 与 Share/Widget/File Provider 扩展，`src/android/` 用 Kotlin + Compose 加 JNI 原生代码，`src/shared/` 沉淀两端共享资产。沙箱依赖（iSH、PRoot、FFmpeg、LAME）和 Alpine rootfs **全部从源码构建**，而不是塞二进制——这是 GPLv3 协议下对开源底线的坚持。媒体侧采用 FFmpeg + LAME 处理音视频，文本侧用 cppjieba 做中文分词、KaTeX 渲染数学公式，Markdown 走 swift-cmark。Android 端集成 Shizuku 提升系统权限模型能力。整个项目 3327 Star 的体量里，沉淀了一整套从模型调用、沙箱执行到系统集成的完整架构。
+
+## 五、适用场景与人群
+
+**场景一：健康管理自动化**——拍一张午餐照片，Agent 自动识别菜品、估算卡路里与营养素，并写入 Apple Health，全程不上云。
+
+**场景二：信息聚合简报**——通过 Shortcuts 触发 Agent 拉取你的 X 时间线，摘要后用 TTS 合成语音，充当早间闹钟。
+
+**场景三：Obsidian Vault 整理**——把 Vault 挂载成 Workspace，让 Agent 研究、清理并写回 Markdown 笔记，研究型用户的利器。
+
+适合追求隐私优先的极客用户、希望把日常琐事自动化的产品经理、以及需要本地 Agent 做研究的开发者。不适合完全不愿折腾命令行、希望开箱即用聊天机器人的用户——OpenMinis 需要你提供自己的 API Key。
+
+![](/assets/blog-images/linux-app-ai-agent-8yqt04/img03.webp)
+
+## 六、竞品对比
+
+| 维度 | OpenMinis | 通用 AI Chat App | Siri/Apple Intelligence |
+|---|---|---|---|
+| 数据位置 | 完全端侧 | 云端为主 | 云端为主 |
+| 模型选择 | 自带 Key，支持 Claude/GPT/Gemini | 通常绑定单一厂商 | 仅 Apple 模型 |
+| 系统集成 | Health/日历/HomeKit 等十余项 | 几乎为零 | 有限 |
+| 可执行命令 | 完整 Linux 沙箱 | 否 | 否 |
+| 开源协议 | GPLv3 | 多为闭源 | 闭源 |
+
+知乎专栏直接给出评价：「在很大程度上实现甚至局部超越了 Apple Intelligence」。选择 OpenMinis 的核心理由是：**你拿回了控制权**——模型可选、数据本地、能力可编排。
+
+![](/assets/blog-images/linux-app-ai-agent-8yqt04/img04.webp)
+
+## 七、如何快速上手
+
+**安装途径**：iOS 用户可从 App Store 搜索下载，或加入 [TestFlight 测速通道](https://testflight.apple.com/join/3BdkA5c3) 抢先体验；Android 用户在 [GitHub Releases](https://github.com/OpenMinis/OpenMinis/releases) 直接拿最新 APK。
+
+**最小可用示例**：
+1. 安装后填入 Claude 或 GPT 的 API Key；
+2. 创建一个 Workspace；
+3. 用自然语言下达第一条指令，例如「把这段 Telegram 群聊里的 bug 整理到 Apple Reminders」；
+4. 进阶玩法是把 Obsidian Vault 或本地目录挂载为 Workspace，让 Agent 在里面持续协作。
+
+**开发者构建**：`git clone --recurse-submodules` 后，先跑 `./deps/build_lame.sh` 与 `./deps/build_ffmpeg.sh`，再依次构建 iSH 与 Alpine rootfs；Android 端需 NDK r28+，运行 `./gradlew :app:assembleDebug` 即可，详细排错指南见 `BUILDING.md`。
+
+![](/assets/blog-images/linux-app-ai-agent-8yqt04/img05.webp)
+
+## 八、总结与行动建议
+
+OpenMinis 把 AI Agent 从「云端黑盒」变成了「口袋里可编程的数字员工」——端侧 Linux 沙箱 + 全系统集成 + 兼容主流 Skills，让 3327 颗 Star 不仅是数字，更是社区对「AI 应该跑在用户设备上」的共识。建议你先在 iOS TestFlight 装一份体验 Workflow，再按 AwesomeMinis 仓库里的用例复刻一两个自动化任务；如果你有编程背景，更值得从源码构建一遍，亲手感受这个 GPLv3 项目的诚意。
+
+**项目链接**：
+- 官网：[openminis.app](https://openminis.app)
+- 仓库：[github.com/OpenMinis/OpenMinis](https://github.com/OpenMinis/OpenMinis)
+- Skills 库：[github.com/OpenMinis/MinisSkills](https://github.com/OpenMinis/MinisSkills)
+- 用例集：[github.com/OpenMinis/AwesomeMinis](https://github.com/OpenMinis/AwesomeMinis)
+
+一句话推荐：**如果 ChatGPT 是云端顾问，OpenMinis 就是住进你手机的私人工程师**。

@@ -1,0 +1,90 @@
+---
+title: "写邮件还在一个个敲？这个 macOS 开源工具让我按住 Option+Space 就能说完一封信"
+publishedAt: "2026-07-04"
+summary: "写邮件还在一个个敲？这个 macOS 开源工具让我按住 Option+Space 就能说完一封信"
+image: "/assets/blog-images/macos-option-space-r52chn/img01.webp"
+tags: ["开源", "写作", "文档"]
+author: "Adam"
+---
+![](/assets/blog-images/macos-option-space-r52chn/img01.webp)
+
+选择标题（3 选 1）
+
+写邮件还在一个个敲？这个 macOS 开源工具让我按住 Option+Space 就能说完一封信
+
+按住说话松手成文：Quill 把 Gemini 转写塞进 macOS 任意输入框，少敲 90% 的字
+
+没在键盘前敲一个字，却把整篇文档写完了——Quill 是怎么做到的
+
+## 一、开篇：如果有个工具能替你口述整篇文章…
+
+写一份周报要敲半小时，回封邮件要组织十分钟措辞，写到一半思路断了还要重新进入状态——对每天对着屏幕的 macOS 用户来说，键盘敲字的速度远跟不上大脑输出的速度。传统输入法再快，也得一个字一个字敲；通用语音识别工具要么要切换窗口、要么识别完还要手动复制粘贴，反而打断了写作流。Quill 这个项目把这件事压缩成了一组快捷键：按住就能说，松手就出文。
+
+## 二、项目简介：一句话说明它是什么
+Quill 是一款面向 macOS 14+ 的开源系统级语音输入工具，定位是「让全系统任何可编辑文本框都变成你的口述记录区」。核心特性集中在四点：跨应用口述、快捷键即开即用、Gemini 实时转写引擎、本地化隐私设计。当前仍处于早期阶段（Star 数 0），但已具备完整的装机即用体验。
+
+## 三、核心功能深度解析
+
+### 1. 跨应用口述，不限场景
+Quill 不是某个 App 里的语音输入按钮，而是借助 macOS 辅助功能权限，在系统层面把光标所在的任意可编辑文本框——浏览器、IDE、备忘录、Slack、邮件——都变成录入目标。原理是：按下快捷键时记录光标位置，借助 Accessibility 权限在转写完成后把焦点切回原位置并插入文本。整个过程不切换窗口、不打开新面板。
+
+### 2. 双模式快捷键工作流
+Quill 提供两种工作方式：默认是按住 ⌥ Option + Space 边说边录，松手即结束；也可以改成按一次开始、再按一次停止的「点按模式」。粘贴上一次转写结果的快捷键 ⌃ Control + ⌥ Option + V 也是可改键的，所有快捷键都允许用户录制任意「修饰键 + 普通键」组合。比 Whisper 类桌面工具更贴心的是，它默认快捷键就避开了主流 IDE 的高频键位。
+
+### 3. 智能 vs 逐字两种转写风格
+Smart 模式会在 Gemini Live 模型返回结果后再做一轮轻度润色，自动补全标点、修正断句；Verbatim 模式则尽量保留你说出的话，不做改动。这个区分对写技术文档 vs 写口语化对话的两种需求都很友好。语言支持上，Quill 既能自动检测语种，也允许在设置里固定一种偏好语言。
+
+### 4. 自定义词库与本地统计
+用户可以在 Settings → Vocabulary 里维护专有名词、技术缩写、产品名，转写时模型会优先采纳这些词条，避免「Postgres」被写成「Post Grids」这类典型问题。统计功能只记录当日和累计的「口述次数、词数」，不保存任何转写原文，隐私边界很清晰。
+
+## 四、技术亮点与性能数据
+
+Quill 的转写核心调用 Google Gemini 的 Live transcription model，要求用户自带 API Key。这意味着：模型能力随 Gemini 升级而升级，本地客户端无需维护大模型；延迟方面，按住说话—松手插入的端到端体验接近实时，取决于网络。架构上，Quill 是一个原生 macOS Swift 应用（从 docs/BUILDING.md 的构建说明推断），不依赖 Electron，启动常驻菜单栏，资源占用极低。麦克风可选 macOS 默认或指定输入设备；当指定设备不可用时，自动回落到系统默认，不打断工作流。Apache License 2.0 开源协议也意味着可以二次分发和私有化修改。
+
+![](/assets/blog-images/macos-option-space-r52chn/img02.webp)
+
+## 五、适用场景与人群
+
+- 写技术文档、写邮件、写周报的重度文字工作者——口述速度一般是键盘的 3 倍以上。
+- 编程时需要写注释、写 commit message、写 issue 回复的开发者——快捷键不污染主键盘流。
+- 长文写作、博客草稿、采访整理的内容创作者——Smart 模式自动润色能省一轮人工修改。
+- 不适合：纯 Windows/Linux 用户、对 Gemini API 调用有合规顾虑的团队（需要外发音频到 Google）。
+
+## 六、竞品对比
+
+| 维度 | Quill | macOS 内置 Dictation | Wispr Flow | OpenWhisper 桌面版 |
+| --- | --- | --- | --- | --- |
+| 系统覆盖 | 全应用文本框 | 系统级 | 全应用文本框 | 通常单应用 |
+| 转写模型 | Gemini Live | Apple 端侧 | 自研 + 云端 | Whisper 本地 |
+| 自定义词库 | ✅ | ❌ | ✅ | 视实现 |
+| 自定义快捷键 | ✅ | ❌ | 部分 | ✅ |
+| 开源 | Apache 2.0 | 闭源 | 闭源 | 多为 MIT |
+| 网络依赖 | 是（Gemini） | 否 | 是 | 否 |
+
+对比之下，Quill 的差异化在「全开源 + 灵活快捷键 + Gemini 高质量转写」三角组合。
+
+## 七、如何快速上手
+
+1. 到 Google AI Studio 申请一个 Gemini API Key（需要可以访问 Live transcription 模型的权限）。
+2. 从 Releases 下载 `Quill.app`，拖进「应用程序」文件夹。
+3. 首次启动按 onboarding 提示授予「麦克风」与「辅助功能」权限，粘贴 API Key。
+4. 任意文本框里点一下光标，按住 ⌥ Option + Space 说一段话，松手后文字就出现在光标处。
+5. 在菜单栏点 Quill 图标 → Settings，可以改快捷键、麦克风、语言、Smart/Verbatim 模式、词库和开机启动项。
+6. 想自己编译或参与开发，看 `docs/BUILDING.md`。
+
+![](/assets/blog-images/macos-option-space-r52chn/img03.webp)
+
+## 八、总结与行动建议
+
+Quill 的核心价值是把 macOS 上「想到就能说出口」的体验做成了一个零学习成本的系统级工具：装好就能用，快捷键就在 ⌥ Option + Space 上，转写质量交给 Gemini，隐私数据留在本地统计。对于每天要写几千字的人，这是个值得装到 Applications 文件夹里的小工具。建议先用一个工作日的时间在邮件、Slack、IDE 注释里轮换试用，再根据习惯调整快捷键和 Smart/Verbatim 偏好。
+
+- GitHub 仓库：github.com/skundu42/quill
+- 协议：Apache License 2.0
+- 一句话推荐：按住 Option + Space 就能在任何输入框口述落字，macOS 上最省心的开源语音输入工具。
+
+#quill #Quill #skundu42 #前端开发 #Web开发 #开源项目 #GitHub
+
+![](/assets/blog-images/macos-option-space-r52chn/img04.webp)
+
+![](/assets/blog-images/macos-option-space-r52chn/img05.webp)
+

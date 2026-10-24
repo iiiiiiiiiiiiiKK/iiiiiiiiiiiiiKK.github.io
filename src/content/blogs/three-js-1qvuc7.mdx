@@ -1,0 +1,123 @@
+---
+title: "学解剖还在死记硬背？这个 Three.js 项目让每个器官都能拆开看"
+publishedAt: "2026-05-28"
+summary: "学解剖还在死记硬背？这个 Three.js 项目让每个器官都能拆开看"
+image: "/assets/blog-images/three-js-1qvuc7/img01.webp"
+tags: ["AI", "开源", "开发"]
+author: "Adam"
+---
+![](/assets/blog-images/three-js-1qvuc7/img01.webp)
+
+选择标题（3 选 1）
+
+学解剖还在死记硬背？这个 Three.js 项目让每个器官都能拆开看
+
+3.3K Stars 的开源解剖浏览器：首屏 3 秒、内置 GPT 助教、纯 Web 零安装
+
+没装一个模型软件，我在浏览器里拆开了一整个人体
+
+# Anatomy：用 Three.js 打开人体，每个器官都能拆开看
+
+## 一、开篇：学解剖，靠死记硬背真的太难了
+
+医学生小李最近很崩溃。翻开《局部解剖学》，几百张黑白插图密密麻麻，他盯着「肝门静脉」的分支结构看了半小时，脑子里还是一团浆糊。查 3D 模型吧，要么得装几个 G 的桌面软件，要么网页版交互僵硬，只能拖拽不能分层隐藏。
+
+这不是个例。Rosh Review 的一项调研显示，超过 68% 的医学学习者认为「缺乏可交互的 3D 资源」是学习解剖最大的障碍。传统教材的平面图无法呈现结构的空间关系，而大多数在线工具又卡在「不够直观」和「加载太慢」之间。
+
+直到 Anatomy 出现，把整套人体模型搬进了浏览器。
+
+![](/assets/blog-images/three-js-1qvuc7/img02.webp)
+
+## 二、项目简介：一句话认识它
+
+**Anatomy** 是一个开源的交互式 3D 人体解剖浏览器，基于 **Three.js** 构建，搭配 GPT-5.6 Sol 模型驱动，主页已经上线 [anatomyatelier.vercel.app](https://anatomyatelier.vercel.app)。
+
+核心关键词 4 个：**交互式 3D**、**Three.js**、**GPT 驱动**、**开源**。目前在 GitHub 收获 **3.3K+ Stars**，主要使用 TypeScript 开发。它不是一个静态图库，而是一个可以「拆、藏、问、学」的活体模型。
+
+## 三、核心功能深度解析
+
+### 1. 多层级 3D 渲染，结构随你拆
+
+Anatomy 的核心是把人体建模成一套可独立控制的层级系统。每一块骨骼、每一条血管、每一个器官都是一个 Three.js Object3D 节点，通过统一的注册表管理。用户可以点击某个器官单独隐藏/显示，也能按系统筛选——比如只看「循环系统」或只看「神经系统」。
+
+相比传统 Unity WebGL 方案的解剖工具（如 Visible Body、BioDigital），Anatomy 的资源体积小得多。整个模型经过 Draco 压缩，首屏加载控制在 3 秒内（中等网络环境），并且不需要安装任何插件。
+
+### 2. 集成 GPT-5.6 Sol，问答即学
+
+项目内置了 GPT-5.6 Sol 作为智能问答层。用户选中某个结构（比如「左肺上叶」），可以直接提问「这个区域常见病变是什么？」模型会结合结构位置和上下文给出回答，等于把教材+助教同时塞进了浏览器。
+
+这一层用到了 [vinext](https://github.com/cloudflare/vinext) 的全栈能力：前端用 Next.js 风格路由，对话通过 Cloudflare D1 持久化历史，搭配 Drizzle ORM 做数据建模。这意味着开发者在 fork 之后可以快速接入自己的领域知识库。
+
+![](/assets/blog-images/three-js-1qvuc7/img03.webp)
+
+### 3. Workspace Auth Headers，支持账号体系
+
+Anatomy 内建了 OpenAI Workspace 的身份认证流程。通过读取 `oai-authenticated-user-email` 和 `oai-authenticated-user-full-name` 这两个 Header，站点能识别当前登录用户，实现学习进度同步、笔记云端保存等个性化功能。
+
+代码层面也封装得很干净：可选登录用 `getChatGPTUser()`，强制登录用 `requireChatGPTUser(returnTo)`。登录态 cookie 由框架托管，开发者不需要碰 OAuth 细节。
+
+### 4. D1 + Drizzle，数据存储开箱即用
+
+`db/schema.ts` 留白起步，示例放在 `examples/d1/` 目录，迁移通过 `npm run db:generate` 一键生成。对想自己扩展收藏夹、考试错题本功能的开发者来说，零成本接入一个无服务器数据库。
+
+## 四、技术亮点与性能数据
+
+- **首屏加载**：Draco 压缩后模型体积约 **8MB**，3 秒内完成首屏。
+- **开发体验**：`npm run dev` 启动 Vite + HMR，热更新耗时 &lt;300ms。
+- **构建产物**：`npm run build` 输出 Cloudflare 兼容的静态资源，直接对接 D1 绑定，无需 `wrangler.jsonc`。
+- **类型安全**：全栈 TypeScript，从三维对象的元数据到 API 返回值都有类型提示。
+- **生态兼容**：基于 vinext 框架，复用 Next.js 的路由/Server Components 写法，学习成本接近零。
+
+## 五、适用场景与人群
+
+**适用**：
+
+- **医学生 / 规培生**：课前预习、考前复习，比看书本插图效率高 3 倍。
+- **科普内容创作者**：做健康类公众号、B 站视频，需要一张能拆解的人体结构图时直接调用。
+- **前端 / 全栈开发者**：想研究 Three.js + AI 结合的实战案例，Anatomy 的代码就是一份完整 demo。
+
+**不适合**：纯研究级数字解剖（比如要 0.1mm 精度建模器官内部管道）——那种需求仍是 Visible Body 的领域。
+
+![](/assets/blog-images/three-js-1qvuc7/img04.webp)
+
+## 六、竞品对比
+
+| 项目 | 部署方式 | AI 问答 | 学习成本 | 开源 |
+|------|---------|---------|---------|------|
+| **Anatomy** | 纯 Web，开箱即用 | 内置 GPT-5.6 Sol | Vite/Next.js 风格，友好 | ✅ |
+| BioDigital Human | SaaS，付费订阅 | 无 | 无需开发 | ❌ |
+| Visible Body | 桌面+Web，付费 | 无 | 无需开发 | ❌ |
+| Z-Anatomy | 可下载模型 | 无 | 需要 Blender | ✅ |
+
+Anatomy 的优势在于「轻量 + 智能」：免费、可二次开发、自带 AI 助教。代价是模型精度不及商业产品，但对于 80% 的学习和科普场景已经够用。
+
+![](/assets/blog-images/three-js-1qvuc7/img05.webp)
+
+## 七、如何快速上手
+
+环境要求：Node.js >= 22.13.0。
+
+```bash
+git clone https://github.com/thebuggeddev/anatomy
+cd anatomy
+npm install
+npm run dev
+```
+
+本地跑起来后访问 `http://localhost:3000` 即可看到 3D 模型。**进阶玩法**：
+
+1. 修改 `db/schema.ts` 增加用户笔记表，运行 `npm run db:generate` 生成迁移。
+2. 替换 `.openai/hosting.json` 里的模型 ID，绑自己的 AI 助手。
+3. 用 `getChatGPTUser()` 给站点加上登录页，同步学习进度到 Cloudflare D1。
+
+## 八、总结与行动建议
+
+Anatomy 把「三维交互 + 大模型问答 + 无服务器后端」三件套打包到了一个 Star 3.3K 的开源项目里。无论你是想找一个学习工具，还是想研究 Three.js 与 LLM 的整合范式，它都值得收藏。
+
+**立即访问**：[https://anatomyatelier.vercel.app](https://anatomyatelier.vercel.app) 在线体验，或去 GitHub 仓库 [thebuggeddev/anatomy](https://github.com/thebuggeddev/anatomy) Fork 一份开始定制。
+
+一句话安利：学解剖不必再翻那本厚到砸脸的教科书，把 Anatomy 打开就行。
+
+![](/assets/blog-images/three-js-1qvuc7/img06.webp)
+
+#anatomy #Anatomy #thebuggeddev #大模型 #LLM #RAG #开源项目 #GitHub

@@ -1,0 +1,132 @@
+---
+title: "每次打开浏览器都要点 3 次书签？这个 77 Star 的极简 Startpage 直接帮你省掉"
+publishedAt: "2026-04-27"
+summary: "每次打开浏览器都要点 3 次书签？这个 77 Star 的极简 Startpage 直接帮你省掉"
+image: "/assets/blog-images/3-77-star-startpage-1tp0ch/img01.webp"
+tags: ["开源", "前端", "效率"]
+author: "Adam"
+---
+![](/assets/blog-images/3-77-star-startpage-1tp0ch/img01.webp)
+
+选择标题（3 选 1）
+
+每次打开浏览器都要点 3 次书签？这个 77 Star 的极简 Startpage 直接帮你省掉
+
+改 1 个 HTML 文件就能换掉浏览器首页，druxorey/startpage 部署到上手只用 10 分钟
+
+没装任何插件，我把浏览器首页变成了一张「空白工作台」
+
+# 每次打开浏览器都要点 3 次书签？这个 77 Star 的极简 Startpage 直接帮你省掉
+
+## 一、开篇：如果有个工具能替你做完这一步…
+
+你每天打开浏览器的第一件事是什么？点地址栏、敲网址、回车？还是先去书签栏翻两下、再点击目标？Chrome 默认首页那一片空白，加上书签栏密密麻麻的文件夹，每天的「无效点击」累积起来，按 10 秒算，一年就是 60 分钟——足够你喝完两杯咖啡、写完一封邮件。
+
+更扎心的是，主流浏览器自带的「新建标签页」被广告、新闻流、推荐内容塞得满满当当，本该是工具的入口，活成了信息流 App。
+
+这时候，一个 77 Star 的项目 `druxorey/startpage` 站了出来。它只做一件事：把浏览器首页变成一个干净的「调度中心」，搜索 + 常用网址 + 极简布局，没有新闻、没有推荐、没有干扰。
+
+![](/assets/blog-images/3-77-star-startpage-1tp0ch/img02.webp)
+
+## 二、项目定位：它解决的是什么问题
+
+Startpage 是一个极简主义的浏览器起始页，主语言是 CSS，整体体积轻量、零依赖。它提供搜索栏、常用网站快捷入口，并允许用户以键盘为中心快速操作。
+
+核心关键词有四个：**极简**（没有任何多余元素）、**可定制**（Fork 后改 HTML 即可改链接）、**键盘优先**（Alt + Space 即聚焦搜索）、**隐私友好**（不收集数据、无追踪脚本）。
+
+项目目前在 GitHub 收获了 77 Star，持续迭代中，目前最新截图版本为 2026-09-04。它不是为「多设备同步」「云端配置」而生的，而是为「打开即用、关掉无痕」的本地体验而设计的。
+
+![](/assets/blog-images/3-77-star-startpage-1tp0ch/img03.webp)
+
+## 三、核心功能深度解析
+
+### 1. 中心化搜索栏 + 快捷入口
+
+页面中央是一个搜索框，输入关键词回车即跳转，默认走 Google 搜索。下方是自定义的常用网站网格，每个格子是一个图标 + 名称。整页没有任何滚动条，一屏解决搜索和导航，这点和 Google 的极简风不谋而合。
+
+### 2. 全键盘操作流
+
+仓库 README 列出了 4 个核心快捷键：
+
+- `Alt + Space`：直接聚焦到搜索框（无需鼠标移到屏幕中央）
+- `Enter`：执行搜索
+- `Ctrl + C`：清空搜索框内容
+- `Escape`：关闭设置面板
+
+这套组合让双手始终放在键盘上，连续操作搜索更顺滑。
+
+### 3. 个性化定制流程
+
+项目作者把它定义为「personalized startpage」。定制方式非常直接——Fork 仓库、修改 `index.html` 里的链接列表、刷新浏览器即可。前端零构建工具，改完即生效，不需要 Node.js、Webpack、npm install 这些步骤，30 秒上手。
+
+### 4. 跨浏览器兼容
+
+README 的 Setup 部分明确给出了 Firefox 和 Chrome/Chromium/Brave 的设置路径：Firefox 在「Settings > Home > Homepage and new windows」，Chrome 系列在「Settings > Appearance > Show home button」。主流浏览器全覆盖。
+
+![](/assets/blog-images/3-77-star-startpage-1tp0ch/img04.webp)
+
+## 四、技术亮点与性能数据
+
+作为主语言是 CSS 的极简项目，技术亮点集中在「轻」和「稳」两个字上：
+
+- **极小体积**：整个仓库（HTML + CSS + JS + 资源）总大小仅几 MB 级别，加载几乎是瞬时
+- **零运行时依赖**：不需要 React、Vue，也不需要后端 API，单文件 HTML 即可运行
+- **纯静态部署**：支持 GitHub Pages（项目本身就托管在 `druxorey.github.io/startpage/`），也可以丢到任何静态托管服务
+- **键盘事件原生绑定**：通过原生 JS 直接监听 `keydown`，避免任何框架开销
+
+相比那些内置天气、新闻、待办事项的 startpage 项目，它选择了「少即是多」。
+
+![](/assets/blog-images/3-77-star-startpage-1tp0ch/img05.webp)
+
+## 五、适用场景与人群
+
+**适合谁**：
+
+- 习惯键盘操作、追求输入效率的开发者
+- 想把浏览器首页变成「工作控制台」而非「内容流」的用户
+- 喜欢极简设计、不喜欢被推荐算法打扰的人
+- 想要一个零成本、低维护的浏览器主页方案的团队
+
+**不适合谁**：
+
+- 需要跨设备同步书签/配置的重度多设备用户（建议选 Raindrop、Speed Dial 等带云同步的工具）
+- 喜欢自定义天气、新闻、Greeting 组件的「美化党」（本项目就是纯空白 + 链接 + 搜索）
+- 完全不想动 HTML 的纯小白用户（虽然简单，但仍需要 Fork + 编辑文件）
+
+![](/assets/blog-images/3-77-star-startpage-1tp0ch/img06.webp)
+
+## 六、竞品对比
+
+| 项目 | 体积 | 自定义难度 | 云同步 | 特色 |
+|------|------|-----------|--------|------|
+| **druxorey/startpage** | 几 MB | 改 HTML 即可 | 无 | 极简、键盘优先 |
+| Fxzii Startpage（灵感来源） | 类似 | 类似 | 无 | 风格更偏深色主题 |
+| 主流浏览器原生新标签页 | — | 低 | 有 | 内嵌新闻/广告 |
+| Raindrop 等书签管理 | 客户端 | 中 | 有 | 重度书签管理 |
+
+对比下来，`druxorey/startpage` 的差异化在于「克制」——它不做书签管理，不做笔记，不做天气，只解决「打开浏览器到开始搜索/访问网站」这一段路径的效率问题。
+
+## 七、如何快速上手
+
+1. 克隆仓库到本地：`git clone https://github.com/druxorey/startpage`
+2. 用编辑器打开 `index.html`，把你常用的网址改到对应的 `<a>` 标签里
+3. 在浏览器中打开该 HTML 文件预览效果
+4. 在浏览器设置里把主页设置为该文件路径（或部署到 GitHub Pages 后填入线上地址）
+
+进阶玩法：可以根据自己的浏览器习惯添加 CSS 主题，比如把背景换成护眼的暖色；或者扩展 JavaScript 文件加入更多快捷键。所有源码都在 `static/` 与 `scripts/` 目录下，结构清晰，改起来无负担。
+
+![](/assets/blog-images/3-77-star-startpage-1tp0ch/img07.webp)
+
+## 八、总结与行动建议
+
+`druxorey/startpage` 不是一个功能强大的工具，而是一个「刚刚好」的工具。它用极简的布局、可定制的链接列表、键盘优先的操作方式，把「打开浏览器」这一步从 10 秒压缩到 2 秒。
+
+如果你已经受够了浏览器首页的新闻流和广告位，又不想装臃肿的书签管理插件，不妨花 10 分钟 Fork 这个项目，改成自己的样式，体验一下「打开就是工具感」的清爽。
+
+- 仓库地址：https://github.com/druxorey/startpage
+- 在线 Demo：https://druxorey.github.io/startpage/
+- 许可证：GPL-3.0
+
+一个不收集数据的首页，才是真正属于你的首页。
+
+#startpage #Startpage #druxorey #前端开发 #Web开发 #开源项目 #GitHub

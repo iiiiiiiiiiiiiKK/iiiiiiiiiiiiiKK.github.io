@@ -1,0 +1,104 @@
+---
+title: "零配置、18KB JS、AI 原生：这个 2.3K Star 的文档生成器把 Docusaurus 按在地上摩擦？"
+publishedAt: "2026-09-02"
+summary: "写完技术文档，下一步是什么？配置 docusaurus.config.js、折腾 React 依赖、调路由、装 Algolia、配 i18n——光是搭个文档站就得半天。官方 README 一句「No React, no …"
+image: "/assets/blog-images/18-kb-js-ai-2-3-k-star-docusaurus-1qh6od/img01.webp"
+tags: ["AI", "开源", "文档"]
+author: "Adam"
+---
+![](/assets/blog-images/18-kb-js-ai-2-3-k-star-docusaurus-1qh6od/img01.webp)
+
+## 一、开篇：为什么你需要这个工具？
+
+写完技术文档，下一步是什么？配置 `docusaurus.config.js`、折腾 React 依赖、调路由、装 Algolia、配 i18n——光是搭个文档站就得半天。官方 README 一句「No React, no bloat, just content.」戳中痛点：在 2024 年，维护一个文档站不该比写文档本身更难。GitHub 上 2329 颗 star、月下载量稳定增长，越来越多开发者用脚投票，告别臃肿框架。
+
+![](/assets/blog-images/18-kb-js-ai-2-3-k-star-docusaurus-1qh6od/img02.webp)
+
+## 二、项目简介：一句话说明它是什么
+
+`docmd`（GitHub：`docmd-io/docmd`，官网 https://docmd.io）是一个零配置的 Markdown 文档站生成器，由 TypeScript 编写，当前版本 `0.9.1`。三个关键词：**零配置**（丢进文件夹即跑）、**轻量**（默认 JS 负载 ~18 KB）、**AI 原生**（自带 RAG 助手、MCP、llms.txt）。支持 7 种语言、官方 Docker 镜像、Node.js 18+。
+
+## 三、核心功能深度解析
+
+### 1. 零配置 + 极速 SPA
+
+运行 `npx @docmd/core dev`，无需 `config` 文件、无 frontmatter、无框架学习成本。导航从文件夹结构自动生成，1.2 秒完成首次构建。输出为静态 HTML + SPA 路由，部署到 Vercel、Cloudflare Pages、Netlify、GitHub Pages 都能直接跑通。
+
+### 2. 体积小到不可思议
+
+默认 JS 负载 ~18 KB，对比 Docusaurus ~250 KB、Mintlify ~120 KB、VitePress ~50 KB，差距是 5 到 14 倍。SEO 标签、sitemap、canonical URL、Open Graph 全内置，搜索是离线全文检索，不依赖任何云服务。
+
+![](/assets/blog-images/18-kb-js-ai-2-3-k-star-docusaurus-1qh6od/img03.webp)
+
+### 3. AI 原生体验
+
+`@docmd/plugin-ai` 提供 RAG 助手，支持 BYOK（自带 Key）或官方 Cloud Relay。`docmd mcp` 通过 stdio 把文档暴露给 AI Agent；构建期自动生成 `llms.txt`、`llms-full.txt`、`OKF`（Open Knowledge Format）多语言知识包。浏览器里一键 Copy as Markdown / Copy Context，直接喂给 LLM。
+
+### 4. 企业级能力开箱即用
+
+多语言（每语言独立搜索索引、hreflang）、版本管理（多版本文档自动识别）、Monorepo 工作区、可扩展插件体系（钩子返回类型校验、async 友好），全部无需额外配置。
+
+![](/assets/blog-images/18-kb-js-ai-2-3-k-star-docusaurus-1qh6od/img04.webp)
+
+## 四、技术亮点与性能数据
+
+**性能指标**：首屏静态 HTML，SPA 路由切换几乎无白屏；JS 负载 ~18 KB；首次构建 1.2 秒（在官方示例数据下）。
+
+**架构亮点**：TypeScript 全量类型；core + ui + 可选插件分层设计；构建期同时产出 RAG 嵌入索引、sitemap、llms.txt、OKF。
+
+**生态兼容**：支持从 Docusaurus、VitePress、MkDocs、Starlight 一键迁移（`docmd migrate`）；预设 Dockerfile、NGINX、Caddy、Vercel、Netlify 部署模板（`docmd deploy`）。
+
+![](/assets/blog-images/18-kb-js-ai-2-3-k-star-docusaurus-1qh6od/img05.webp)
+
+## 五、适用场景与人群
+
+**场景 1：开源项目文档站** — 个人开发者维护中小型项目，需要快速上线 + GitHub Pages 部署。
+
+**场景 2：多语言企业文档** — 跨国团队需要 7 种语言并行输出，且希望 AI Agent 可读。
+
+**场景 3：CI/CD 流水线集成** — 通过 Node API 在 CI 中构建文档（`await build('./docmd.config.json')`），配合 `docmd validate` 做内链检查。
+
+**不适合**：需要高度定制 React 组件的团队（选 Docusaurus）；已经在用 Mintlify 并对其深度集成形成依赖的团队。
+
+## 六、竞品对比
+
+| 维度 | docmd | Docusaurus | VitePress | Mintlify |
+| :--- | :---: | :---: | :---: | :---: |
+| 配置文件 | 不需要 | `docusaurus.config.js` | `config.mts` | `docs.json` |
+| 默认 JS 负载 | **~18 KB** | ~250 KB | ~50 KB | ~120 KB |
+| AI 助手 | 内置（BYOK + Cloud） | 无 | 无 | 内置（仅云） |
+| MCP / llms.txt | 内置 | 无 | 无 | 仅 llms.txt |
+| 价格模型 | 开源免费 | 开源免费 | 开源免费 |  Freemium |
+
+**为什么选 docmd**：当你的优先级是「轻量 + AI 可读 + 零配置」，而不是「React 组件深度定制」，docmd 是当前体验最完整的选择。
+
+![](/assets/blog-images/18-kb-js-ai-2-3-k-star-docusaurus-1qh6od/img06.webp)
+
+## 七、如何快速上手
+
+**安装与启动**（三步搞定）：
+
+1. `mkdir my-docs && cd my-docs`
+2. 把 Markdown 文件丢进 `docs/` 目录
+3. `npx @docmd/core dev`，浏览器打开 `http://localhost:3000`
+
+**生产构建**：`npx @docmd/core build`，输出 `site/` 目录，可直接丢到任意静态托管。
+
+**进阶建议**：用 `docmd init` 生成 `docmd.config.json`；通过 `docmd add <plugin>` 安装 `pwa`、`math`、`openapi` 等可选插件；CI 阶段跑 `docmd doctor` + `docmd validate` 兜底。
+
+## 八、总结与行动建议
+
+`docmd` 用 ~18 KB 的 JS 负载、内置 AI 助手、原生 llms.txt 与 MCP，把「写文档」和「搭文档站」重新分开。它不抢 Docusaurus 的 React 生态，却把轻量 + AI 原生这条路走到了极致。
+
+**项目链接**：
+
+- GitHub：https://github.com/docmd-io/docmd
+- 官网：https://docmd.io
+- 文档：https://docs.docmd.io
+- 在线编辑器：https://live.docmd.io
+- 许可证：MIT
+
+一句话推荐：如果你受够了文档站的搭建开销，让 `npx @docmd/core dev` 成为你下一个项目的第一行命令。
+
+![](/assets/blog-images/18-kb-js-ai-2-3-k-star-docusaurus-1qh6od/img07.webp)
+

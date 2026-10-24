@@ -1,0 +1,106 @@
+---
+title: "跨 NAT 连不通两台机器？tailcat 让你像用 netcat 一样穿透内网"
+publishedAt: "2026-04-13"
+summary: "跨 NAT 连不通两台机器？tailcat 让你像用 netcat 一样穿透内网"
+image: "/assets/blog-images/nat-tailcat-netcat-1jlfif/img01.webp"
+tags: ["开发", "终端", "安全"]
+author: "Adam"
+---
+![](/assets/blog-images/nat-tailcat-netcat-1jlfif/img01.webp)
+
+选择标题（3 选 1）
+
+跨 NAT 连不通两台机器？tailcat 让你像用 netcat 一样穿透内网
+
+一个 Go 二进制打通两台机器：tailcat 把部署时间压到 30 秒
+
+没装 Tailscale 也能用 Tailscale 的网络栈：tailcat 反常识设计拆解
+
+# 一、开篇：从踩坑到真香，只差这一个项目
+
+公司内网那台机器，你 SSH 连过多少次？每次都得开端口映射、找跳板机、申请权限，配错了还得等运维。更糟的是，跨 NAT 环境下，传统 SSH 直连经常失败；想临时给同事开个后门端口，安全审计那一关先把你卡住。
+
+这种痛点，几乎每个后端和运维都经历过：两台机器明明都在线，却因为网络边界没法直连；想跑 `nc` 传个文件，结果两边都在 NAT 后。8269 Star 的 Tailscale 官方项目 **tailcat**，专门解决这个尴尬——它像 netcat 一样轻，却能穿透 NAT、自动加密、零配置跑起来。
+
+![](/assets/blog-images/nat-tailcat-netcat-1jlfif/img02.webp)
+
+# 二、项目简介：一句话说明它是什么
+
+tailcat 是 Tailscale 团队开源的「去控制平面版 Tailscale」，定位是"像 netcat 一样易用，但跑在 Tailscale 的数据通道上"。核心特性包括：WireGuard 端到端加密、NAT 穿透、自动打洞、用用户态网络栈无需 root；里程碑是 GitHub 8269 Star，主仓库语言为 Go。
+
+一句话：把 Tailscale 的打洞与加密能力剥出来，给你一个免账号、免安装内核模块的 netcat。
+
+![](/assets/blog-images/nat-tailcat-netcat-1jlfif/img03.webp)
+
+# 三、核心功能深度解析
+
+### 1. 像 netcat 一样传 stdin/stdout
+
+服务端启动后打印一个短地址（tailcat address），客户端拿到地址就能直接 `echo hello | tailcat <addr>`。所有流量经过 WireGuard 加密，初始握手走 DERP 中继，之后自动尝试 NAT 打洞升级为点对点 UDP。不需要 Tailscale 账号，不需要 root，也不会改你机器的路由表和 DNS。
+
+### 2. 端口转发与代理
+
+支持 `tailcat serve 8080,8443` 把本地端口暴露到对端；也支持 `tailcat serve 5555:10.2.200.213:5555` 这种映射，把服务端局域网里的 Android 设备的 adb 端口单独代理出来，不用开整个 exit-node。客户端可以用 `forward` 子命令把对端端口映射成普通本地端口，给浏览器、数据库客户端等不支持 SOCKS 的工具用。
+
+### 3. SSH 服务与公钥认证
+
+内置 SSH 服务，支持 `~/.ssh/authorized_keys`、OpenSSH 公钥字面量，甚至直接读取 GitHub 账号公钥（`alice@github`）。开启 `--allow` 限制客户端节点密钥后，DNS TXT 记录里公开 tailcat 地址也是安全的——WireGuard 先于 SSH 鉴权，未授权客户端根本碰不到 SSH 层。
+
+### 4. 文件收发与 inetd 风格的命令执行
+
+`tailcat recv ~/inbox` 起一个只写的 drop box；`tailcat cp report.pdf tcXXX:` 就能发文件，背后走系统 `scp` 拿到进度条与 `-r` 递归。`exec` 服务支持像 inetd 一样，每个连接跑一个命令，stderr 留在服务端，还能用 `$TAILCAT_PEER_KEY` 拿到客户端公钥做审计。
+
+### 5. 性能测试与连通性诊断
+
+`tailcat serve perf` + `tailcat perf tcXXX` 提供类 iperf 的吞吐测试，默认 10 秒，支持 TCP/UDP、双向、并行多流，实时打印带宽和延迟。会先等打洞成功才测，避免拿 DERP 中继的限速当成绩。`ping --until-direct` 则持续探测直到打通直连路径。
+
+# 四、技术亮点与性能数据
+
+tailcat 的网络栈完全复用 Tailscale 的成熟组件：用户态 WireGuard（无需内核 TUN）、magicsock（STUN + UDP 打洞）、gVisor Netstack（用户态 TCP/IP）、DERP 中继（加密 rendezvous 协议）。数据平面与控制平面彻底解耦——地址协商通过"带外"任意外传（聊天、邮件、DNS TXT 都可以），不依赖 Tailscale 控制服务器。
+
+性能方面，README 给出的示例数据：直连 943 Mbit/s、rtt 1.2ms，加压后 min 1.9ms / avg 2.3ms / max 4.1ms。每个 tailcat 地址默认携带独立的 256 位预共享密钥（PSK），既防止观察公钥的 DERP 运营者伪造隧道，也提供后量子保护。生态兼容上，覆盖 Linux/macOS/Windows 静态二进制、Homebrew、Scoop、Snap、Nix、AUR、conda-forge，还编译出 WebAssembly 版本，能直接在浏览器收发文件。
+
+![](/assets/blog-images/nat-tailcat-netcat-1jlfif/img04.webp)
+
+# 五、适用场景与人群
+
+至少三个具体场景：① 跨 NAT 给同事临时开个本地端口调试，不需要走工单申请端口映射；② 内网机器通过 exit-node 模式安全地让外部访问特定内网 IP（精细到端口级别，不暴露整个网段）；③ 用 WebAssembly 版本让浏览器和命令行之间互传文件，零安装。
+
+适合：DevOps / SRE 临时远程处置、研发跨网络调试、需要在受限机器（无 root）上点对点传文件的人。不适合：需要长期稳定对外提供服务的生产场景（API/CLI 不承诺稳定性）；不愿自行管理 DERP 中继又对公网共享中继带宽敏感的重度吞吐场景。
+
+# 六、竞品对比
+
+| 项目 | 控制平面依赖 | 鉴权方式 | 是否需 root | 端口转发 |
+|-----|--------------|----------|-------------|----------|
+| tailcat | 无（地址带外传递） | 预共享密钥 + 可选客户端节点密钥 | 否 | 支持（精细到端口映射） |
+| Tailscale 客户端 | Tailscale 控制服务器 | Tailscale 账号 | 否（用户态） | 全网/子网路由 |
+| 传统 SSH 反向隧道 | 无 | SSH 公钥 | 通常需要 | 端口级 |
+| frp / ngrok | 自建/付费服务器 | token | 通常需要 | 端口级 |
+
+相对 Tailscale 全量客户端，tailcat 不需要账号、不改路由表，适合临时场景；相对 frp/ngrok，它自带 NAT 穿透和加密，不依赖固定的公网中继服务器。
+
+![](/assets/blog-images/nat-tailcat-netcat-1jlfif/img05.webp)
+
+# 七、如何快速上手
+
+Linux 一行装好（以 Debian/Ubuntu 为例）：从 GitHub Releases 下载静态二进制加执行权限即可，macOS 用 `brew install tailscale/tap/tailcat`，Windows 用 `scoop`。
+
+最小可用示例：服务端 `tailcat serve 8080`，记下打印的 `tcXXX...`；客户端 `tailcat tcXXX... 8080`，再在浏览器打开 `http://127.0.0.1:8080`。
+
+进阶建议：① 需要稳定地址时用 `tailcat genkey --key=default --fixed-region` 把密钥落盘并绑定 DERP 区域；② 暴露到公网务必加 `--allow=nodekey:...` 或 `--ssh-authorized-keys`，否则地址泄露等于肉鸡；③ 重吞吐场景自己跑一个 `derper`，然后 `tailcat genkey --region=derp.example.com` 完全摆脱共享中继的限速。
+
+![](/assets/blog-images/nat-tailcat-netcat-1jlfif/img06.webp)
+
+# 八、总结与行动建议
+
+tailcat 核心价值：把 Tailscale 的 NAT 穿透 + WireGuard 加密能力，做成一个免账号、免 root、免安装内核模块的 netcat 替代品。一个短地址就是一整套加密隧道，分享方式灵活（聊天、邮件、DNS TXT 都行）。
+
+使用建议：临时调试用默认临时密钥；长期服务落盘密钥 + `--allow` 锁客户端；对外发布走 `--ssh-authorized-keys` 的 SSH 模式而不是 `no-auth-ssh`。
+
+项目地址：GitHub `tailscale/tailcat`、官网 `tailscale.com/tailcat`、Go 文档 `pkg.go.dev/github.com/tailscale/tailcat`。
+
+一句话安利：要 netcat 的简洁，又想要 WireGuard 的安全与 NAT 穿透——tailcat 把两件事一次给你。
+
+![](/assets/blog-images/nat-tailcat-netcat-1jlfif/img07.webp)
+
+#tailcat #Tailcat #tailscale #开源项目 #GitHub

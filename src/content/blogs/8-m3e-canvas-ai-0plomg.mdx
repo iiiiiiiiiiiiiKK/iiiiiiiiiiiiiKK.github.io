@@ -1,0 +1,103 @@
+---
+title: "产品改 8 版还差一版？用 M3E Canvas 把草图直接喂给 AI 编程工具"
+publishedAt: "2026-04-10"
+summary: "产品改 8 版还差一版？用 M3E Canvas 把草图直接喂给 AI 编程工具"
+image: "/assets/blog-images/8-m3e-canvas-ai-0plomg/img01.webp"
+tags: ["AI", "开源", "写作"]
+author: "Adam"
+---
+![](/assets/blog-images/8-m3e-canvas-ai-0plomg/img01.webp)
+
+选择标题（3 选 1）
+
+产品改 8 版还差一版？用 M3E Canvas 把草图直接喂给 AI 编程工具
+
+5 分钟拼出可跳转原型，M3E Canvas 一键导出 Claude Code 提示词
+
+不写一行后端代码，M3E Canvas 如何 5 分钟拼出带跳转的 App 原型
+
+# 画 5 分钟草图，AI 直接帮你把 App 做出来：M3E Canvas 9000+ Stars 的秘密
+
+## 一、开篇：设计师和程序员之间，缺的不是一句话，是一张能点一点试试的图
+
+产品经理在文档里写下"做一个食谱 App，底部 4 个 Tab"，这句话到开发手里通常会走样。设计师打开 Figma 精心排版，标注和交付又耗去半天；等第一版跑起来，颜色不对、跳转生硬、组件错位，再来一轮。Vibe Coding 时代号称"说一句话就有 App"，可当一句"做个像样的聊天界面"丢给 AI 工具时，生成的往往是一份字段乱排、间距随缘的产物。问题真的只差一行提示词吗？差的是一份带尺寸、带跳转、带主题、机器能直接照着画的设计稿。M3E Canvas 把这一步压进了浏览器里。
+
+![](/assets/blog-images/8-m3e-canvas-ai-0plomg/img02.webp)
+
+## 二、项目定位：浏览器里的 Material 3 Expressive 设计画布，自带 AI 提示词出口
+
+M3E Canvas 是一个完全跑在浏览器里的 Material 3 Expressive 界面拼装工具，由 lnkiai 用 TypeScript + Next.js 16 + React 19 开发，GitHub 上已收获 **9023 Stars**，曾登顶 Trendshift 每日榜第一。它的核心定位可以概括为四个关键词：**可视化拼装、原生 M3 规范、跳转交互可预览、一键导出 AI 提示词**。无后端、无账号、设计稿存进 localStorage，打开页面就能用。
+
+![](/assets/blog-images/8-m3e-canvas-ai-0plomg/img03.webp)
+
+## 三、核心功能深度解析
+
+### 1. 全套 Material 3 Expressive 组件，拖出来就是规范稿
+
+M3E Canvas 内置了按钮、图标按钮、FAB、拆分按钮、FAB 菜单、芯片、应用栏、导航栏、悬浮工具栏、标签页、搜索栏、卡片、列表、对话框、消息条、文本输入框、下拉菜单、开关、复选框、单选按钮、滑块、文本、图片、相机和地图占位符、徽标、容器框、分割线等组件，**全部按 Material 3 Expressive 规范绘制**。这意味着拖到画布上的 FAB，自带悬浮阴影与形态语义；卡片自带 M3 的圆角与状态层。设计师无须再对着规范文档逐项调样式。
+
+### 2. 磁吸连接：把"拼接感"还给低保真
+
+拖两个按钮或列表项靠近，它们会**自动磁吸成一组**，接触处的圆角会平滑过渡，看上去像真实 App 里的连续组件。搭配一键"整理"功能，栏贴边、FAB 入角、相邻项合并、剩余组件按 16dp 边距重新堆叠，再点一次还能撤销。这种细节让草图不像草图，更像可以直接交付的线框稿。
+
+### 3. 真机尺寸预览 + 跳转交互，所见即所得
+
+任意屏幕可在 **412×892 手机**与 **1280×800 桌面**之间切换，导航栏变成侧边栏、组件自动重排。给任何可点击组件指定目标屏幕（或"返回"）和过渡（上下左右四向滑动 / 淡入 / 放大 / 无），画布上即出现跳转箭头。**预览模式直接点一点体验**：屏幕跟随手指滑动，按返回键时过渡反向播放。同名屏幕会在提示词中写成"同一屏幕的两种宽度"，一套设计同时覆盖手机与桌面。
+
+### 4. 主题四轴 + 多语提示词输出，对接 Claude Code / Codex / Cursor
+
+一个面板里调齐 M3 Expressive 的四个维度：**色彩**（7 套预设或 1 个基准色衍生整套方案，浅深色、三档对比、动态取色）、**形状**（全部件圆角一键切换）、**字体**（Roboto/Roboto Flex/Roboto Serif/系统字体，强调样式）、**动效**（标准或富有表现力的弹簧方案）。完成后，整套设计（单屏或全部）直接生成 **日 / 英 / 中 / 韩** 四种语言的自然语言提示词，目标平台可选 Android 或 Web。把提示词粘贴进 Claude Code、Codex、Gemini CLI 或 Cursor，AI 即可按规范生成实现代码；导出 PNG 或生成分享链接也一键完成。
+
+![](/assets/blog-images/8-m3e-canvas-ai-0plomg/img04.webp)
+
+## 四、技术亮点与性能数据
+
+技术栈层面，M3E Canvas 基于 Next.js 16 + React 19 静态导出，部署在 GitHub Pages，访问延迟等同于纯静态资源首屏。架构上有三个亮点：第一，**完全无后端**，API Key 由用户自填并直连 OpenAI、Claude、Gemini、DeepSeek，中间无服务器中转，隐私更可控；第二，**持久化用 localStorage**，刷新或断网都不会丢稿；第三，**手机也能用**，小屏自动切换为单屏按钮专属编辑器，底部面板编辑文字图标样式，PC 上才是完整的多屏编辑器，**同一份工程兼容两端**。配套能力同样到位：对齐辅助线、撤销 / 重做、键盘快捷键（V/H 切换工具、Ctrl+Z 撤销、方向键以 8dp 步进微调、P 进入预览等）、收藏组件、加载动画直接移植自 `material-components-android`，与原生观感保持一致。
+
+![](/assets/blog-images/8-m3e-canvas-ai-0plomg/img05.webp)
+
+## 五、适用场景与人群
+
+适合三类人：**前端 / 全栈开发者**，需要给 AI 编程工具喂一份结构清晰的草图而不是模糊描述；**产品经理与设计师**，想在和开发同步之前，先在浏览器里拼出可点可滑的真实低保真，并直接拿到提示词；**独立开发者和 Maker**，想快速验证一个 App 概念又不想开 Figma。也适合做团队评审的现场演示，不适合追求像素级品牌定制或需要严谨设计系统对齐的大型项目。
+
+## 六、竞品对比
+
+| 工具 | 类型 | M3 Expressive 合规 | 多屏幕跳转预览 | 直接输出 AI 提示词 | 无后端 |
+|---|---|---|---|---|---|
+| **M3E Canvas** | 浏览器画布 | 原生支持 | 内置 | 支持（中/英/日/韩） | ✅ |
+| Figma | 通用设计工具 | 通过插件 | 需 ProtoPie 等 | 无直接出口 | ❌ |
+| v0.dev / Bolt | AI 生成代码 | 仅 Web | 无 | 反向（文→图） | ❌ |
+| Excalidraw | 草图工具 | 无 | 无 | 无 | ✅ |
+
+M3E Canvas 的差异化在于把 **"M3 合规画布"** 与 **"提示词输出"** 合二为一，去掉了从原型到 AI 代码之间的"二次翻译"环节。
+
+## 七、如何快速上手
+
+三步即可跑起来。
+
+1. **打开在线版**：访问 https://lnkiai.github.io/m3e-canvas/，无需登录。
+2. **拼界面 + 配跳转**：拖组件、连屏幕、给关键按钮指目标、设过渡，点 P 进入预览验证一遍。
+3. **导提示词喂给 AI**：右上角切换语言和目标平台（Android 默认 / Web），复制提示词，粘贴进 Claude Code / Codex / Cursor，附带一句"按这个提示词实现"。
+
+要在本地开发：
+
+```bash
+git clone https://github.com/lnkiai/m3e-canvas
+cd m3e-canvas
+npm install
+npm run dev   # http://localhost:3000
+```
+
+若部署到 GitHub Pages 项目站，build 时设置环境变量 `NEXT_PUBLIC_BASE_PATH=/仓库名`，仓库已自带 CI 自动发布到 `out/`。
+
+![](/assets/blog-images/8-m3e-canvas-ai-0plomg/img06.webp)
+
+## 八、总结与行动建议
+
+M3E Canvas 把"画草图"和"写提示词"压成了同一步：拖组件、配主题、连跳转、点预览、复制提示词，扔进任何支持 prompt 的 AI 编程工具就能开工。**它的核心价值是替你和 AI 之间搭一座带规范的桥**——避免 AI 反复猜你想要什么，也避免反复修改对齐间距。9K+ Star、MIT 协议、四语社区，零成本试用。
+
+立即行动：打开 https://lnkiai.github.io/m3e-canvas/ 拼一个你最常做的页面，把生成的提示词丢进你常用的 AI 工具，10 分钟内对比一下与你之前纯文本描述的差异。仓库与文档：https://github.com/lnkiai/m3e-canvas。
+
+![](/assets/blog-images/8-m3e-canvas-ai-0plomg/img07.webp)
+
+#m3e-canvas #M3eCanvas #lnkiai #开源项目 #GitHub

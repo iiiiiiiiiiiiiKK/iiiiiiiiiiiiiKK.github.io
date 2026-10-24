@@ -1,0 +1,201 @@
+---
+title: "私藏 5 个我每天都在用的开源神器，专治配图与配色"
+publishedAt: "2026-06-19"
+summary: "私藏 5 个我每天都在用的开源神器，专治配图与配色"
+image: "/assets/blog-images/5-1qff5p/img01.webp"
+tags: ["开源", "视频", "写作"]
+author: "Adam"
+---
+![](/assets/blog-images/5-1qff5p/img01.webp)
+
+选择标题（3 选 1）
+
+私藏 5 个我每天都在用的开源神器，专治配图与配色
+
+5 个让我下班早一会的开源项目，一次性安利给你
+
+写文章做封面必备：5 个真香级开源插画与配色工具
+
+## 一、开篇：这个痛点，几乎每个开发者都踩过
+
+技术文章写到一半，需要一张配图解释机制；产品方案想画一张流程图，自己调色二十分钟还没动手；写好的脚本想让 SVG「一笔一笔画出来」，却发现要在浏览器里折腾半天的 Canvas；想做一组风格统一的短视频封面，又卡在「先定什么色」。这些不是大问题，但每天都重复一次，时间就被慢慢吃掉了。下面这 5 个开源项目，就是我私藏里专治这类「零碎但高频」麻烦的工具。
+
+![](/assets/blog-images/5-1qff5p/img02.webp)
+
+## 二、项目速览
+
+| 项目 | Stars | 语言 | 一句话定位 |
+|------|------:|------|-----------|
+| op7418/guizang-material-illustration | 1.16k | — | 中文标签材质插画 Skill，专做「中间那张能讲清楚的图」 |
+| adrianpunk/punk-ip-illustrations | 198 | Python | 上传照片建个人 IP，再用统一画风给文章配图 |
+| shaom/svg-hand-drawn-skill | 252 | JavaScript | 把任意 SVG 变成可一键播放的手绘动画 |
+| cathrynlavery/diagram-design | 41.5k | HTML | 编辑级图表 Skill，自包含 HTML+SVG，告别 Mermaid 廉价感 |
+| irenerachel/style-pack-skill | 55 | Python | 从参考图提取视觉 DNA，强制产出标注 + 纯色双版色卡 |
+
+## 三、项目解析
+
+### op7418/guizang-material-illustration — 中文标签材质插画，让「中间那张图」真的能讲清楚
+
+这是一个给 Claude Code / Codex 用的配图 Skill，**解决的是文章、PPT、小红书卡片里「中间那张图」该怎么画的问题**：既不能是抽象到看不懂的氛围图，也不能是堆满无字装饰的漂亮废图。它专门生成带中文标签的材质插画，覆盖流程图、机制图、对比图、层级图、场景解释图，乃至柱状图、桑基图这种材质化图表的二次美化。**克制的 Swiss editorial 构图、柔和 3D 材质、少量高亮色**，是它默认的视觉语言。
+
+**适合谁**：做技术博客、产品文档、教学材料、公众号 / 小红书长图、需要把冷门概念（PKCE、Zettelkasten、Andon 等）可视化的作者。
+**不适合谁**：需要出版级科研数据图、整张小红书卡片版式（这活归配套的 Social Card Skill）、人像写真。
+
+**最小上手**
+
+直接告诉 Agent：
+
+```
+帮我安装这个 skill：https://github.com/op7418/guizang-material-illustration
+```
+
+或者手动：
+
+```bash
+git clone https://github.com/op7418/guizang-material-illustration.git ~/.claude/skills/guizang-material-illustration
+```
+
+装好后直接说：
+
+```
+用歸藏的材质插画 skill，帮我把这段 PKCE 说明做成一张带中文标签的流程图。
+```
+
+*开源地址：* **https://github.com/op7418/guizang-material-illustration**
+
+![](/assets/blog-images/5-1qff5p/img03.webp)
+
+### adrianpunk/punk-ip-illustrations — 一次建角，全文复用，个人 IP 配图流水线
+
+这个 Skill 把「打造个人 IP 插画」拆成一条清晰流水线：先选画风（松散线描水彩 / 复古彩色扁平 3D），再上传一张人物照片，自动产出多视图角色设定图、单人物参考图和角色规范；用户确认后，**Skill 会自动读取整篇文章，按信息密度决定配图数量，逐张生成 16:9 小剧场插图**。配套还有「流程拆解 / 核心动作」两种模式，能直接插入 Markdown 原文，自动找段落锚点，不会塞进句子或列表里。
+
+**适合谁**：公众号 / 知乎专栏作者、产品经理写教程、个人品牌内容创作者。
+**不适合谁**：只想一次性产出零散插画、对角色一致性没要求的人——直接用通用 AI 出图反而更轻。
+
+**最小上手**
+
+直接告诉 Agent：
+
+```
+请帮我安装这个 Agent Skill：https://github.com/adrianpunk/punk-ip-illustrations
+```
+
+或者手动（macOS / Linux）：
+
+```bash
+git clone https://github.com/adrianpunk/punk-ip-illustrations.git ~/.codex/skills/punk-ip-article-illustrations
+```
+
+装好上传一张照片后说：
+
+```
+使用 $punk-ip-article-illustrations，选择松散线描水彩风格，请根据我上传的照片创建"小明"个人 IP。
+```
+
+*开源地址：* **https://github.com/adrianpunk/punk-ip-illustrations**
+
+![](/assets/blog-images/5-1qff5p/img04.webp)
+
+### shaom/svg-hand-drawn-skill — 一句话把任意 SVG 变成手绘动画
+
+仓库非常小，只做一件事：把 SVG 转成「一笔一笔画出来」的可播放预览页。Skill 默认交付两份资产——一个 `preview.html`（浏览器里直接看动画）和一个 `player.js`（嵌入到任何网页里的播放核心）。**默认先画 SVG 路径，再填充色块，并尽量保留源图色彩**，路径动画 + 颜色渐入的组合对技术博客、产品 Demo、文档站都很友好。
+
+播放器 API 同样克制：`play()` / `pause()` / `seek(ratio)` / `setSpeed(value)` / `destroy()`，没有多余依赖。
+
+**适合谁**：写技术文章想给 SVG 加点镜头感、做产品发布页想加 loading 动画、搭文档站想让示意图「活起来」的前端 / 设计同学。
+**不适合谁**：需要 Lottie 级精细交互、或要把位图也做成手绘——这套只吃 SVG。
+
+**最小上手**
+
+把仓库克隆到客户端 Skills 目录：
+
+```bash
+git clone https://github.com/shaom/svg-hand-drawn-skill.git
+```
+
+装好后直接对 Agent 说：
+
+```
+把这个 SVG 变成手绘预览页，输出 preview.html 和 player.js。SVG 路径是 examples/svg-player-demo/975549_OGFB9T1.svg。
+```
+
+要嵌入自己页面的话：
+
+```html
+<div id="svg-player"></div>
+<script src="./player.js"></script>
+<script>
+  createSvgHanddrawPlayer("#svg-player", { svgMarkup: "<svg>...</svg>", speed: 1 });
+</script>
+```
+
+*开源地址：* **https://github.com/shaom/svg-hand-drawn-skill**
+
+### cathrynlavery/diagram-design — 编辑级图表 Skill，告别 Mermaid 廉价感
+
+这是个 4 万 Star 的狠角色，专治「AI 出的图太丑，自己画又没时间」。它给 Claude Code / Codex / Pi 提供了一整套编辑级图表模板：**自包含 HTML + SVG，无阴影、无圆角盒、无配色纠结**。每种图都给出 minimal light、minimal dark、full-editorial 三套静态变体，浏览器直接打开就行，没有构建步骤。新版本还加入了 Loop / 飞轮、Sankey、鱼骨图、Wardley map、Kanban、UML 类图等十种布局语法。
+
+它最大的特点是**「品牌适配」能力**：读你的网站 60 秒内取主色，再也不用来回改 Figma。还能把你已有的 draw.io / Mermaid / Excalidraw 源文件按指定尺寸和细节等级重画。
+
+**适合谁**：写架构文档、技术博客、产品周报，需要长期保持视觉一致性的作者和团队。
+**不适合谁**：只想要一张随手流程图、不在意是否好看的人——Mermaid 还是更省事。
+
+**最小上手**
+
+把仓库克隆到 Skills 目录：
+
+```bash
+git clone https://github.com/cathrynlavery/diagram-design.git
+```
+
+装好后直接对 Agent 说：
+
+```
+用 diagram-design 帮我画一张架构图：客户端 → API 网关 → 用户服务 → 订单服务 → PostgreSQL，主色取我网站 nav 上的蓝色。
+```
+
+*开源地址：* **https://github.com/cathrynlavery/diagram-design**
+
+![](/assets/blog-images/5-1qff5p/img05.webp)
+
+### irenerachel/style-pack-skill — 从参考图里抽视觉 DNA，强制产出双版色卡
+
+做短视频封面、AI 配图、品牌衍生设计时，最容易卡的就是「先定什么色」。这个 Skill 强制走一条严肃流程：从电影剧照、视频截图或参考图文件夹里**提取可复用的视觉 DNA**——只复用色彩、光影、构图、镜头、材质和节奏，绝不复制作品里的具体元素。每个正式分组必须强制生成两张 `1920×1080` RGB PNG 色卡：标注色卡（带角色编号、中文色名、大写 HEX）和纯色色卡（10 个满版色块，无任何文字或边框）。色彩模型固定为 **3 主色 + 5 辅助色 + 2 点缀色**，并配套脚本严格验收，缺一张就判定失败。
+
+**适合谁**：做 AI 视频 / 短剧 / 漫画分镜、需要稳定风格产出的创作者和工作室。
+**不适合谁**：只想调一张图随便看看——它的色卡生成和验收是给批量生产用的。
+
+**最小上手**
+
+克隆仓库到 Skills 目录：
+
+```bash
+git clone https://github.com/irenerachel/style-pack-skill.git 风格包
+```
+
+装好后直接对 Agent 说：
+
+```
+用风格包 skill 帮我从 ./references/wong-kar-wai/ 这个文件夹提取视觉风格 DNA，生成两组色卡并出 JSON 色值。
+```
+
+需要本地验证的话：
+
+```bash
+python3 scripts/validate_palette_cards.py "./references/wong-kar-wai"
+```
+
+==注意：脚本依赖 Python 3 + Pillow + NumPy + OpenCV==
+
+*开源地址：* **https://github.com/irenerachel/style-pack-skill**
+
+![](/assets/blog-images/5-1qff5p/img06.webp)
+
+## 四、总结与行动建议
+
+- 每天写技术文档或博客：**先装 `cathrynlavery/diagram-design`，再装 `op7418/guizang-material-illustration`**，两者组合能覆盖 80% 的「图不够用」场景。
+- 做个人内容品牌、需要角色一致性：把 `adrianpunk/punk-ip-illustrations` 跑一遍，先建好你自己的角色。
+- 有视频 / 视觉风格统一需求：`irenerachel/style-pack-skill` 的双版色卡是生产线的纪律保证，按需深入即可。
+- 想让 SVG「动起来」：`shaom/svg-hand-drawn-skill` 现成可用，零依赖。
+
+#AI视频剪辑 #脚本化视频 #口播视频 #GuizangMaterialIllustration #PunkIpIllustrations #SvgHandDrawnSkill #DiagramDesign #StylePackSkill #guizang-material-illustration #punk-ip-illustrations

@@ -1,0 +1,192 @@
+---
+title: "别再自己造轮子：这 5 个开源项目值得收藏"
+publishedAt: "2026-06-20"
+summary: "这 5 个 GitHub 项目，帮我省下了好几个 SaaS 月费"
+image: "/assets/blog-images/5-i9f0t3/img01.webp"
+tags: ["开源", "文档", "前端"]
+author: "Adam"
+---
+![](/assets/blog-images/5-i9f0t3/img01.webp)
+
+选择标题（3 选 1）
+
+私藏 5 个我每天都在用的开源神器
+
+这 5 个 GitHub 项目，帮我省下了好几个 SaaS 月费
+
+别再自己造轮子：这 5 个开源项目值得收藏
+
+## 一、开篇：别再手动折腾它了
+
+上周帮运营同事搭一个"客户续费看板"，她盯着 Excel 半天没动手——不是因为不会写 SQL，是嫌前端组件拼起来太磨人。同一周，另一个团队在用 Runbook 跑线上发布流程，靠的是一个 Web 控制台点几下就完事。还有朋友在自建邮件营销系统，把 Mailchimp 的订阅费直接砍到零。这几件事背后，都指向今天这五个项目。
+
+## 二、项目速览
+
+| 仓库 | Stars | 语言 | 一句话定位 |
+|---|---|---|---|
+| ToolJet/ToolJet | 40.9K | JavaScript | 拖拽 + AI 生成内部工具的平台 |
+| rundeck/rundeck | 6.3K | Groovy | 自服务化运维 runbook 自动化 |
+| Notifuse/notifuse | 2.2K | Go | 自托管邮件营销 + 事务邮件 |
+| zed-industries/zed | 90.6K | Rust | Atom 团队打造的高性能多人协作编辑器 |
+| bigskysoftware/htmx | 49.5K | JavaScript | 用 HTML 属性直接驱动 AJAX 的轻量库 |
+
+![](/assets/blog-images/5-i9f0t3/img02.webp)
+
+## 三、项目解析
+
+### ToolJet/ToolJet — 把内部工具开发压到"一句话"
+
+它是一个开源内部工具搭建平台，专门做管理后台、数据看板、运营工具这类东西。**核心能力是 80+ 可视化组件 + 90+ 数据源**，连 PostgreSQL、MySQL、MongoDB、Stripe、Slack 都直接能拖进来用。最新版还接入了 MCP 协议，Claude Code、Codex、Cursor 这些写代码的 AI agent 可以直接生成 ToolJet 应用，调用的是平台真实的组件契约，不是凭空瞎编。
+
+技术亮点上，社区版可以一键 Docker 起服务，配置文件挂载 `/var/lib/postgresql/13/main` 就能持久化；企业版则多了 AI 应用生成、查询生成、智能体构建器。==注意：LTS 版本比 latest 更适合生产==，官方明确建议升级时走 LTS。
+
+适合谁：
+- 中小企业想快速搭 CRM、审批流、运营后台
+- 没有专职前端但需要自定义面板的团队
+- 已经用 Claude Code / Cursor 的团队，想让 AI 直接生成可用应用
+
+不适合谁：
+- 只想要一个简单 BI 看板的人
+- 严重依赖定制化复杂交互的产品
+
+**最小上手**
+
+一行 Docker 起服务：
+
+```bash
+docker run --name tooljet --restart unless-stopped \
+  -p 80:80 --platform linux/amd64 \
+  -v tooljet_data:/var/lib/postgresql/13/main \
+  tooljet/try:ee-lts-latest
+```
+
+*开源地址：* **https://github.com/ToolJet/ToolJet**
+
+### rundeck/rundeck — 让运维流程像点外卖一样简单
+
+Rundeck 是 PagerDuty 旗下老牌 runbook 自动化平台，**专门解决"运维脚本散落各处、新人不敢动手"的问题**。它把 SSH 脚本、Ansible Playbook、JOB 执行流全部塞进一个 Web 控制台，配上基于角色的访问控制，普通工程师也能点按钮完成生产操作，不用每次都找 SRE。
+
+它提供 Web 控制台、命令行工具、WebAPI 三种入口。Job 用 YAML 定义，节点可以是固定主机列表，也可以动态匹配 tag；调度、定时、失败重试、审批流全都内置。技术栈是 Java 11 + Node 18，主产物是 `rundeckapp/build/libs/rundeck-X.Y.war`，也能直接打 Docker 镜像。
+
+适合谁：
+- 中小团队没有专业 Ansible Tower / Jenkins X
+- 想让产品和客服也能自助重启服务、清理日志
+- 审计要求高，需要每次操作的执行人和日志
+
+不适合谁：
+- 个人小项目，一两条 cron 就够
+- 完全无服务器的纯函数计算场景
+
+**最小上手**
+
+直接下载 WAR 包跑：
+
+```bash
+java -jar rundeck-X.Y.war
+```
+
+或者打 Docker 镜像：
+
+```bash
+./gradlew :docker:officialBuild
+```
+
+*开源地址：* **https://github.com/rundeck/rundeck**
+
+### Notifuse/notifuse — 自托管的 Mailchimp 平替
+
+Notifuse 是一个**完全自托管的邮件营销 + 事务邮件平台**，后端 Go、前端 React。邮件营销部分提供可视化 MJML 编辑器、Liquid 模板（`{{ contact.first_name }}` 直接用）、A/B 测试、订阅者分群；事务邮件部分则提供 REST API 和 Webhook。
+
+它内置了 7 个发送方：Amazon SES、Mailgun、Postmark、Mailjet、SparkPost、SendGrid、SMTP，你不用被单一供应商绑定。自动化流程是画布式编排，节点包括 `delay`、`email`、`branch`、`filter`、`ab_test`、`webhook`，每个用户的状态独立追踪。**还附带一个 cookieless 网站分析模块 Staminads**，用 PostgreSQL 就跑起来，不依赖 ClickHouse，~21KB 的脚本就能接入。
+
+适合谁：
+- 想摆脱 Mailchimp / Brevo 高昂月费的 SaaS 项目
+- 需要自托管、GDPR 友好的团队
+- 同时要跑营销邮件和事务邮件的开发团队
+
+不适合谁：
+- 完全没有运维资源、想直接用 SaaS 的非技术团队
+- 单日发送量上千万、需要专用集群的企业
+
+**最小上手**
+
+跑官方 Docker 镜像：
+
+```bash
+docker run -d -p 8080:8080 notifuse/notifuse:latest
+```
+
+然后访问控制台完成初始化向导，填入 SES 或 Mailgun 凭证即可。
+
+*开源地址：* **https://github.com/Notifuse/notifuse**
+
+![](/assets/blog-images/5-i9f0t3/img03.webp)
+
+### zed-industries/zed — Atom 团队交出的"快到没朋友"编辑器
+
+Zed 是 Atom 和 Tree-sitter 原班人马做的新一代代码编辑器，**用 Rust 写，启动速度是 Sublime 级别，编辑流畅度对标 VS Code**。原生支持多人协作：你和朋友同时打开同一个项目，可以实时看到对方的光标、选区和编辑，跟 Google Docs 写代码一样。
+
+它自带 LSP 协议支持、Tree-sitter 语法高亮、内置 Terminal、Vim 模式、远程开发。代码许可主要是 GPL-3.0-or-later，少量 Apache-2.0 组件。**目前已支持 macOS、Linux、Windows**，但 Web 版还在追踪讨论阶段。
+
+适合谁：
+- 写 Rust / Go / 前端的大文件重度用户
+- 远程 pair programming 的小团队
+- 从 Atom 迁移过来、想要丝滑体验的人
+
+不适合谁：
+- 完全依赖某款 VS Code 专属扩展的开发者
+- 在 Chromebook 等受限平台上工作的人
+
+**最小上手**
+
+macOS 一键安装：
+
+```bash
+brew install --cask zed
+```
+
+装好后直接 `zed .` 打开项目即可。
+
+*开源地址：* **https://github.com/zed-industries/zed**
+
+![](/assets/blog-images/5-i9f0t3/img04.webp)
+
+### bigskysoftware/htmx — 让 HTML 重新拥有超能力
+
+htmx 走的是另一条路：**只有 ~14KB min.gz，无依赖**，通过给 HTML 加属性就能发 AJAX、CSS Transitions、WebSocket、SSE。`<button hx-post="/clicked" hx-swap="outerHTML">` 这一行就能让按钮点击后用服务端返回内容替换自己，写过 jQuery 的人会非常熟悉。
+
+它的哲学是"补完 HTML"——凭什么只有 `<a>` 和 `<form>` 能发 HTTP 请求？凭什么只有 click 和 submit 能触发？htmx 把这些限制全拆掉，让任意元素、任意事件、任意方法（GET/POST/PUT/DELETE）、任意替换策略都能用。**对后端开发者极其友好**，不用引前端构建链、不用写 SPA，服务端渲染 + 一点点 htmx 属性就能做出丝滑交互。
+
+适合谁：
+- Django / Rails / Laravel / Go 等服务端渲染项目
+- 想用最少 JS 做出现代交互的小团队
+- 对前端 bundle 体积敏感、SEO 要求高的项目
+
+不适合谁：
+- 已经深度绑定 React/Vue 的大型 SPA
+- 需要复杂客户端状态管理的应用
+
+**最小上手**
+
+CDN 引入：
+
+```html
+<script src="https://cdn.jsdelivr.net/npm/htmx.org@2.0.10/dist/htmx.min.js" crossorigin="anonymous"></script>
+<button hx-post="/clicked" hx-swap="outerHTML">Click Me</button>
+```
+
+或者通过 npm：
+
+```bash
+npm install htmx.org --save
+```
+
+*开源地址：* **https://github.com/bigskysoftware/htmx**
+
+![](/assets/blog-images/5-i9f0t3/img05.webp)
+
+## 四、总结与行动建议
+
+如果只能挑一个先装，**ToolJet 适合拿来解决最痛的"内部工具没人做"问题**，搭一个客户续费看板就能立刻看到效果。**Zed 推荐给每天写代码的人**，半小时就能感受到和 VS Code 的差别。剩下的 Notifuse、Rundeck、htmx 按场景按需上，邮件量大就上 Notifuse，运维流程想规范化就上 Rundeck，后端项目想减少 JS 就上 htmx。
+
+#AI视频剪辑 #脚本化视频 #口播视频 #Tooljet #Rundeck #Notifuse #Zed #Htmx #zed-industries #bigskysoftware

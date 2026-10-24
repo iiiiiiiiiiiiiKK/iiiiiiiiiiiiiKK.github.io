@@ -1,0 +1,125 @@
+---
+title: "看完 100 本书还是用不起来？Cangjie Skill 把书压成 Agent 真能调用的工具"
+publishedAt: "2026-07-09"
+summary: "看完 100 本书还是用不起来？Cangjie Skill 把书压成 Agent 真能调用的工具"
+image: "/assets/blog-images/100-cangjie-skill-agent-dlfpvr/img01.webp"
+tags: ["AI", "Agent", "视频"]
+author: "Adam"
+---
+![](/assets/blog-images/100-cangjie-skill-agent-dlfpvr/img01.webp)
+
+选择标题（3 选 1）
+
+看完 100 本书还是用不起来？Cangjie Skill 把书压成 Agent 真能调用的工具
+
+巴菲特 60 年投资信变 20 个 skill：Cangjie Skill 蒸馏 250+ 方法论已在生产验证
+
+不写一行后端，却把《穷查理宝典》变成 12 个决策 skill：Cangjie Skill 怎么做到的？
+
+## 一、开篇：从踩坑到真香，只差这一个项目
+
+B 站刷到 90 分钟深度长视频，收藏了；公众号 8000 字干货，转发了；某本神书囤了三个月还没翻——然后就没有然后了。
+
+这不是你一个人这样。一项关于知识工作者的调研显示，普通人读完一本书后真正能在工作场景里调用其中的方法论，不超过 5%。看了 ≠ 用了，收藏 ≠ 学会。AI 训练数据有滞后，B 站、YouTube、播客刚出的内容大模型根本没看过；写好的笔记、剪藏下来的金句、稍后再看列表里的视频，最后都成了数字仓库里的灰尘。
+
+真正的痛点不是「没有内容」，而是「内容不会变成工具」。Cangjie Skill 切入的就是这个点：把书、长视频、播客、课程里那些高价值方法论，蒸馏成 AI Agent 真能调用的 Skill 工具包。
+
+## 二、项目简介：一句话说明它是什么
+
+Cangjie Skill 是一个基于 RIA-TV++ 流水线的内容蒸馏框架，把书籍、视频转写、播客文字稿、访谈记录等原始文本，转化为可独立调用、可组合使用、可压力测试的 Agent Skill 工具包。
+
+一句话定位：读完、看完、听完之后，带走一套能调用的方法论。
+
+核心标签：方法论蒸馏、Agent Skill、RIA-TV++、多平台适配（Claude Code / OpenClaw / DeepSeek Harness）。上线一年多，GitHub Star 已达 8173，覆盖 21 个已发布 skill 包、超过 250 个独立 skill。
+
+## 三、核心功能深度解析
+
+### 1. RIA-TV++ 七阶段流水线
+
+Cangjie Skill 的核心是 RIA-TV++，名字拆开看：RIA 来自赵周《这样读书就够了》的便签拆书法（Reading / Interpretation / Appropriation），TV 是 Triple Verification 三重验证，++ 是面向 Agent 执行的扩展（Execution 可执行步骤 + Boundary 边界）。
+
+流水线分七步：整体内容理解（借鉴 Adler 分析阅读法，产出 BOOK_OVERVIEW.md）→ 并行 5 提取器（框架 / 原则 / 案例 / 反例 / 术语）→ 三重验证筛选（原内容至少 2 处独立佐证、能回答未明说的新问题、不是常识，通过率仅 25-50%）→ RIA++ 六维度结构化 → Zettelkasten 链接生成 INDEX.md → 压力测试（含跨 skill 混淆题）→ 交付面向读者的 DIGEST.md 精华长文，并把通过测试的 skill 安装到 Claude Code / Cursor 的 skills 目录。
+
+### 2. 不是压缩，是结构化复用
+
+传统书摘是「把 10 万字压成 5000 字」，Cangjie Skill 输出的是一组带触发条件、适用边界、使用方式、关联关系的多 skill 仓库：一篇 BOOK_OVERVIEW.md 做全局理解、INDEX.md 做技能地图、DIGEST.md 做精华长文、若干 `*/SKILL.md` 做独立模块、`test-prompts.json` 做验证用例。
+
+《穷查理宝典》压成 12 个决策与判断 skill，《疯传》拆成 15 个 STEPPS 传播策略 skill，《毛泽东选集》1-5 卷压成 25 个认知、战略、组织与执行方法 skill。每一块都能在真实场景里被 Agent 单独调用，不是看完就忘的总结。
+
+### 3. 三重验证筛掉伪方法论
+
+这是它和普通摘要工具最大的区别。每个候选方法论必须通过三项检验：原内容中至少 2 处独立佐证、能回答内容里未明说的新问题（预测力）、不是常识（独特性）。通过率通常只有 25-50%——大量看起来像方法论的内容其实是水货，直接淘汰。
+
+### 4. 多平台适配
+
+原生支持 Claude Code、OpenClaw、DeepSeek Harness 三个平台；DeepSeek Harness 通过独立 `.tgz` 插件包安装，一行命令就能把 skill 装进 `~/.dsh/packages`。3 月发布的 v2.0.0 已经把适配层封装在 Release 包里，不污染主仓库。
+
+## 四、技术亮点与性能数据
+
+- **方法论密度**：巴菲特 1957-2023 致股东信 60+ 年材料，蒸馏出 20 个投资判断 skill；吴恩达《AI for Everyone》视频课程蒸馏出 25 个 skill；吴恩达视频课程技能数甚至超过《穷查理宝典》整本书；
+- **覆盖率**：21 个已发布 skill 包，横跨投资（《巴菲特致股东信》《段永平投资问答录》）、营销（《爆款文案》《疯传》《影响力》）、组织（网飞《不拘一格》）、个人品牌（《1000 个铁粉》）、AI 提示工程（165 个 AI 产品系统提示词的 15 个 skill）、X 增长、经典（《周易》《孙子兵法》《黄帝内经》《毛泽东选集》）等 8+ 领域；
+- **质量验证**：每个 skill 都配 `test-prompts.json` 压力测试，跨 skill 混淆题确保不会被错误触发；
+- **生态兼容**：与 nuwa-skill（蒸馏人）、darwin-skill（让 skill 持续进化）形成三件套咬合。
+
+![](/assets/blog-images/100-cangjie-skill-agent-dlfpvr/img02.webp)
+
+## 五、适用场景与人群
+
+**场景一：长视频课程内化**。B 站、YouTube 的深度长视频、高质量课程，看完就忘——丢给 Cangjie Skill，字幕一拉，生成 20+ 个可调用 skill，下次遇到类似问题直接调。
+
+**场景二：多本书的方法论整合**。《影响力》《疯传》《爆款文案》三本书都讲说服和传播，蒸馏完用 Zettelkasten 链接起来，做营销诊断一次调用三个 skill，比单读一本书强。
+
+**场景三：播客/访谈资料二次利用**。高质量访谈、播客转写后丢进去，提取出可执行框架，喂给写作 Agent、决策 Agent。
+
+**适合谁**：知识工作者、AI Agent 开发者、内容创作者、咨询顾问、自媒体运营。**不适合谁**：只想做摘要懒得调用的人（它输出的不是一篇文章），以及内容质量本身就不行的材料（巧妇难为无米之炊）。
+
+## 六、竞品对比
+
+| 维度 | Cangjie Skill | 传统摘要工具 | Notion AI 类笔记 | nuwa-skill |
+|------|---------------|--------------|------------------|------------|
+| 输出形式 | 多 skill 工具包 | 单文件摘要 | 笔记大纲 | 人物 skill |
+| 触发方式 | Agent 调用 | 人工阅读 | 人工检索 | Agent 调用 |
+| 验证机制 | 三重验证 + 压力测试 | 无 | 无 | 无 |
+| 平台适配 | Claude Code / OpenClaw / DeepSeek | 无 | 自身平台 | 同生态 |
+| 蒸馏对象 | 书/视频/播客/课程 | 文本 | 文本 | 人 |
+
+Cangjie Skill 和生态内的 nuwa-skill 互补：nuwa 蒸馏人（思维方式、表达 DNA），Cangjie 蒸馏书（方法论、框架、原则），darwin 让它们持续进化。三者咬合形成完整方法论飞轮。
+
+![](/assets/blog-images/100-cangjie-skill-agent-dlfpvr/img03.webp)
+
+## 七、如何快速上手
+
+**Claude Code 用户**：
+
+```bash
+git clone https://github.com/kangarooking/cangjie-skill
+cd cangjie-skill
+# 复制 SKILL.md 到 Claude Code 的 skills 目录
+```
+
+**DeepSeek Harness 用户**：
+
+```bash
+mkdir -p ~/.dsh/packages
+curl -fL "https://github.com/kangarooking/cangjie-skill/releases/download/v2.0.0/dsh-cangjie-skill-2.0.0.tgz" \
+  -o ~/.dsh/packages/dsh-cangjie-skill-2.0.0.tgz
+dsh plugin --profile web add ~/.dsh/packages/dsh-cangjie-skill-2.0.0.tgz
+dsh web
+```
+
+**最小可用示例**：启动新任务后，直接说 `请用 cangjie-skill 把这本书蒸馏成一组可执行的 Agent Skills：<文件路径>`。建议先用一个 B 站长视频的字幕文件试水，验证流程后再压整本书。
+
+**进阶建议**：搭配 `video-downloader` skill 一起使用——先下载视频、提取字幕，再把文本交给 Cangjie Skill 做方法论抽取与压力测试。
+
+## 八、总结与行动建议
+
+Cangjie Skill 解决的不是「怎么读一本书」，而是「怎么让一本书真正可用」。三重验证 + 压力测试 + 多平台适配，让方法论从一次性消费的摘要，变成 Agent 工具箱里能反复调用的弹药。
+
+**使用建议**：1）先用一节视频课程或单一章节试水，熟悉输出结构；2）积累 3-5 个 skill 后用 Zettelkasten 链接把它们串起来；3）和其他开发者交换 skill pack，让方法论飞轮转起来。
+
+**项目链接**：
+- GitHub：https://github.com/kangarooking/cangjie-skill
+- 官网（含 Skill Packs 可视化浏览）：https://cangjie-skill.com/
+- 生态：nuwa-skill（蒸馏人） + darwin-skill（让 skill 进化）
+
+会读书的人很多，能让书替自己干活的人很少。

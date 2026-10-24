@@ -1,0 +1,102 @@
+---
+title: "3000 Star 的 AI Agent，凭什么让开发者愿意把它常驻后台？"
+publishedAt: "2026-09-13"
+summary: "凌晨两点，你让 AI 助手「帮我清理一下 logs 目录」，它二话不说执行了 rm -rf /。这种「自作主张」的事故，在普通 AI Agent 身上每天都在上演。更糟的是，大多数 Agent 没有持久记忆，今天教会它的…"
+image: "/assets/blog-images/3000-star-ai-agent-1bt0d9/img01.webp"
+tags: ["AI", "Agent", "开源"]
+author: "Adam"
+---
+![](/assets/blog-images/3000-star-ai-agent-1bt0d9/img01.webp)
+
+## 一、开篇：为什么你需要这个工具？
+
+凌晨两点，你让 AI 助手「帮我清理一下 logs 目录」，它二话不说执行了 `rm -rf /`。这种「自作主张」的事故，在普通 AI Agent 身上每天都在上演。更糟的是，大多数 Agent 没有持久记忆，今天教会它的偏好，明天又得重新交代；多花的钱谁来管？崩溃后谁负责拉起？
+
+如果你也被这类问题困扰，Mercury Agent 给出了一个直接的回答：先问后做、记住重点、永不掉线。它在 GitHub 拿下了近 3000 Stars，当前稳定版 v1.1.13，用 TypeScript 写就，主打「权限硬化 + 持久记忆 + 多通道常驻」。
+
+![](/assets/blog-images/3000-star-ai-agent-1bt0d9/img02.webp)
+
+## 二、项目简介：一句话说明它是什么
+
+Mercury 是一款「有灵魂的 AI Agent」，核心关键词只有四个：**Soul-Driven**（人格可定义）、**Permission-Hardened**（权限硬化）、**Token-Budgeted**（Token 预算）、**Multi-Channel**（CLI / Telegram / Web 全通道）。它把 AI 从「聊天玩具」升级成「24 小时待命的私人助理」，并支持 31 个内置工具、看板任务、技能扩展、SQLite 驱动的「第二大脑」记忆系统。
+
+## 三、核心功能深度解析
+
+### 1. Permission-Hardened：先问后做的权限沙箱
+
+Mercury 把「能不能做」这件事提到了系统级高度。Shell 命令自带黑名单（`sudo`、`rm -rf /` 等高危指令永不执行），文件读写按目录粒度授权，每次敏感操作都会触发「Ask Me / Allow All」审批流。用户能在每次会话前选择权限模式，临时决定「这次放手让它干」还是「全程追问」。
+
+### 2. Second Brain：会成长的结构化记忆
+
+记忆不是「聊天历史全文回灌」，而是 10 种类型（身份、偏好、目标、项目、习惯、决策、约束、关系、事件、反思）的结构化数据。Mercury 用 SQLite + FTS5 全文索引做底座，每次对话后自动抽取 0–3 条事实；调用前把最相关的 5 条记忆注入上下文（预算 900 字符）。冲突时按置信度裁决，过期记忆会自动修剪，长期模式还会生成「反思」。
+
+### 3. Token Budget：日预算 + 自动精简
+
+默认每日 Token 上限，超 70% 自动切换精简模式。`/budget` 命令随时查、改、重置；`/budget override` 还能为某次请求临时放行。对 24/7 运行的 Agent 来说，这是「不被账单吓醒」的第一道防线。
+
+### 4. Multi-Channel + Always On
+
+一条 `mercury up` 命令，Mercury 就在后台常驻：macOS 走 LaunchAgent，Linux 走 systemd 用户单元，Windows 走 Task Scheduler，全都支持开机自启。崩溃后按指数退避自动重启（每分钟最多 10 次）。CLI 用 Ink TUI 流式渲染，Telegram 支持可编辑的流式消息和文件上传，Web Dashboard 还塞进了看板和 Workspace IDE。
+
+![](/assets/blog-images/3000-star-ai-agent-1bt0d9/img03.webp)
+
+## 四、技术亮点与性能数据
+
+Mercury 基于 TypeScript + Node.js 18+，ESM 模块 + tsup 构建；Agent 循环跑在 Vercel AI SDK v4 的 `generateText` / `streamText` 之上，单次会话最多 10 步。Telegram 集成用 grammY，记忆层用 SQLite + FTS5 + JSONL 三件套，守护进程由独立 daemon 管理器负责拉起和看护。
+
+LLM 提供商方面，DeepSeek、OpenAI、Anthropic、Grok、Ollama Cloud / Local 一键配置，失败时自动 fallback 到下一家，并记忆上一次成功的提供商作为下次起点。独立可执行文件用 Bun 编译打包，最终产物 5 个目标平台（macOS arm64/x64、Linux x64/arm64、Windows x64）全部带 SHA-256 校验和。
+
+![](/assets/blog-images/3000-star-ai-agent-1bt0d9/img04.webp)
+
+## 五、适用场景与人群
+
+**适用场景：**
+
+- 24/7 个人助理：把定时任务、日程提醒、新闻聚合交给 Telegram Bot。
+- 开发者副驾：CLI 模式下直接调度 Git、文件系统、Shell 工具，配合看板管理多任务。
+- 长期项目协作：Second Brain 自动累积用户偏好和项目背景，越用越懂你。
+
+**适合谁：**重视权限边界、需要长期记忆、想用单一工具覆盖 CLI / Telegram / Web 的独立开发者和重度 AI 用户。
+
+**不适合谁：**只想做一次性问答、不在意数据常驻本地、或团队必须用中心化 SaaS 控制台的用户。
+
+## 六、竞品对比
+
+| 项目 | 权限机制 | 持久记忆 | 多通道 | Token 预算 |
+|---|---|---|---|---|
+| **Mercury Agent** | 内置硬化 + 审批流 | SQLite + FTS5 / 10 类记忆 | CLI / Telegram / Web | 日预算 + 自动精简 |
+| AutoGPT 风格 Agent | 多数无显式权限层 | 多为短期上下文 | 主要 CLI | 无统一管理 |
+| 商业 AI 助手 | 由平台统一托管 | 云端，导出受限 | 通常 1–2 通道 | 按订阅计费 |
+
+Mercury 的差异化在「本地优先 + 权限可审计 + 跨通道统一会话」，更适合对隐私和控制权有要求的用户。
+
+![](/assets/blog-images/3000-star-ai-agent-1bt0d9/img05.webp)
+
+## 七、如何快速上手
+
+一行命令安装，无需 Node.js 环境：
+
+`curl -fsSL https://mercuryagent.sh/install.sh | sh`
+
+Windows 用户：`irm https://mercuryagent.sh/install.ps1 | iex`
+
+已有 Node.js 20+：`npx @cosmicstack/mercury-agent`
+
+首次启动会进入设置向导（名字、提供商、可选 Telegram），然后选择 Ask Me 或 Allow All 权限模式即可开聊。
+
+想让 Mercury 常驻？一条命令搞定：`mercury up`，它会自动注册系统服务、启动守护进程并确认存活。后续用 `mercury status`、`mercury logs`、`mercury restart` 维护即可。需要重配时，`mercury doctor` 随时唤出诊断与配置向导。
+
+![](/assets/blog-images/3000-star-ai-agent-1bt0d9/img06.webp)
+
+## 八、总结与行动建议
+
+Mercury Agent 的核心价值可以浓缩成一句话：**先把权限管住，再把记忆留住，最后让它永不宕机**。如果你受够了 AI Agent 的「擅自行动」「金鱼记忆」和「跑着跑着就没了」，它几乎是为这些问题量身定做的解药。
+
+建议的入门路径：先用 CLI 体验权限流和 Second Brain，再加 Telegram 做日常提醒，最后在 Web Dashboard 上用看板管理长任务。
+
+- GitHub：https://github.com/cosmicstack-labs/mercury-agent
+- 官网：https://mercuryagent.sh/
+- 技能市场：https://skills.mercuryagent.sh
+- Discord：https://discord.gg/5emMpMJy5J
+
+一句话推荐：**想要一个「问过再做、记住你、永远在线」的 AI 助理，Mercury Agent 是目前最值得本地部署的开源选择。**

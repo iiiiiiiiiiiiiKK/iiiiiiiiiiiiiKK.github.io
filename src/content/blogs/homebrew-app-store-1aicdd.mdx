@@ -1,0 +1,140 @@
+---
+title: "它把 Homebrew 搬回了桌面，还顺手做了一款原生 App Store"
+publishedAt: "2026-10-17"
+summary: "macOS 用户想装个新 App，通常只有三条路：在浏览器里搜官网、下载 DMG 拖进 Applications，或者打开终端敲一串 brew install --cask xxx。前者效率低，后者门槛高——尤其是当你只…"
+image: "/assets/blog-images/homebrew-app-store-1aicdd/img01.webp"
+tags: ["开源", "终端", "前端"]
+author: "Adam"
+---
+![](/assets/blog-images/homebrew-app-store-1aicdd/img01.webp)
+
+## 一、开篇：为什么你需要这个工具？
+
+macOS 用户想装个新 App，通常只有三条路：在浏览器里搜官网、下载 DMG 拖进 Applications，或者打开终端敲一串 `brew install --cask xxx`。前者效率低，后者门槛高——尤其是当你只想看看当下有哪些工具值得尝试的时候，App Store 早已被游戏和订阅服务淹没，根本找不到开发者真正关心的那批应用。
+
+Homebrew Cask 仓库里沉淀了数千款 macOS 应用，从 Raycast、Iterm2 到 Figma、Linear，每一个都在等用户用一行命令把它们请进电脑。但命令行不是人人愿意面对的交互方式：复制 token、等待 brew 解析、记不住应用名……大部分 macOS 用户的真实需求其实很简单——我想看到应用图标、我想知道它属于哪一类、我想知道多少人装了它、然后一键安装。
+
+CaskHub 就是为了把这套体验从终端搬回桌面而生的。
+
+## 二、项目简介：一句话说明它是什么
+
+CaskHub 是一款**原生 macOS 应用商店**，专为 Homebrew Cask 打造。仓库地址 `alielsokary/CaskHub`，主语言 Swift，已斩获 448 Stars，最新版本 0.6.9，仅需 macOS 15.6 及以上即可运行。
+
+用四个关键词概括它的核心定位：原生 SwiftUI 界面、官方 Homebrew API 数据源、真实 brew 二进制执行、一键接管已安装 App。
+
+100% 开源、零广告、无订阅、无高级会员分级——这是社区开发者 alielsokary 给所有 macOS 用户的一份礼物。
+
+## 三、核心功能深度解析
+
+### 1. Discover：像逛应用商店一样浏览 Homebrew
+
+CaskHub 在「发现」维度下了狠功夫。它从 Homebrew 官方 API (`/api/cask.json`) 拉取完整目录，并整合了安装量分析数据，提供五种浏览入口：
+
+- **Featured（精选）**：按安装量排序的 Top 100 Cask，让你一眼看到社区真金白银投出来的好工具。
+- **Top Charts（热门榜单）**：支持 30 / 90 / 365 天三档窗口，看趋势还是看常青树都顺手。
+- **Recently Added（最新上架）**：抓取近 30–90 天新晋 Cask，第一时间尝鲜。
+- **Categories（分类）**：开发工具、生产力、设计等分类齐全，像 App Store 一样按货架逛。
+- **Search（搜索）**：`⌘F` 唤起，跨名称、token、描述全文检索，毫秒级响应。
+
+为了让浏览永远不阻塞启动，分类数据被预先打包进 App 二进制内，启动时立即可用，无需等待网络请求。
+
+### 2. Manage：安装、更新、卸载一站式完成
+
+CaskHub 的管理能力几乎覆盖了 Homebrew Cask 的全部生命周期：
+
+- **Install / Update / Uninstall**：实时显示下载进度，可取消，状态一目了然。
+- **Adopt Apps（接管应用）**：这是杀手级特性。如果你之前用 DMG 或别的渠道装了某个 App，CaskHub 能把它一键纳入 brew 管理，App 位置保持不变——从此命令行和图形界面同步。
+- **Smart Update Detection**：自动跳过会自我更新的 App，并对打包后缀造成的版本号差异做归一化处理，Updates 角标只显示真正需要更新的内容。
+
+需要管理员权限的 pkg 安装包，会调用 macOS 原生授权对话框，而不是丑陋的终端 sudo 提示——细节决定体验。
+
+### 3. Polish：原生 macOS 体验打磨
+
+- 网格视图与列表视图自由切换，多种排序方式可选。
+- 浅色 / 深色 / 跟随系统三套主题。
+- 自研设计系统，附带打包好的字体资源。
+- 通过 Sparkle 实现应用自更新，CaskHub 自己也会保持新鲜。
+
+更关键的是「应用图标」：所有图标都由配套的 CaskFlow 流水线从原始来源抽取，不是网页 favicon 的劣化版，而是真正的 macOS 应用图标质感。
+
+![](/assets/blog-images/homebrew-app-store-1aicdd/img02.webp)
+
+## 四、技术亮点与性能数据
+
+CaskHub 的技术栈极其克制又现代：
+
+- **架构**：SwiftUI + MVVM，ViewModel 用 `@Observable` 注解，主线程隔离用 `@MainActor`，符合 Apple 官方推荐的现代 Swift 并发范式。
+- **网络层**：协议导向，`BrewAPIClientProtocol`、`NetworkServiceProtocol` 双协议抽象，配合依赖注入，方便单元测试。
+- **图标缓存**：内存 + 磁盘两级缓存，重复浏览 0 网络开销。
+- **依赖管理**：整个项目仅引入三个 Swift 包——Sparkle（自更新）、Sentry（崩溃上报）、TelemetryDeck（隐私优先的埋点）。没有臃肿的第三方 UI 框架。
+- **下载体积**：通过 HTTP 响应头（Content-Length）精准预估下载体积，不发额外请求。
+- **测试覆盖**：XCTest 跑在 PR 与 develop 分支推送上，Codecov 上报覆盖率，Codacy 做静态分析，PR 合并前还会自动校验 bundled 数据是否与最新 CaskFlow 发布同步。
+
+性能上，得益于本地化缓存与异步网络层，应用首屏启动几乎不依赖网络——分类、品牌、首日数据全部内置。
+
+## 五、适用场景与人群
+
+- **场景 1：新 Mac 装机**。拿到新电脑，开发者打开 CaskHub，浏览 Featured 和 Top Charts，一批点过去，把 IDE、终端、设计工具、效率 App 全部装齐，全程图形界面。
+- **场景 2：跨设备同步应用清单**。在 A 机器上用 brew 装了 50 个 App，换到 B 机器只需打开 CaskHub 的 Installed 视图，逐个一键补装。
+- **场景 3：给非技术同事推荐 App**。面对不懂命令行的设计师、产品经理，CaskHub 比 App Store 更贴近开发者的真实需求，比手动下载 DMG 干净 10 倍。
+
+适合谁：所有使用 macOS 15.6+ 的开发者、设计师、技术博主、Homebrew 老用户。
+
+不适合谁：还在用 macOS 14 及以下系统的用户；坚持纯命令行、拒绝图形界面的硬核极客（但你仍可以把它当成 Homebrew 目录的可视化仪表盘）。
+
+![](/assets/blog-images/homebrew-app-store-1aicdd/img03.webp)
+
+## 六、竞品对比
+
+| 维度 | CaskHub | Homebrew CLI | App Store | 第三方「Mac 应用下载站」 |
+|------|---------|--------------|-----------|-----------------------|
+| 应用数量 | 数千（Cask 全量） | 数千（Cask 全量） | 数千（审核上架） | 数百（人工收录） |
+| 安装来源 | 官方 brew 二进制 | 官方 brew 二进制 | Apple 审核 | 网站拼凑 |
+| 图形界面 | 原生 SwiftUI | 无 | 原生 | 网页 |
+| 接管已装 App | 支持 | 不支持 | 不支持 | 不支持 |
+| 安装统计 | 30/90/365 天 | 无 | 无 | 无 |
+| 自更新 | Sparkle 内置 | brew upgrade | App Store | 无 |
+| 开源免费 | MIT | BSD | 部分 | 否 |
+
+相比命令行，CaskHub 多了可视化发现、应用图标、分类、Top Charts；相比 App Store，CaskHub 覆盖了更多开发者工具、不会屏蔽非 App Store 分发的应用、还保留了 brew 命令行的可管理性。
+
+## 七、如何快速上手
+
+**方式一：下载安装包**
+
+前往 [Releases 页面](https://github.com/alielsokary/CaskHub/releases/latest) 下载 `CaskHub-0.6.9.zip`，解压后拖入 Applications 即可。
+
+**方式二：Homebrew 一行安装**
+
+```bash
+brew install --cask alielsokary/tap/caskhub
+```
+
+**方式三：从源码构建**
+
+需要 Xcode 26 或更新版本：
+
+```bash
+git clone https://github.com/alielsokary/CaskHub.git
+cd CaskHub
+open CaskHub.xcodeproj
+```
+
+选中 CaskHub scheme，`⌘R` 运行，Xcode 会自动解析 Sparkle、Sentry、TelemetryDeck 三个 Swift 包依赖。
+
+**首次启动建议**：在设置里确认 Homebrew 路径（Apple Silicon 默认 `/opt/homebrew`，Intel 默认 `/usr/local`），开启你偏好的主题；浏览 Featured 找到第一个想装的 App，按下 Install 按钮——你就会明白这工具的设计哲学：让 macOS 应用管理回归图形界面，却不丢掉命令行的可控性。
+
+![](/assets/blog-images/homebrew-app-store-1aicdd/img04.webp)
+
+## 八、总结与行动建议
+
+CaskHub 用一套干净的 SwiftUI 界面，把 Homebrew Cask 这个全球最大 macOS 应用仓库搬回了它本该出现的地方——用户的桌面。它既是发现工具（Featured、Top Charts、分类、搜索），又是管理工具（Install/Update/Uninstall、Adopt Apps、Smart Update Detection），还是原生 macOS 体验的样板（原生授权框、Sparkle 自更新、深色模式、自研设计系统）。
+
+**行动建议**：
+
+1. 立刻去 [caskhub.app](https://caskhub.app) 或 [GitHub Releases](https://github.com/alielsokary/CaskHub/releases/latest) 下载一份。
+2. 用 `brew install --cask alielsokary/tap/caskhub` 安装，体验 30 秒内的全功能启动。
+3. 在 Settings → Privacy 里审视一下匿名埋点策略，关掉你不放心的项。
+4. 如果你发现了 bug 或想要新功能，前往 [Issues 页面](https://github.com/alielsokary/CaskHub/issues/new/choose) 反馈；想贡献代码，请阅读 CONTRIBUTING.md 并向 `develop` 分支提 PR。
+
+一句话推荐：如果你爱 Homebrew 但不想再敲命令行，CaskHub 是目前最克制、最干净、最值得装的那个 App Store 替代品。

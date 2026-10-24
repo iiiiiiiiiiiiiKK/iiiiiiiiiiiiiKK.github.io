@@ -1,0 +1,196 @@
+---
+title: "6 个让我每天都在用的开源小工具，件件上头"
+publishedAt: "2026-06-02"
+summary: "6 个让我每天都在用的开源小工具，件件上头"
+image: "/assets/blog-images/6-9mkxtl/img01.webp"
+tags: ["开源", "写作", "终端"]
+author: "Adam"
+---
+![](/assets/blog-images/6-9mkxtl/img01.webp)
+
+选择标题（3 选 1）
+
+6 个让我每天都在用的开源小工具，件件上头
+
+私藏 6 款终端与桌面神器，开源且真香
+
+从终端到系统美化：这 6 个开源项目我天天在用
+
+## 一、开篇：为什么你需要这个工具？
+
+你有没有过这种时刻：写代码时终端配色丑、主题乱，鼠标选中复制还得先框一下；写技术分享要把 `ls` 输出做成图发到公众号，只能截全屏再裁；想给同事讲清楚昨天那段改动从 0 到 1 怎么写的，口头比划半天说不清；Windows 上想把任务栏搞漂亮点却只能装全家桶；刚装好的 Win10 半夜自动更新把你踢出游戏。
+
+这 6 个项目，就是冲着这一个个具体卡点去的。
+
+![](/assets/blog-images/6-9mkxtl/img02.webp)
+
+## 二、项目速览
+
+| 仓库 | Stars | 语言 | 一句话定位 |
+| :--- | :---: | :--- | :--- |
+| tw93/Kaku | 5955 | Rust | 开箱即用的 macOS 终端 |
+| homeport/termshot | 973 | Go | 一行命令把终端输出做成图 |
+| unhappychoice/gitlogue | 4992 | Rust | 电影感的 Git 提交回放器 |
+| Maplespe/DWMBlurGlass | 4582 | C++ | Win10/11 全局标题栏美化 |
+| itsfatduck/optimizerDuck | 9612 | C# | Windows 性能与隐私优化 |
+| hhht110/UpdateLock | 173 | C++ | 单文件关闭/恢复 Win 自动更新 |
+
+## 三、项目解析
+
+### tw93/Kaku — 开箱即用的 AI 友好 Mac 终端
+
+**这是一款为 AI 编程量身打造的 macOS 终端**，基于 WezTerm 内核，把字体、主题、Shell 集成、Mac 快捷键这些配置活儿全帮你做完。下载拖进 Applications 就能用，想深度定制还能继续写 Lua。
+
+它的杀手锏是把 AI 嵌进日常操作：命令失败时按 `Cmd + Shift + E` 让 AI 给出修复建议；提示符里敲 `# 描述一下要做什么` 回车，AI 直接把命令写到光标位置供你 review；`Cmd + L` 唤起 Chat 面板聊刚才的报错或当前项目。
+
+**适合谁：** Mac 上的 AI 编程重度用户、用 Claude Code / Codex / Gemini CLI 的人。
+**不适合谁：** Windows / Linux 用户（==目前仅支持 macOS==）。
+
+**最小上手**
+
+一行装：
+
+```
+brew install --cask kaku
+```
+
+第一次启动按提示完成 Shell 集成，缺工具就运行：
+
+```
+kaku init
+```
+
+然后在终端里随便敲条会报错的命令，按 `Cmd + Shift + E` 看 AI 怎么救场。
+
+*开源地址：* **https://github.com/tw93/Kaku**
+
+### homeport/termshot — 把终端输出直接做成图
+
+**这是一个 Go 写的命令行截图工具**，原理是启一个伪终端跑你要执行的命令，把含 ANSI 颜色码的输出渲染成一张带 macOS 窗口样式的 PNG。写 README、发技术博客、给同事同步报错，再也不用开截图工具再裁剪。
+
+和 carbon.now.sh 这类网页工具不同，它解析的是真实 ANSI 转义码，颜色高保真还原，不像贴上去的语法高亮那样僵。
+
+**适合谁：** 写技术文档、做教程、配 Keynote 的人。
+**不适合谁：** 需要长截图（==命令输出超长会折行或溢出==）。
+
+**最小上手**
+
+装一下：
+
+```
+brew install homeport/tap/termshot
+```
+
+想截 `ls` 输出：
+
+```
+termshot ls -a
+```
+
+想连命令本身也展示出来：
+
+```
+termshot --show-cmd -- "ls -a"
+```
+
+*开源地址：* **https://github.com/homeport/termshot**
+
+### unhappychoice/gitlogue — 电影感的 Git 提交回放器
+
+**这是一个把 Git 历史变成动画短片的终端工具**，用 Rust + tree-sitter 写就，32 种语言语法高亮、9 套主题、自带打字机光标、文件树过渡。
+
+它能干的不只是炫技：演示 Code Review 时把那段争议提交回放一遍，新人入职用 `--commit HEAD~10..HEAD` 讲清楚昨天项目从哪走到哪，写技术分享直接录 asciinema 当素材也行。
+
+**适合谁：** 经常做技术分享的工程师、做内部培训的 Tech Lead、喜欢把终端当桌面装饰的人。
+**不适合谁：** 纯想要 `git log --oneline` 那种纯文本的人。
+
+**最小上手**
+
+装一下：
+
+```
+brew install gitlogue
+```
+
+进任意 Git 仓库直接跑，进入屏保模式随机回放历史：
+
+```
+gitlogue
+```
+
+看某次具体提交：
+
+```
+gitlogue --commit HEAD~3
+```
+
+*开源地址：* **https://github.com/unhappychoice/gitlogue**
+
+![](/assets/blog-images/6-9mkxtl/img03.webp)
+
+### Maplespe/DWMBlurGlass — Win10/11 全局标题栏美化神器
+
+**这是一个给 DWM 加料的 Windows 工具**，给全局系统标题栏挂上 Blur、Aero、Acrylic、Mica 这几种 Win11 风格的特效，最低支持到 Win10 2004。
+
+它的特点是动的是 DWM 本身，不动应用绘制逻辑，所以和第三方主题、ExplorerBlurMica、TranslucentFlyouts 都能共存。可调模糊半径、混合色、文本色，还能在 Win10 上恢复 Win7 风格的标题栏按钮高度。
+
+**适合谁：** Win10/Win11 上喜欢 Mica / Acrylic 视觉、想统一全系统毛玻璃效果的人。
+**不适合谁：** 用 MicaForEveryone 的人（==不保证兼容==）。
+
+**最小上手**
+
+去 Releases 页面下载最新版 EXE，**只从 GitHub 官方地址下**（==有第三方镜像夹带恶意代码，README 多次警告==）。右键管理员运行，按需勾选效果即可。
+
+卸载也走同一程序，干净不残留。
+
+*开源地址：* **https://github.com/Maplespe/DWMBlurGlass**
+
+![](/assets/blog-images/6-9mkxtl/img04.webp)
+
+### itsfatduck/optimizerDuck — Windows 性能与隐私优化大管家
+
+**这是一个面向 Win10+ 的开源系统优化器**，专门解决"新机用半年就卡、各种遥测关不掉"这种日常痛点。
+
+它把性能、隐私、清理三类常用项整合成清晰面板：关遥测、卸预装、停后台服务、清临时文件、调电源计划。每项操作都展示"会改什么、影响什么"，不是黑盒一键"加速"。
+
+**适合谁：** 想给家里老电脑提速、对系统遥测敏感的人、不想用 360 / 火绒这种全家桶的人。
+**不适合谁：** 完全不想动注册表的纯小白（==虽然有 GUI，但底层依然调注册表和服务==）。
+
+**最小上手**
+
+去 Releases 下载最新版，安装包一路 Next。打开后左侧有「Performance / Privacy / Debloat」三大类，逐项点开看说明再勾选。
+
+所有改动都支持一键还原，改之前会自动备份原始值。
+
+*开源地址：* **https://github.com/itsfatduck/optimizerDuck**
+
+### hhht110/UpdateLock — 单文件关闭/恢复 Win 自动更新
+
+**这是一个原生 C++/Win32 单 EXE 工具**，自动识别 Win7 / Win10 / Win11 / Server 2016，用对应注册表策略关闭 Windows Update，全程不调 PowerShell、不调 reg.exe、不调 sc.exe。
+
+它有三点最让我放心：关闭前会保存原始状态；写入后会回读校验；失败会回滚。Win10 还能额外勾选"禁止升级到 Win11"，对死守 Win10 的人非常关键。
+
+**适合谁：** 不想半夜被更新踢下线的玩家、用 Win10 但死活不升 Win11 的人、需要临时停更的运维。
+**不适合谁：** ==正在安装/卸载更新时绝对不能跑==，会冲突。
+
+**最小上手**
+
+去 Releases 下一个 `Win7-10-11自动更新关闭工具v3.1.exe`，右键管理员运行：
+
+- 点「关闭更新」按钮，等程序提示完成。
+- 想恢复点「恢复更新」。
+- Win10 专属：能看到「禁止升级到 Windows 11」按钮，勾上即可。
+
+==注意：作者元数据是"啊常用户"，没正式签名，SmartScreen 可能弹警告==，去 GitHub Release 对 SHA-256 校验更稳。
+
+*开源地址：* **https://github.com/hhht110/UpdateLock**
+
+![](/assets/blog-images/6-9mkxtl/img05.webp)
+
+## 四、总结与行动建议
+
+如果你只能挑两个先装：**Kaku** 给日常编码幸福感，**termshot** 给日常分享效率。如果用 Windows 设备，**DWMBlurGlass + optimizerDuck + UpdateLock** 三个组合能把视觉、性能、更新策略一起收拾干净。
+
+gitlogue 偏玩具属性，但做技术分享时一次回放能顶五分钟口述，按需深入。
+
+#命令行工具 #开发工具 #前端开发 #Kaku #Termshot #Gitlogue #Dwmblurglass #Optimizerduck #Updatelock #tw93

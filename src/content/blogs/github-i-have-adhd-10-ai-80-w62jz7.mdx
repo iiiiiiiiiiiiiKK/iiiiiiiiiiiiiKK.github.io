@@ -1,0 +1,111 @@
+---
+title: "GitHub 黑马 i-have-adhd：10 条规则砍掉 AI 80% 的废话"
+publishedAt: "2026-10-04"
+summary: "你让 AI 帮你改个 bug，它回复了一段 800 字的\"分析报告\"，开头是\"Great question!\"，结尾是\"Hope this helps!\"，而答案藏在第三段的第七行。你需要 Ctrl+F 才能找到要执行的…"
+image: "/assets/blog-images/github-i-have-adhd-10-ai-80-w62jz7/img01.webp"
+tags: ["AI", "开源", "效率"]
+author: "Adam"
+---
+![](/assets/blog-images/github-i-have-adhd-10-ai-80-w62jz7/img01.webp)
+
+## 一、开篇：为什么你需要这个工具？
+
+你让 AI 帮你改个 bug，它回复了一段 800 字的"分析报告"，开头是"Great question!"，结尾是"Hope this helps!"，而答案藏在第三段的第七行。你需要 Ctrl+F 才能找到要执行的命令。
+
+这不是你的问题，这是 LLM 默认输出的通病：铺垫、解释、客套话、复述问题、温馨提示——这些内容把真正要执行的操作埋进了噪音里。对于需要立刻知道"下一步做什么"的人来说，每多读一句废话，注意力就流失一截。
+
+19,832 Star 的 `i-have-adhd` 项目，正是为解决这个场景而生。
+
+![](/assets/blog-images/github-i-have-adhd-10-ai-80-w62jz7/img02.webp)
+
+## 二、项目简介：一句话说明它是什么
+
+`i-have-adhd` 是一个面向 AI 编码助手（Claude Code 等）的 Skill 插件，强制 AI 的输出遵循"行动先行、编号步骤、不说废话"的 ADHD 友好规范。它不诊断 ADHD，它改造 LLM 的回复结构。
+
+核心关键词：**Action-First**（动作先行）、**Numbered Steps**（编号步骤）、**Zero Preamble**（零客套）。
+
+项目发布即登顶 Python 趋势榜，三个月斩获 19.8K Star。
+
+## 三、核心功能深度解析
+
+### 1. 答案前置：把执行指令放在第一行
+
+传统 AI 回复的结构是"寒暄 → 背景 → 分析 → 结论 → 客套"。`i-have-adhd` 强制 LLM 把下一步动作放在第一句，背景解释放在指令之后。Before/After 对比比任何描述都直观：原文是"Great question! ... Hope this helps!"，改造后第一行就是 `Run npm install jsonwebtoken@latest, then edit src/auth.ts:42.`。
+
+### 2. 步骤编号：多步任务强制 1/2/3 列表
+
+当任务包含 3 个以上动作时，LLM 必须输出有序列表，每步一个动作，且单条不超过两行。规则 #9 额外约束：列表最多 5 项，超出则要求拆分。这避免了"第一步、第二步……第七步"的长串滚动。
+
+### 3. 结尾收束：一句具体的下一步
+
+规则 #3 要求 LLM 在回复末尾给出一个可立即执行的下一步，例如 `Next: paste the first failing line if any test fails.`。这避免了"让我知道是否需要进一步帮助"这种空话，让对话永远停在可操作节点。
+
+### 4. 错误直陈：失败信息去掉情绪修饰
+
+规则 #8 规定报错信息必须平铺直叙——只输出错误本身，不附加"很抱歉遇到这个问题"之类的情感填充。这对调试场景尤其关键，开发者要的是定位线索，不是心理按摩。
+
+![](/assets/blog-images/github-i-have-adhd-10-ai-80-w62jz7/img03.webp)
+
+## 四、技术亮点与性能数据
+
+项目以 Markdown Skill 形式实现，整套规则集中在 `skills/i-have-adhd/SKILL.md` 单文件，10 条规则文本总计不到 200 行。Skill 通过 Claude Code 的插件机制加载，调用时无网络请求、无额外依赖，加载耗时 &lt; 50ms。
+
+兼容性方面，它支持 Claude Code 全系列，并可通过 `claude plugin marketplace add` 接入自建仓库。规则集可 Fork 后自定义，社区已衍生出"教学版""客服版"等分支。
+
+最大的亮点是**对人类认知负载的精准建模**——它不是把规则写给 LLM 看的，而是把规则写给 LLM 的"工作记忆"用的。每条规则对应一个具体的注意力损耗场景，例如规则 #4 "Suppress tangents" 直接对应阅读时的认知跳跃损耗。
+
+## 五、适用场景与人群
+
+**场景一：AI 辅助 debug**。当 AI 帮你排查报错时，Action-First 模式让你第一眼就看到要试的命令，省掉 5–10 秒的扫读时间。
+
+**场景二：长任务拆解**。当你让 AI 生成"部署一个 K8s 集群"这类多步骤任务时，编号列表 + 5 项上限保证单屏可读。
+
+**场景三：代码重构引导**。AI 给出重构建议时，强制输出"先做 X、再做 Y"的明确序列，而不是"你可以考虑……也许应该……"。
+
+**适合谁**：注意力易分散的开发者；用 AI 处理高密度技术问答的工程师；给团队统一 AI 输出规范的 Tech Lead。
+
+**不适合谁**：需要 AI 写长篇技术博客的人；做创意发散、需要 AI 主动延伸话题的场景。
+
+![](/assets/blog-images/github-i-have-adhd-10-ai-80-w62jz7/img04.webp)
+
+## 六、竞品对比
+
+| 维度 | i-have-adhd | 普通 Claude Code | LangChain Output Parser |
+|------|-------------|------------------|------------------------|
+| 干预对象 | Skill 层（提示词规则） | 无 | 应用层（代码拦截） |
+| 部署成本 | 一行命令 | 默认 | 需要开发 |
+| 可定制性 | 高（编辑 SKILL.md） | 无 | 中 |
+| 适用模型 | Claude 全系 | Claude | 任意 |
+
+相对通用 Output Parser，`i-have-adhd` 的优势在于不增加运行时开销，且规则集中在提示词层，不会破坏 AI 的推理链。
+
+## 七、如何快速上手
+
+**第一步：安装插件**
+```bash
+claude plugin marketplace add ayghri/i-have-adhd
+claude plugin install i-have-adhd@i-have-adhd
+```
+
+**第二步：重启 Claude Code**，在任意会话中输入 `/i-have-adhd` 激活技能。
+
+**第三步：自定义规则**。Fork 仓库后编辑 `skills/i-have-adhd/SKILL.md`，按以下命令替换为本地版本：
+```bash
+claude plugin uninstall i-have-adhd
+claude plugin marketplace remove i-have-adhd
+claude plugin marketplace add <your-username>/i-have-adhd
+```
+
+**进阶建议**：把团队协作规范（如"PR 必须先写测试"）直接写进 SKILL.md，让 AI 输出自动符合团队流程。
+
+![](/assets/blog-images/github-i-have-adhd-10-ai-80-w62jz7/img05.webp)
+
+## 八、总结与行动建议
+
+`i-have-adhd` 的核心价值只有一句话：**让 AI 输出的第一行，永远是你可以执行的那一行**。
+
+如果你每天使用 AI 处理 20+ 个技术问题，这个工具至少能帮你省下 10 分钟的扫读时间。MIT 协议、可 Fork、可定制，几乎没有使用门槛。
+
+项目地址：https://github.com/ayghri/i-have-adhd
+
+推荐：**Star 一下，每次你跳过一句 "Hope this helps!"，就值了。**

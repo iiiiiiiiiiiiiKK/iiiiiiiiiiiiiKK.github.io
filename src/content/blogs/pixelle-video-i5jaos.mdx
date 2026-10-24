@@ -1,0 +1,147 @@
+---
+title: "短视频做到崩溃？Pixelle-Video 一句话替你跑完整条流水线"
+publishedAt: "2026-04-30"
+summary: "短视频做到崩溃？Pixelle-Video 一句话替你跑完整条流水线"
+image: "/assets/blog-images/pixelle-video-i5jaos/img01.webp"
+tags: ["AI", "视频"]
+author: "Adam"
+---
+![](/assets/blog-images/pixelle-video-i5jaos/img01.webp)
+
+选择标题（3 选 1）
+
+短视频做到崩溃？Pixelle-Video 一句话替你跑完整条流水线
+
+从主题到成片只需一次点击：Pixelle-Video 把剪辑时长压到几分钟
+
+没招剪辑师、没碰 Premiere，却用 Pixelle-Video 日更十条短视频
+
+# 一句话生成短视频：Pixelle-Video 让 AI 包揽整条流水线
+
+## 一、开篇：从踩坑到真香，只差这一个项目
+
+做短视频最耗时间的不是拍摄，而是「写文案、找素材、配音、剪辑」这条流水线。一个 60 秒的口播视频，从选题到导出常常要耗费 3-5 个小时。批量做账号、矩阵分发、每天产出 10 条以上的运营者，几乎都被剪辑软件卡在原地。
+
+更让人头疼的是「全流程割裂」：文案在 ChatGPT 里写、配图在 Midjourney 里抽、TTS 用另一套工具、剪辑再丢回剪映。素材到处复制粘贴，风格也拼不到一起，最后成片总差一口气。
+
+如果你正在找「一个入口、一句话交付完整视频」的方案，Pixelle-Video 就是为此而生的。输入一个主题，它把文案、配图、视频、配音、BGM、合成一次性跑完，彻底把人工剪辑踢出流程。
+
+![](/assets/blog-images/pixelle-video-i5jaos/img02.webp)
+
+## 二、项目简介：用一句话概括
+
+Pixelle-Video 定位是「AI 全自动短视频引擎」，由阿里 AIDC 团队开源，GitHub 已收获 **28,803 Stars**，主要语言 Python，文档站同步提供中英文版本。
+
+四个核心关键词概括它：**全自动流水线、AI 文案配图配音、模块化可替换、零剪辑门槛**。项目仍在高速迭代，2026 年 1 月连续上线了「动作迁移」「数字人口播」「图生视频」等扩展模块，活跃度很高。
+
+## 三、核心功能深度解析
+
+### 1. 主题 → 文案 → 分镜：LLM 全自动创作
+
+Pixelle-Video 的第一步是文案。系统会在 Web 界面接收主题词（如「为什么要养成阅读习惯」），交给 GPT、通义千问、DeepSeek、Ollama 等大模型生成结构化脚本——包含标题、段落、分镜时间和画面描述。
+
+这意味着创作者不再需要手写脚本。如果你已经有现成文案，也可以选择「固定文案模式」跳过 AI 创作，直接进入下一阶段。系统还支持按段落、行、句子灵活分割脚本，控制每个分镜的节奏。
+
+### 2. 配图与视频生成：多模型可插拔
+
+画面层是 Pixelle-Video 的亮点。它支持两种路径：
+
+- **ComfyUI 工作流路径**：本地部署 ComfyUI 后，可以加载 Flux、Wan 2.1 等模型生成静态图或动态视频片段，灵活度最高；
+- **直连 API 路径**：直接调用 DashScope、Seedream、Kling、Seedance 等供应商的接口，零部署门槛。
+
+用户可以在 Web 界面随时切换图像/视频模型供应商，并配置 Base URL 与代理开关。提示词前缀（Prompt Prefix）用来统一视觉风格，例如「极简黑白线条插画」一键应用到全部分镜。
+
+### 3. 语音与背景音乐：TTS 自由组合
+
+文案确定后，系统调用 TTS 工作流合成解说词。默认支持 Edge-TTS，多语言音色开箱即用；进阶用户可以加载 Index-TTS 等支持声音克隆的方案，上传参考音频即可复用特定嗓音。
+
+背景音乐支持内置曲库、自定义 MP3/WAV 文件，音量与人声自动混音。中间栏还提供「预览语音」按钮，输入任意文本就能先试听效果，避免盲生成。
+
+### 4. 模板合成与多尺寸输出
+
+最后一步是模板合成。Pixelle-Video 提供三类 HTML 模板：`static_*`（纯文字样式）、`image_*`（AI 图片背景）、`video_*`（AI 视频背景）。按尺寸分组展示，支持竖屏（9:16）、横屏（16:9）、方形（1:1）一键切换，覆盖抖音、B 站、YouTube、小红书等平台。
+
+![](/assets/blog-images/pixelle-video-i5jaos/img03.webp)
+
+## 四、技术亮点与性能数据
+
+**模块化原子能力**是 Pixelle-Video 最值得称道的设计。文案、配图、视频、TTS、VLM 每一个环节都被设计成可替换的「原子能力」，既支持 ComfyUI / RunningHub 工作流，也支持直连 API 模型。这意味着用户不会被锁定在某一家供应商，随时按需替换。
+
+**并发与稳定性**层面，2025-12 的更新加入了 RunningHub 并发限制可配置，LLM 返回结构化数据的逻辑也被优化，避免 JSON 解析失败导致的整条流水线重跑。
+
+**生态兼容性**上，项目对接了 Flux、Wan 2.1、Seedream、Seedance、Kling、Edge-TTS、Index-TTS 等主流模型与工具，几乎覆盖了 2025 年下半年到 2026 年初的所有主流生成方案。文档站还展示了实拍的竖屏（人文纪实、文化解构、科学思辨、个人成长、深度思考、历史文化、情感、小说解说、知识科普）和横屏（副业赚钱、历史解说）共 11 类样片。
+
+**成本控制**方面，项目给出明确方案：LLM 用 Ollama 本地运行 + ComfyUI 本地部署 = 0 元成本；用通义千问 + ComfyUI 本地 = 性价比最高的推荐组合。
+
+![](/assets/blog-images/pixelle-video-i5jaos/img04.webp)
+
+## 五、适用场景与人群
+
+**矩阵号运营者**：需要每天产出大量差异化内容，主题输入即可批量生成多版本视频，分发到不同平台。
+
+**知识科普博主**：懒得自己写脚本、找配图，配音也想省掉。Pixelle-Video 直接把「主题 → 完整讲解视频」链路打通。
+
+**企业内容营销**：需要快速产出产品介绍、品牌故事视频，又不愿养剪辑团队。一句话拿到成片，效率提升 10 倍以上。
+
+**不太适合**：追求电影级特效、需要真人出镜精细抠像的专业影视团队；以及对单帧画面有强艺术控制权的插画师。
+
+## 六、竞品对比
+
+| 维度 | Pixelle-Video | MoneyPrinterTurbo | NarratoAI |
+|------|---------------|-------------------|-----------|
+| 端到端自动化 | ✅ 一句话全流程 | ⚠️ 偏素材拼接 | ⚠️ 偏解说文案 |
+| 模块可替换 | ✅ 原子能力自由组合 | ❌ 耦合较重 | ❌ 固定链路 |
+| 模型支持广度 | ✅ GPT/Qwen/DeepSeek + Flux/Wan/Seedance/Kling | ⚠️ 主流但有限 | ⚠️ 偏向特定供应商 |
+| Web 界面 | ✅ Streamlit 三栏交互 | ✅ 有 | ⚠️ 较简单 |
+| 数字人/动作迁移 | ✅ 持续扩展中 | ❌ 无 | ❌ 无 |
+
+选 Pixelle-Video 的核心理由是**模块化**：不想被某个供应商绑架，又希望保留端到端自动化能力。
+
+![](/assets/blog-images/pixelle-video-i5jaos/img05.webp)
+
+## 七、如何快速上手
+
+### Windows 用户（最快路径）
+
+1. 前往 [Releases 页面](https://github.com/AIDC-AI/Pixelle-Video/releases/latest) 下载 Windows 一键整合包；
+2. 解压后双击 `start.bat`，浏览器自动打开 http://localhost:8501；
+3. 在「⚙️ 系统配置」中填入 LLM 的 API Key（如通义千问）和图像模型配置；
+4. 左侧栏输入主题，点击「🎬 生成视频」，等待几分钟即可得到成片。
+
+整合包已包含 Python、ffmpeg 等所有依赖，零环境配置。
+
+### macOS / Linux 用户（源码部署）
+
+前置依赖：安装 `uv`（Python 包管理器）与 `ffmpeg`（视频处理工具）。macOS 用 `brew install ffmpeg`，Ubuntu/Debian 用 `sudo apt install ffmpeg`。
+
+执行命令：
+
+git clone https://github.com/AIDC-AI/Pixelle-Video.git
+cd Pixelle-Video
+uv run streamlit run web/app.py
+
+首次启动后在 Web 界面配置 LLM、ComfyUI / RunningHub 或直连 API 媒体模型，保存后即可使用。
+
+### 进阶建议
+
+- 想换画风：调整「提示词前缀」，例如改成「水彩插画、暖色调、复古胶片质感」；
+- 想换声音：上传参考音频到「参考音频」栏，选择 Index-TTS 克隆音色；
+- 想自定义模板：懂 HTML 的用户可在 `templates/` 目录创建自己的 `image_*.html` 或 `video_*.html`。
+
+![](/assets/blog-images/pixelle-video-i5jaos/img06.webp)
+
+## 八、总结与行动建议
+
+Pixelle-Video 把短视频生产拆成了「文案 → 配图 → 配音 → 合成」四段式流水线，每段都能替换、每段都能预览。对于内容矩阵、自媒体团队、知识博主，这是当前 GitHub 上**端到端自动化程度最高**的开源方案。
+
+使用建议：先用 Windows 整合包跑通流程，再按需切换到本地 ComfyUI 或云端 RunningHub，最后根据成本决定是走 Ollama 免费方案还是通义千问性价比方案。
+
+- GitHub 仓库：https://github.com/AIDC-AI/Pixelle-Video
+- 中文文档：https://aidc-ai.github.io/Pixelle-Video/zh
+- Releases（含 Windows 整合包）：https://github.com/AIDC-AI/Pixelle-Video/releases
+
+一句话推荐：**想要「输入主题就出片」的创作者，Pixelle-Video 是 2026 年最值得 Star 的 AI 视频开源项目。**
+
+![](/assets/blog-images/pixelle-video-i5jaos/img07.webp)
+
+#pixelle-video #PixelleVideo #ath-maas #AI视频剪辑 #脚本化视频 #口播视频 #开源项目 #GitHub

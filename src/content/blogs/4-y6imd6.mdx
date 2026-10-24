@@ -1,0 +1,159 @@
+---
+title: "视频党私藏的 4 个开源利器，每一件都替你省心"
+publishedAt: "2026-06-17"
+summary: "视频党私藏的 4 个开源利器，每一件都替你省心"
+image: "/assets/blog-images/4-y6imd6/img01.webp"
+tags: ["开源", "视频", "前端"]
+author: "Adam"
+---
+![](/assets/blog-images/4-y6imd6/img01.webp)
+
+选择标题（3 选 1）
+
+视频党私藏的 4 个开源利器，每一件都替你省心
+
+浏览器看视频的 4 件套，从去广告到倍速截图全齐了
+
+这 4 个 GitHub 项目，让你彻底告别广告与渣播放器
+
+## 一、开篇：别再手动折腾它了
+
+想在浏览器里看视频却要硬扛广告？想统一管理散落各网盘里的影片却被多个客户端来回切？想给任意网页视频加倍速、截图、关掉片头却找不到一个通用的开关？这一篇就把 4 个我反复在用、值得顺手收下的开源项目一起端上来，逐个说明白它能帮你省掉哪一步。
+
+## 二、项目速览
+
+| 仓库 | Stars | 主要语言 | 一句话定位 |
+|---|---|---|---|
+| iv-org/invidious | 24.6k | Crystal | 无广告、可自建的 YouTube 替代前端 |
+| gaozhangmin/boxplayer | 6.9k | TypeScript | 多网盘 + 媒体库 + AI 的跨平台影音工作台 |
+| Stremio/stremio-web | 13.9k | JavaScript | 插件驱动的现代流媒体中心 Web 版 |
+| xxxily/h5player | 3.7k | TypeScript | 油猴脚本：给任意网页视频加倍速与增强 |
+
+## 三、项目解析
+
+### iv-org/invidious — 去广告的 YouTube 替代前端
+
+Invidious 是 YouTube 的开源替代前端，用 Crystal 写成，**不调用官方 YouTube API**。打开任一公开实例就能直接搜视频、看视频、订阅频道，全程没有前置广告、没有追踪脚本，甚至可以不开启 JavaScript 也能播放。
+
+它对订阅体验做了完整重做：频道订阅独立于 Google 账号，能收到新视频通知，支持从 YouTube、NewPipe、FreeTube 导入和导出订阅。还内置 Audio-only 模式，移动端可以后台播放当播客用，自带开发者 API 给第三方应用调用。
+
+- **适合谁**：不想看贴片广告、想和 Google 账号解绑、想自建实例控制数据的用户。
+- **不适合谁**：希望继续使用 YouTube 评论区完整社交功能、依赖官方 YouTube Premium 体系的人。
+
+**最小上手**
+
+最省事的玩法：直接打开 [instances.invidious.io](https://instances.invidious.io/) 选一个公共实例开用。
+
+如果想自托管，按官方文档走 Docker 或源码部署：
+
+```
+git clone https://github.com/iv-org/invidious
+cd invidious
+docker compose up -d
+```
+
+搭配浏览器扩展 Privacy Redirect，所有 YouTube 链接会自动跳到你选的 Invidious 实例。
+
+*开源地址：* **https://github.com/iv-org/invidious**
+
+![](/assets/blog-images/4-y6imd6/img02.webp)
+
+### gaozhangmin/boxplayer — 多网盘 + 媒体库的一体化桌面工作台
+
+BoxPlayer（最初叫小白羊网盘）是一个基于 Electron + Vue 3 的跨平台桌面 App，把 **多网盘文件管理、媒体库、媒体服务器、AI Agent、音乐播放器、电子书阅读器** 缝进同一个界面。它支持阿里云盘、百度网盘、123、115、夸克、PikPak、OneDrive、Dropbox、Box、移动云盘、天翼云盘等十几个云盘的多账号统一管理。
+
+它对影音爱好者最有杀伤力的能力是「云盘媒体库」：扫描网盘里的影视文件，结合 TMDB / 豆瓣生成海报、年份、评分、季集信息，按命名规则自动归类整理。同时支持连接 Jellyfin、Emby、Plex 三家媒体服务器，做统一播放和进度同步。
+
+播放体验也很顶：内置 Web 播放器支持 HLS / DASH，可调用外部 MPV / IINA，支持清晰度切换、双字幕、ASS/SSA、字幕偏移、在线字幕搜索、自动跳片头片尾。AI 工作台能自然语言搜索网盘、做查重、空间分析、整理规划，写入类操作会先弹确认，不会静默删文件。
+
+- **适合谁**：网盘账号多、媒体散落各处、想用一个客户端管完播放 + 下载 + 阅读 + AI 整理的人。
+- **不适合谁**：只用单一网盘、也不打算本地化管影视的人。
+
+**最小上手**
+
+到 Releases 下载对应平台安装包：
+
+```
+# Windows / macOS / Linux 客户端
+https://github.com/gaozhangmin/boxplayer/releases
+```
+
+装好后进入「网盘」侧边栏添加账号，勾选要扫描的目录即可自动生成媒体库。
+
+*开源地址：* **https://github.com/gaozhangmin/boxplayer**
+
+![](/assets/blog-images/4-y6imd6/img03.webp)
+
+### Stremio/stremio-web — 插件驱动的现代流媒体中心
+
+Stremio Web 是官方 Web 端 UI，主打 **「Freedom to Stream」**。它本身不做内容，所有电影、剧集、频道都来自社区 addon：装什么 addon，就出现什么目录，电影、剧集、直播、IPTV 都能按 addon 拼接出来。
+
+技术上很有意思：**UI 是 React 应用，但核心逻辑是 Rust 写的 stremio-core，编译到 WebAssembly 跑在 Web Worker 里**，UI 只负责渲染状态，计算交给 core。播放层走 stremio-video，会自动挑当前环境最合适的播放器实现。
+
+账号体系是另一大亮点：登录后你的媒体库、「继续观看」进度在所有设备上同步，Web / 桌面 / 移动 / TV 客户端体验一致。支持 Chromecast 投屏，可作为 PWA 安装到桌面，多语言社区翻译覆盖 50+ 语言。
+
+- **适合谁**：喜欢折腾 addon、想统一管理电影 / 剧集 / IPTV / 直播、跨设备同步观看进度的用户。
+- **不适合谁**：只想看官方平台内容、对第三方 addon 来源有顾虑的人。
+
+**最小上手**
+
+直接打开 Web 版：
+
+```
+https://web.stremio.com
+```
+
+本地开发：
+
+```
+git clone https://github.com/Stremio/stremio-web
+git checkout development
+pnpm install
+pnpm start
+```
+
+Dev 服务跑在 `http://localhost:8080`，需要 Node.js 22+ 和 pnpm 11+。
+
+*开源地址：* **https://github.com/Stremio/stremio-web**
+
+![](/assets/blog-images/4-y6imd6/img04.webp)
+
+### xxxily/h5player — 给任意网页视频加增强的油猴脚本
+
+h5player 是一个跑在 Tampermonkey 里的 Web 视频增强脚本，**号称兼容所有 H5 视频网站**：Bilibili、抖音、腾讯视频、优酷、爱奇艺、西瓜、YouTube、微博、知乎、搜狐、网易公开课、百度网盘、阿里云盘、TED、Instagram、Twitter 都能用。它把通用能力抽出来，一次安装、所有网站生效。
+
+核心是 **键盘可控制一切**：方向键 ±5 秒、Ctrl + 方向键 ±30 秒、Ctrl + 上下音量 ±20%，还有倍速无级调节、画面亮度 / 饱和度 / 对比度、网页全屏、画中画、跨标签页画中画、视频截图、音频实例控制等。==亮点：支持 iframe 和 shadowdom 内的视频，连跨域页面也能穿透控制==。
+
+对追剧党最实用的是「跳过片头片尾」，对学习党是「倍速记忆」—— 同一个网站默认沿用上次的播放速度。还能解析直播流、导出离线音视频。
+
+- **适合谁**：每天在浏览器看大量网页视频、想统一一套快捷键搞定一切、又不想为每个网站单独装插件的人。
+- **不适合谁**：主要看官方客户端原生视频、对油猴脚本生态不信任的人。
+
+**最小上手**
+
+先装 Tampermonkey 浏览器扩展，然后一键安装脚本：
+
+```
+https://h5player.anzz.top/h5player.user.js
+```
+
+也可以从 Greasy Fork 安装：
+
+```
+https://greasyfork.org/scripts/381682
+```
+
+装好后打开任意视频页，按 `c` 调出控制条即可。
+
+*开源地址：* **https://github.com/xxxily/h5player**
+
+![](/assets/blog-images/4-y6imd6/img05.webp)
+
+## 四、总结与行动建议
+
+- 想立刻告别 YouTube 广告：从 Invidious 公共实例入手，搭配 Privacy Redirect 扩展一键跳转。
+- 网盘和本地影音杂七杂八：装 BoxPlayer 把十几家云盘、Jellyfin / Emby / Plex、下载器、播放器一次收编。
+- 浏览器看视频嫌操作不够爽：装 h5player，一套快捷键覆盖所有站点，零学习成本立竿见影。
+- 想折腾统一流媒体中心：登录 Stremio Web，按需添加 addon，按平台慢慢深入即可。
+
+#AI视频剪辑 #脚本化视频 #口播视频 #Invidious #Boxplayer #StremioWeb #H5player #stremio-web #iv-org #gaozhangmin

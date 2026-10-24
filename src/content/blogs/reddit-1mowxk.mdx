@@ -1,0 +1,209 @@
+---
+title: "Reddit 短视频、白板动画、纸片视频，一次性帮你盘齐"
+publishedAt: "2026-06-18"
+summary: "私藏 5 个开源视频神器，做内容的人建议收藏"
+image: "/assets/blog-images/reddit-1mowxk/img01.webp"
+tags: ["AI", "开源", "视频"]
+author: "Adam"
+---
+![](/assets/blog-images/reddit-1mowxk/img01.webp)
+
+选择标题（3 选 1）
+
+私藏 5 个开源视频神器，做内容的人建议收藏
+
+Reddit 短视频、白板动画、纸片视频，一次性帮你盘齐
+
+我用这 5 个开源项目，把每天做视频的时间砍掉一半
+
+![](/assets/blog-images/reddit-1mowxk/img02.webp)
+
+## 一、开篇：别再手动折腾它了
+
+朋友想在 TikTok 做英文短视频，从 Reddit 抓帖子、剪视频、贴字幕、加背景音乐，整套流程做下来，一晚上出不了两条。后来他换了个 Python 脚本，跑一条命令自动出片，省下来的时间专心选题和分发。还有朋友做小红书产品种草视频，每次为了让镜头"电影感"一点，反复试剪辑软件里的关键帧和转场，调一下午也没调对味——直到他让 Claude Code 直接调一份 152 张分镜卡片的 Recipe，按卡片组合镜头，十分钟出成片。
+
+做短视频最难的不是写文案，而是一次又一次重复的"素材抓取 → 剪辑 → 字幕 → 风格统一"。下面这 5 个开源项目，都是我在不同环节常用的"省力工具"，按场景逐个介绍给你。
+
+## 二、项目速览
+
+| 仓库 | Stars | 主要语言 | 一句话定位 |
+|---|---|---|---|
+| elebumm/RedditVideoMakerBot | 12.5k | Python | 一条命令把 Reddit 帖子做成短视频 |
+| Vincentwei1021/video-shotcraft | 9.1k | TypeScript | Claude Code / Codex 用的电影感产品视频 Skill |
+| cyberlesterr/paper-collage-video | 235 | JavaScript | 纸片分层视频流水线，含人工审批与断点恢复 |
+| gnipbao/story-to-handdrawn-video | 2k | JavaScript | 中文故事转手绘日记动画，20 种内置风格 |
+| geeklee/srt-whiteboard-animation | 3.4k | Python | SRT 字幕转白板手绘动画，逐元素流式绘制 |
+
+## 三、项目解析
+
+### elebumm/RedditVideoMakerBot — 一条命令就能跑的 Reddit 短视频机器人
+
+这是个**用命令行一键生成 Reddit 短视频**的 Python 项目，自动完成抓帖、配图、TTS 配音、字幕、背景拼接，输出可直接上传的 MP4。**GitHub 12.5k Star**，做英文短视频搬运和 A/B 测试选题都很顺手。
+
+- **适合谁：** 想批量出 TikTok / Reels / Shorts 英文内容的个人创作者
+- **不适合谁：** 需要精细品牌定制、或对版权敏感需要逐条人工审稿的团队
+- **技术亮点：** 基于 Playwright 抓取内容、`ffmpeg` 合成，支持任意 subreddit、自定义背景与配音
+
+**最小上手**
+
+克隆仓库并装依赖：
+
+```
+git clone https://github.com/elebumm/RedditVideoMakerBot.git
+cd RedditVideoMakerBot
+pip install -r requirements.txt
+python -m playwright install
+```
+
+启动机器人：
+
+```
+python main.py
+```
+
+首次运行按提示填 Reddit API 信息，之后就能自动出片。
+
+*开源地址：* **https://github.com/elebumm/RedditVideoMakerBot**
+
+### Vincentwei1021/video-shotcraft — 让 Claude Code 拍电影感产品视频
+
+这是一个**装进 Claude Code 或 Codex 的 Agent Skill**，把产品图交给它，自动用 Remotion 生成带运镜、节拍剪辑、电影感音效的宣传片。内置 **152 张分镜 Recipe 卡片**、209 个动态预览，加一个可二次剪辑的 Motion Workbench。**9.1k Star**，已经被人用来批量生产产品 launch 视频。
+
+- **适合谁：** SaaS / 独立开发者需要快速出产品介绍、营销、launch 短片
+- **不适合谁：** 完全没有产品素材、或只想要真人出镜口播视频的人
+
+**最小上手**
+
+告诉 Agent 安装这个 skill：
+
+```
+请安装这个 skill：https://github.com/Vincentwei1021/video-shotcraft
+```
+
+也可以手动：
+
+```
+npx skills add Vincentwei1021/video-shotcraft
+```
+
+装好后直接说：
+
+```
+帮我用我的产品截图做一支 30 秒的 launch 视频，要电影感运镜和节拍剪辑
+```
+
+*开源地址：* **https://github.com/Vincentwei1021/video-shotcraft**
+
+### cyberlesterr/paper-collage-video — 配 Codex 的纸片分层视频流水线
+
+这是个**给 Codex 用的本地插画视频生产 Skill**，专门做"纸片分层"风格的解说视频，支持人工审批、断点恢复、预览渲染和技术验收。它把内容意图、视觉方向、付费调用上限和最终成片交给人决定，Skill 只负责执行与验证。**目前 0.19.0 版本**，协议还在调整，但流程已经跑通。
+
+- **适合谁：** 想用 Codex 做长流程插画视频、又怕 Agent 失控烧钱的人
+- **不适合谁：** 只想要一两分钟简单成片、不想配 Provider 授权的轻度用户
+
+**最小上手**
+
+直接告诉 Codex 安装插件：
+
+```
+请安装这个 Codex 插件并完成初始化验证：
+https://github.com/cyberlesterr/paper-collage-video
+```
+
+或者用命令：
+
+```
+codex plugin marketplace add cyberlesterr/paper-collage-video
+codex plugin add paper-collage-video@paper-collage-video
+```
+
+装好后新建任务：
+
+```
+用 $make-paper-collage-video 做一条约 30 秒的玄奘西行纸片分层视频
+```
+
+中断恢复用：
+
+```
+npm run project:resume -- <slug>
+```
+
+*开源地址：* **https://github.com/cyberlesterr/paper-collage-video**
+
+### gnipbao/story-to-handdrawn-video — 中文故事一键转手绘日记动画
+
+这个 Skill 把**中文故事文案或一组有序手绘图片**，转成 3:4 竖屏手绘故事动画。**内置 20 种风格**，包括彩铅日记、儿童蜡笔、水墨、水彩、白板讲解等，默认走"彩铅日记漫画"。基于 Remotion 渲染，输出无配音的 H.264 画面轨，方便后期配音。**2k Star**，适合做知识号、绘本号、情感号。
+
+- **适合谁：** 中文内容创作者，想把公众号文案、小红书故事快速做成手绘视频
+- **不适合谁：** 要的是写实摄影风格、或对人物造型一致性要求极高的项目
+
+**最小上手**
+
+先把 Skill 装进 Agent 的 skills 目录：
+
+```
+git clone https://github.com/gnipbao/story-to-handdrawn-video.git
+cd story-to-handdrawn-video
+npm ci
+cp -R skill-package/story-to-handdrawn-video ~/.codex/skills/
+```
+
+安装完直接对 Agent 说：
+
+```
+使用 $story-to-handdrawn-video 把这段故事生成可后期配音的手绘动画。
+
+从前有座山，山里有座庙……
+```
+
+或者先出 720×960 预览版：
+
+```
+使用 $story-to-handdrawn-video 先给这个故事生成一个预览版。
+```
+
+*开源地址：* **https://github.com/gnipbao/story-to-handdrawn-video**
+
+### geeklee/srt-whiteboard-animation — SRT 字幕驱动的白板手绘动画
+
+这个 Skill 把**SRT 字幕**变成按叙事顺序绘制的白板手绘视频，结合**分区遮罩编排**和**流式笔迹绘制**：每个元素跟随字幕依次出场，笔尖在区域内连续落墨，再逐步添彩。背景是暖米黄纸张色，输出可直接发布。**3.4k Star**，做知识讲解、课程口播、短视频文案很合适。
+
+- **适合谁：** 有现成 SRT 字幕、需要快速转白板动画的讲师与口播博主
+- **不适合谁：** 想要彩色卡通风、或需要复杂 3D 镜头运动的视频
+
+**最小上手**
+
+先准备独立 Python 环境：
+
+```
+python scripts/prepare_env.py
+```
+
+成功后记录 `ENV_PY=<路径>`，用它解析字幕：
+
+```
+$ENV_PY scripts/parse_srt.py 字幕.srt --target-sec 30 --min-sec 25 --max-sec 35
+```
+
+打开 `assets/preview.html` 调整区域和时序，确认后渲染单幕：
+
+```
+$ENV_PY scripts/render_stream_whiteboard.py 场景.png 场景.annotation.json 输出.mp4 assets/drawing-hand.png --ink-path grid --color-fill contour-wipe
+```
+
+最后合并多幕：
+
+```
+$ENV_PY scripts/merge_scenes.py --inputs 幕1.mp4 幕2.mp4 幕3.mp4 --output final.mp4
+```
+
+*开源地址：* **https://github.com/geeklee/srt-whiteboard-animation**
+
+![](/assets/blog-images/reddit-1mowxk/img03.webp)
+
+## 四、总结与行动建议
+
+如果你只想先装两个试试：做英文短视频先跑 `RedditVideoMakerBot`，立刻能验证选题速度；做中文产品视频直接给 Claude Code 装 `video-shotcraft`，十分钟就能出成片。需要长流程、多阶段人工把关的，再按需上 `paper-collage-video`；手绘风格的故事视频走 `story-to-handdrawn-video`；已经有一堆 SRT 字幕的，直接交给 `srt-whiteboard-animation`。
+
+#AI视频剪辑 #脚本化视频 #口播视频 #Redditvideomakerbot #VideoShotcraft #PaperCollageVideo #StoryToHanddrawnVideo #SrtWhiteboardAnimation #video-shotcraft #paper-collage-video

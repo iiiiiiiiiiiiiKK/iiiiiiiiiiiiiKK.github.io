@@ -1,0 +1,100 @@
+---
+title: "把祖父的集邮册搬上网页，这个 361 Stars 的个人站有点意思"
+publishedAt: "2026-04-16"
+summary: "把祖父的集邮册搬上网页，这个 361 Stars 的个人站有点意思"
+image: "/assets/blog-images/361-stars-1ntjp8/img01.webp"
+tags: ["开源", "开发"]
+author: "Adam"
+---
+![](/assets/blog-images/361-stars-1ntjp8/img01.webp)
+
+选择标题（3 选 1）
+
+把祖父的集邮册搬上网页，这个 361 Stars 的个人站有点意思
+
+Cloudflare 全家桶搭个人站：3 个模块、4 条命令就能上线
+
+以为是普通作品集，却藏着完整的边缘架构参考实现
+
+# 设计师把祖父的集邮册搬上了网，361 Stars 的 Next.js 个人站到底藏着什么？
+
+设计师的 personal website 见过不少，但你见过把祖父的老集邮册做成数字档案馆的吗？marijanapav.com 就是这样一个项目——一半作品集，一半实验场，用 Cloudflare 全家桶把 Next.js 部署到了边缘，自带 D1、R2、Cloudflare Images 三件套。它拿到 361 Stars，TypeScript 全程接管，热度背后是一套相当现代的边缘架构。
+
+![](/assets/blog-images/361-stars-1ntjp8/img02.webp)
+
+## 一、开篇：作品集网站做了一年，还在和部署斗智斗勇？
+
+很多独立设计师和开发者的个人网站，代码烂尾在「部署上线」最后一步。Vercel 套餐一旦超额度就报错，自己搭服务器又得折腾 CI、CDN、图片优化。一个作品集加载出 5 秒原图，访客秒关——这种痛，做过个人站的人都懂。marijanapav.com 用 Cloudflare Workers + OpenNext 把整站跑在边缘网络，全球访问都能落在最近的节点上。整站包含作品集、数字集邮册、Sketchbook 实验场三个独立模块，对应的数据、文件、图像存储分别交给 D1、R2、Cloudflare Images，是一份相当完整的「边缘架构作品集」参考实现。
+
+![](/assets/blog-images/361-stars-1ntjp8/img03.webp)
+
+## 二、项目简介：它到底是什么？
+
+marijanapav.com 是设计师 Marijana Pav 的个人官网，2025 年 10 月发布。它不是一个常规简历站，而是把作品集、祖父集邮册的数字化档案 `/stamps`、未成形想法实验区 `/sketchbook` 三块拼在一起的整体作品。栈层面，使用 TypeScript + Next.js（OpenNext 适配）+ Drizzle ORM + Cloudflare Workers 构建，部署由 Alchemy 工具链一站式搞定。从 README 的「forever changing」可以看出，作者把它当成长期演进的实验田，欢迎频繁的小修小补。
+
+![](/assets/blog-images/361-stars-1ntjp8/img04.webp)
+
+## 三、核心功能深度解析
+
+### 1. `/stamps` 数字集邮册：把家族记忆重新设计
+
+最有辨识度的一节。Marijana 把祖父实体集邮册当作素材，重新进行视觉诠释，做成数字「小型集邮档案」。它既是历史档案，也是设计练习，探索艺术、历史、字体设计在网页上的融合。每个邮票集合都是单独的研究单元，作者会零星补上新集，整体节奏慢而稳，不像传统博客靠频率取胜。
+
+### 2. `/sketchbook` 草稿本：未成形想法的留白地
+
+README 里直接打了「WIP」标签，明显是「不完美也发出来」的态度。这里收的是早期测试、零散视觉探索、未完成想法，让作品集之外的思考也能沉淀下来。很多个人站只敢放完成品，这个项目主动暴露过程，对想学设计的开发者是难得的素材库。
+
+### 3. 边缘优先架构：Cloudflare 全家桶
+
+技术上，整站通过 Alchemy 工具链把 Worker、D1 SQLite 数据库、R2 sketch 存储桶、Cloudflare Images 绑定一次性 provision 好。`IMAGES` 绑定是 OpenNext 跑 `next/image` 优化必须的前置项，README 里专门提醒部署前要开启 Cloudflare Images。Three 个数据/媒体源拆得干净，职责清晰：结构化数据走 D1，文件走 R2，图像优化走 Cloudflare Images，没有把鸡蛋放一个篮子。
+
+### 4. Drizzle Kit 数据库迁移
+
+`src/db/schema.ts` 单一来源定义表结构，配 `npm run db:generate` 自动生成迁移。本地用 `db:migrate:local`，生产用 `db:migrate:remote`，命令分开避免误操作。TypeScript + Drizzle 这套组合在 Cloudflare D1 这种 SQLite 系数据库上跑，类型推断能从 schema 一路推到查询结果，对小团队 / 个人项目很友好。
+
+![](/assets/blog-images/361-stars-1ntjp8/img05.webp)
+
+## 四、技术亮点与性能数据
+
+架构上几个关键词：**边缘运行时**——Next.js 通过 OpenNext 编译为 Cloudflare Worker，请求就近处理；**多绑定编排**——Alchemy 把 Worker、D1、R2、Cloudflare Images 一次写进 IaC 脚本，部署可复现；**图像优化下放边缘**——`next/image` 走 Cloudflare Images，全球分发低延迟；**类型安全链路**——Drizzle ORM + TypeScript，从 schema 到查询全程类型推断。除作品集外还塞进了真实的数字档案（`/stamps`）和实验场（`/sketchbook`），不是 demo 级样例，是生产级个人站。
+
+![](/assets/blog-images/361-stars-1ntjp8/img06.webp)
+
+## 五、适用场景与人群
+
+- **独立设计师 / 创意工作者**：需要一个能同时承载作品集、实验项目和长期档案的站，又不希望被 Vercel 套餐绑架。
+- **前端工程师研究边缘架构**：想找一份真实落地 Cloudflare Workers + D1 + R2 + Images 全套的 Next.js 范例。
+- **内容型站长做家族 / 兴趣档案**：希望把父亲、祖父的老物件数字化，且对加载速度和国际化访问有要求。
+
+不太适合：需要复杂 CMS 工作流的团队、需要 SSR + ISR 复杂业务逻辑的中后台、依赖 Node 特定 API 的项目（Worker 运行时仍有兼容边界）。
+
+## 六、竞品对比
+
+| 维度 | marijanapav.com (Cloudflare + OpenNext) | Vercel + Next.js 默认部署 | 静态站 (Astro + Pages) |
+|------|-----------------------------------------|---------------------------|------------------------|
+| 运行时 | 边缘 Worker | 边缘 + Serverless | 纯静态 + 边缘函数 |
+| 数据库 | D1 (SQLite) | Postgres / Neon | 需要外接 |
+| 文件存储 | R2 | Vercel Blob | 需要外接 |
+| 图像优化 | Cloudflare Images | Vercel Image Optimization | 外接或自建 |
+| 部署工具链 | Alchemy（IaC 式） | Vercel CLI / Git 集成 | Cloudflare Pages Git 集成 |
+
+marijanapav.com 的差异化在于「全 Cloudflare 全家桶 + Alchemy 声明式部署」，把数据库、对象存储、图像优化、Worker 编排全部交给同一个生态，减少供应商切换成本。
+
+## 七、如何快速上手
+
+```sh
+git clone https://github.com/buka-studio/www-marijanapav
+cd www-marijanapav
+npm install
+npm run dev
+```
+
+本地起 dev 之前，确保 Cloudflare 账号已开启 Cloudflare Images（`IMAGES` 绑定依赖项）。修改 `src/db/schema.ts` 后跑 `npm run db:generate` 生成迁移，再分别用 `db:migrate:local` / `db:migrate:remote` 应用到本地和生产。正式上线：`npm run build && npm run deploy`。如果只想学习架构，可以先 fork 一份关掉数据源、单跑前端部分也是个不错的练习。
+
+![](/assets/blog-images/361-stars-1ntjp8/img07.webp)
+
+## 八、总结与行动建议
+
+marijanapav.com 不是一个「教程级」个人站，而是一份「实战级」边缘架构样本：作品集、数字档案、实验场三模块共用一套 Cloudflare 全家桶，部署、数据库、媒体存储全部走声明式脚本。对想搭个人站的设计师，它的视觉与编辑思路可以直接借；对前端工程师，它是少有的完整跑通「Next.js + Cloudflare Workers + D1 + R2 + Images」的参考实现。仓库地址：`github.com/buka-studio/www-marijanapav`，站点：`marijanapav.com`，文档以 README 为主，建议 fork 一份按需裁剪。
+
+#www-marijanapav #WwwMarijanapav #buka-studio #前端开发 #Web开发 #开源项目 #GitHub

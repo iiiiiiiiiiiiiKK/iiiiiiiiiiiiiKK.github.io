@@ -1,0 +1,153 @@
+---
+title: "让 AI 替你干活：这 4 个开源神器，我私藏很久了"
+publishedAt: "2026-06-06"
+summary: "让 AI 替你干活：这 4 个开源神器，我私藏很久了"
+image: "/assets/blog-images/ai-4-z98x8r/img01.webp"
+tags: ["AI", "Agent", "开源"]
+author: "Adam"
+---
+![](/assets/blog-images/ai-4-z98x8r/img01.webp)
+
+选择标题（3 选 1）
+
+让 AI 替你干活：这 4 个开源神器，我私藏很久了
+
+录一次操作就能复用：这 4 个开源项目让 AI Agent 直接上手
+
+浏览器、手机、工作流全打通：4 个让 AI 真正替你干活的私藏开源
+
+最近和团队协作时，发现一个越来越常见的现象："想让 AI 干活"这件事本身，反而成了最花时间的环节。要么手动复制粘贴提示词，要么写一堆胶水脚本，最后调试胶水的时间比任务本身还长。
+
+这一期把 4 个我用下来觉得"真的省事"的开源项目一次性整理给你。它们分别解决了"教会 AI 一项技能"、"让 AI 操作手机"、"让 AI 用你的浏览器"、"把整套流程串起来"这四件事，每一件单拎出来都值得收藏。
+
+![](/assets/blog-images/ai-4-z98x8r/img02.webp)
+
+## 项目速览
+
+| 仓库 | Stars | 主要语言 | 一句话定位 |
+|---|---|---|---|
+| microsoft/skill-recorder | 4.0k | TypeScript | 录一次操作，AI 自动生成可复用的 Skill |
+| ShawnPana/phone-harness | 2.9k | Python | 让 AI Agent 直接操控 iPhone / Android |
+| Tencent/BrowserSkill | 6.0k | TypeScript | 让 AI 借用你已登录的浏览器标签页 |
+| n8n-io/n8n | 205k | TypeScript | 可视化工作流引擎，自带 1500+ 集成 |
+
+![](/assets/blog-images/ai-4-z98x8r/img03.webp)
+
+## 项目解析
+
+### microsoft/skill-recorder — 录一次，AI 就能重复做
+
+**核心能力**：把"你在屏幕上的操作"录下来，让 GitHub Copilot CLI 帮你还原成"意图 + 步骤列表"，最终生成一份 `SKILL.md` 流程文档或定时 Automation，AI Agent 可以按它反复执行。
+
+它的工作流很直接：按下录制（`⌘⇧R` / `Ctrl+Shift+R`）做一遍任务 → 录制结束后点 Analyze → Copilot 把零散的点击、窗口切换、命令输出还原成可读的步骤 → 审核通过后一键产出 Skill 或 Automation。生成出来的 Skill 倾向于调用 `gh` 这种原生 CLI 工具，而不是机械地回放点击，所以**录一次"提交一个表单"，AI 就能学会"提交所有同类表单"**。
+
+- **适合谁**：每天要重复执行多步操作的人，比如运营、运维、需要批量填表的同事
+- **不适合谁**：==只用一次的任务不值得录==；当前官方主推 macOS，Windows 11 也支持但需要看 `WINDOWS-VALIDATION.md`
+
+**最小上手**
+
+直接告诉 Agent：
+
+```
+帮我安装这个 skill：https://github.com/microsoft/skill-recorder
+```
+
+或者打开 Release 页复制对应系统的整条安装命令，粘贴到终端运行即可。首次启动会请求屏幕录制权限，授权后录一遍任务、Analyze 一次，整个流程就跑通了。
+
+*开源地址：* **https://github.com/microsoft/skill-recorder**
+
+![](/assets/blog-images/ai-4-z98x8r/img04.webp)
+
+### ShawnPana/phone-harness — 让 Agent 直接操作你的手机
+
+**核心能力**：把 iPhone（通过 Mac 的 iPhone Mirroring 窗口）或 Android（通过 adb）暴露成一组 Python helper，Agent 能截图、OCR、点击、滑动、输入文字，全程无需越狱或装额外 App。
+
+实现思路对开发者很友好：iPhone 端抓取 Mirroring 窗口、用 Apple Vision 做 OCR 拿到带坐标的文本，再发 HID 级事件；Android 端直接用 `screencap` + `adb input`。两边封装成同一套 helper（`open_app` / `tap_text` / `type_text` / `ocr()`），所以**同一段脚本在 iOS 和 Android 都能跑**。没有手机在身边的话，还可以 `phone-harness cloud start` 租一台云端 Android 跑测试。
+
+- **适合谁**：需要让 Agent 自动操作手机 App 的开发者，比如做端到端测试、跨平台自动化
+- **不适合谁**：==需要多指触摸、相机或 Face ID 流程的场景==；DRM 视频会渲染成黑屏
+
+**最小上手**
+
+直接给 Claude Code 或 Codex 发这段：
+
+```
+Set up phone-harness for me. Clone https://github.com/ShawnPana/phone-harness into ~/.phone-harness, read `install.md` first, install it so `phone-harness` is a command on my PATH, and register it as an agent skill named phone-harness using `phone-harness skill` as the body. Then read `onboarding.md` and walk me through it.
+```
+
+Agent 会一步步引导你授权、配对 iPhone Mirroring 或开启 Android 开发者模式。装好后试一句：
+
+```
+phone-harness <<'PY'
+open_app("Notes")
+tap_text("New Note")
+type_text("hello from the harness")
+PY
+```
+
+*开源地址：* **https://github.com/ShawnPana/phone-harness**
+
+![](/assets/blog-images/ai-4-z98x8r/img05.webp)
+
+### Tencent/BrowserSkill — 把"已登录的浏览器"借给 AI 用
+
+**核心能力**：通过 `bsk` CLI + 浏览器扩展，把 Cursor、Claude Code、Codex 等任何能调用 shell 的 Agent 接到你**已经登录**的 Chrome / Edge 上，让 Agent 在独立窗口里操作网页，且不打扰你当前浏览。
+
+它最关键的设计是"**显式借用、用完归还**"。Agent 想碰你已打开的标签页必须先申请，用完立刻还，其他标签页一动不动。这意味着你登录过的 SaaS 后台、带有二次验证的页面，Agent 都能直接用，而不用单独搞测试账号。碰到验证码或登录确认时，Agent 还可以把人拉进来接手，完事再继续跑。
+
+- **适合谁**：需要让 Agent 处理已登录站点的人，比如运营后台、数据录入、跨站点抓取
+- **不适合谁**：==Firefox 用户还需等待支持==；基于 Chromium 的小众浏览器只要支持未打包扩展基本可用
+
+**最小上手**
+
+最省事的做法是直接把下面这行发给 Agent：
+
+```
+Set up browser-skill on this machine by following https://raw.githubusercontent.com/Tencent/BrowserSkill/main/AGENT_INSTALL.md
+```
+
+Agent 会自己装 CLI 和 skill，再引导你加载扩展。手动安装的话：
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/Tencent/BrowserSkill/main/install.sh | sh
+export PATH="${BSK_INSTALL_DIR:-$HOME/.local/bin}:$PATH"
+bsk --version
+```
+
+扩展去 Chrome Web Store 或 Edge Add-ons 搜 BrowserSkill 装上即可。
+
+*开源地址：* **https://github.com/Tencent/BrowserSkill**
+
+![](/assets/blog-images/ai-4-z98x8r/img06.webp)
+
+### n8n-io/n8n — 把上面这些全部串成可视化工作流
+
+**核心能力**：一个 fair-code 的工作流自动化平台，自带 1500+ 集成（Slack、Notion、GitHub、各种数据库、AI 模型），用画布拖拽就能把多个步骤串起来，**需要时还能直接写 JS / Python / 调 npm 包**，既能自托管也能用官方云。
+
+n8n 在 AI Agent 时代重新被广泛使用，因为它把"调用大模型 + 工具 + 人工审批 + 可观测性"做成了原生节点。你可以搭一个流程：定时拉数据 → 用 LLM 分类 → 调 `bsk` 让 Agent 登录后台填进去 → 出错时通知 Slack → 全部带审计日志。==不用为了 AI 工作流再从零写一套调度框架==，n8n 已经把队列、重试、权限、UI 都准备好了，社区还有 9000+ 现成模板可以一键导入。
+
+- **适合谁**：想把多个服务、API、AI 拼成自动化流程的团队，尤其是需要"可视化 + 可改代码"混合形态的人
+- **不适合谁**：==只想写几行脚本就完事的轻量任务==；另外注意 n8n 的许可协议是"可持续使用许可"，商用前要确认条款
+
+**最小上手**
+
+有 Docker 的话一行搞定：
+
+```bash
+curl -fsSL https://get.n8n.io | sh
+```
+
+跑起来后访问 `http://localhost:5678`，从模板市场挑一个"AI Agent + Slack 通知"的模板导入，5 分钟内就能看到端到端的效果。
+
+*开源地址：* **https://github.com/n8n-io/n8n**
+
+![](/assets/blog-images/ai-4-z98x8r/img07.webp)
+
+## 总结与行动建议
+
+- **想先体验"AI 替我操作"**：从 Tencent/BrowserSkill 开始，门槛最低，已登录的浏览器立刻能借给 Agent。
+- **手机端自动化是刚需**：直接装 ShawnPana/phone-harness，iOS / Android 都能用。
+- **想把日常操作沉淀成可复用流程**：microsoft/skill-recorder 录几次就有感觉了，配合 n8n 编排调度，能把"一个人的习惯"变成"团队的资产"。
+- **生产环境要可观测、可审计**：n8n 自托管 + 上面三个工具，组合起来基本覆盖 90% 的 Agent 自动化场景。
+
+#AI智能体 #AI工作流 #自动化 #SkillRecorder #PhoneHarness #Browserskill #N8n #skill-recorder #phone-harness #microsoft

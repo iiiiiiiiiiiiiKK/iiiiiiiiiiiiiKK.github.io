@@ -1,0 +1,210 @@
+---
+title: "6 个 Agent Skills 私藏清单：让本地 AI 自己动手干活"
+publishedAt: "2026-06-10"
+summary: "6 个 Agent Skills 私藏清单：让本地 AI 自己动手干活"
+image: "/assets/blog-images/6-agent-skills-ai-w9yqk4/img01.webp"
+tags: ["AI", "Agent", "开源"]
+author: "Adam"
+---
+![](/assets/blog-images/6-agent-skills-ai-w9yqk4/img01.webp)
+
+选择标题（3 选 1）
+
+6 个 Agent Skills 私藏清单：让本地 AI 自己动手干活
+
+装了等于白装的 Agent，先把这 6 个 Skills 塞给它
+
+我每天都在用的 6 个开源 Skills，下班真的早一点
+
+## 一、开篇：别再手动折腾它了
+
+你让 Claude Code 或 Codex 帮自己"扒个视频下来"，结果它让你手动跑 yt-dlp、导 Cookie、装 FFmpeg、合并音视频——你发现这个 Agent 根本不会"干活"。再比如你想给公众号文章做个封面，让 Agent 写提示词，它反而问你要 10 个设计参数。问题从来不是 Agent 不够聪明，而是它缺一份"按这个流程做"的说明书。下面这 6 个 Skills，正好就是给本地 Agent 装的"说明书"。
+
+## 二、项目速览
+
+| 仓库 | Stars | 主要语言 | 一句话定位 |
+|---|---|---|---|
+| Weikezi-AI/video-catcher | 46 | Python | 给 Agent 装的视频嗅探与下载 Skill |
+| SpaceZephyr/creator-buddy | 1.4k | Python | 公众号/小红书/视频全栈创作 Skill 工具箱 |
+| s1dashu/ip-as-logo-skill | 5.3k | — | 极简可爱 IP 吉祥物 Logo 生成 Skill |
+| pyang5166/gbro-cover-design | 823 | — | 公众号/小红书 3:4 封面提示词 Skill |
+| conorbronsdon/avoid-ai-writing | 4.6k | JavaScript | 检测并改写 AI 味写作 Skill |
+| NarratorAI-Studio/narrator-ai-cli-skill | 2.6k | — | AI 解说电影视频生成 Skill |
+
+## 三、项目解析
+
+### Weikezi-AI/video-catcher — 给 Agent 装一双"能下视频的手"
+
+video-catcher 是一个面向 Codex、Claude Code 等本地 Agent 的视频资源发现与下载 Skill。用户只需丢一个链接，Agent 自己解析、嗅探、下载、合并、验证，全程不用问 yt-dlp / Cookie / HLS / FFmpeg 这些事。
+
+**核心能力**：覆盖 MP4 / WebM 直链、HLS `m3u8`、DASH `mpd`，平台侧优先走 yt-dlp，覆盖 YouTube、B 站、抖音、X、TikTok、Instagram 等；网页侧用 Playwright 监听网络请求嗅探动态媒体；清晰度支持 `360p / 720p / 1080p / 2K / 4K / best` 精确指定。**下载链路自动选**：直链 → yt-dlp → YouTube PO Token → 浏览器指纹 → `web_safari` → 静态网页发现 → 浏览器嗅探，逐级回退不打扰用户。
+
+**适合谁**：让 Agent 帮人扒参考素材的运营、做本地素材库的研究者；**不适合谁**：==需要绕过 DRM、付费墙或账号权限的场景，本项目明确不做==。
+
+**最小上手**
+
+直接告诉 Agent：
+
+```
+帮我下载这个视频：https://example.com/watch/123
+```
+
+或者手动：
+
+```bash
+python scripts/video_catcher.py download "URL" --quality 1080p --quality-mode exact
+```
+
+*开源地址：* **https://github.com/Weikezi-AI/video-catcher**
+
+### SpaceZephyr/creator-buddy — 从选题到成品的全栈创作工具箱
+
+Creator Buddy 是一套给内容创作者用的全栈 Skill 工具箱，覆盖公众号、小红书、视频三大平台的完整创作流程。它把 30 多个 Skill 装进一个总控台：搜热点、挖爆款、拆竞品，到起标题、写正文、做配图、剪视频、配音配乐、出封面。
+
+**核心能力**：基于开放 Agent Skills 协议，Claude Code、Codex、Cursor、OpenClaw、Hermes 等 runtime 都跑得起来；先"搜真实内容"再"帮你一步步做成能发的东西"，不是凭感觉生成 10 个选题。它内置 100+ 爆款标题方法、62 种小红书排版风格、视频从脚本到 B-roll 的全流程。
+
+**适合谁**：同时运营公众号和小红书、要拍视频还要写文案的"一人公司"；**不适合谁**：只想做单一平台、单一动作的人，这一套偏全。
+
+**最小上手**
+
+直接告诉 Agent：
+
+```
+帮我安装这个 skill：https://github.com/SpaceZephyr/creator-buddy
+```
+
+或者手动：
+
+```bash
+npx skills add SpaceZephyr/creator-buddy
+```
+
+装好后直接说：
+
+```
+帮我看看最近 Codex 在小红书上有什么爆款
+```
+
+*开源地址：* **https://github.com/SpaceZephyr/creator-buddy**
+
+### s1dashu/ip-as-logo-skill — 让 Agent 三笔两笔画出"能用"的 IP Logo
+
+ip-as-logo 是一个紧凑的 Agent Skill，专门生成**极简、圆润、有商业感**的 IP 吉祥物 Logo。它的设计哲学很明确：4–7 个大基本形状组成一个主导轮廓、三种语义色（两个 IP 色 + 一个背景色）、主体从左下或右下角探出来，背景纯色填充。
+
+**核心能力**：用户给主题就出 3 个方向提案，确认后生成 6 张独立候选；默认主体都是熟悉动物（猫狗熊鸟之类），钟表、锁、抽象机械不会默认出现；优先调用 GPT Image 2 / Seedance 5.0 Pro / Nano Banana Pro 等顶级生图模型；仓库配套托管在 Cloudflare R2 + Supabase 的免费 Logo 库，没装 Agent 也能直接下载用。
+
+**适合谁**：做 SaaS、APP、品牌孵化需要一只"能印在名片上"的 IP 形象的人；**不适合谁**：==想要复杂写实或拟物化 Logo 的项目，它只做极简圆润风==。
+
+**最小上手**
+
+直接告诉 Agent：
+
+```
+Create a very simple, cute rounded ghost IP character on a solid deep navy background.
+```
+
+或者手动安装：
+
+```bash
+npx skills@latest add s1dashu/ip-as-logo-skill
+```
+
+*开源地址：* **https://github.com/s1dashu/ip-as-logo-skill**
+
+### pyang5166/gbro-cover-design — 三轮对话出一张公众号/小红书封面
+
+gbro-cover-design 把文章扔给 Agent，它读完后只问三轮问题，就输出一段可以直接跑图的封面提示词。画幅固定 **3:4 竖版**，标题自动帮你起，构图逻辑全内置。
+
+**核心能力**：内置 10 种构图风格模板（深色渐变、纯色扁平、产品主视觉、对比卡片、极简留白、海报拼贴、人物侧置、背影、局部出镜、正面对视），按文章内容先推荐风格；支持多参考图输入，**真人出镜时锁五官一致性**——只要把正脸照放在 `assets/my-face.png` 就行；不需要 API Key，本 Skill 只产提示词，喂给即梦 / Seedream 4.0 / Nano Banana / GPT-Image 都行。
+
+**适合谁**：每天要发公众号或小红书的运营、自媒体作者；**不适合谁**：需要横版、方版或多平台多尺寸的项目，它就锁死 3:4 竖版。
+
+**最小上手**
+
+克隆到 skills 目录：
+
+```bash
+git clone https://github.com/pyang5166/gbro-cover-design.git ~/.claude/skills/gbro-cover-design
+```
+
+然后把文章内容直接发给 Agent，Skill 自动触发，分三轮问完就出提示词。
+
+*开源地址：* **https://github.com/pyang5166/gbro-cover-design**
+
+### conorbronsdon/avoid-ai-writing — 把 AI 味写作揪出来再改干净
+
+avoid-ai-writing 是一个便携的写作 Skill，给 Claude Code、OpenClaw、Hermes、Codex 等 Agent 装上"反 AI 味"能力。它能审计并改写内容，把那些"赋能、革命性、无缝"等空洞词，以及排比堆砌、空泛承诺等 AI 恶习揪出来。
+
+**核心能力**：三种模式——`Rewrite`（默认，最多两轮编辑后验证）、`Detect`（只标不改）、`Edit`（用 Edit 工具就地小改，保留已经人味的部分）；可选 **Voice Profile**（casual / professional / technical / warm / blunt）独立控制语气；可设 `--iterate 1|2` 控制编辑轮数；提供独立 npm 包 `avoid-ai-writing-detector`，可命令行跑分、做 GitHub Actions / pre-commit 卡点、走 MCP 服务器。
+
+**适合谁**：所有用 AI 写公众号、博客、邮件的人；**不适合谁**：==源代码、配置文件、生成数据等结构化内容——Skill 会拒绝改写，防止破坏格式==。
+
+**最小上手**
+
+直接告诉 Agent：
+
+```
+帮我把这段文字扫一遍 AI 味，然后改干净
+```
+
+或者手动跑检测：
+
+```bash
+npx -y avoid-ai-writing-detector your-file.md
+```
+
+*开源地址：* **https://github.com/conorbronsdon/avoid-ai-writing**
+
+### NarratorAI-Studio/narrator-ai-cli-skill — 一句话让 Agent 出电影解说视频
+
+narrator-ai-cli-skill 是给 AI Agent 装的"电影解说视频生成说明书"。CLI 是手，Skill 是脑——CLI 负责执行命令，Skill 教 Agent 怎么按步骤搜电影、选模板、配 BGM、选配音、生脚本、合成视频、返回下载链接。
+
+**核心能力**：内置 ~100 部电影、146 首 BGM、63 个配音、90+ 解说模板，两条工作流（改编解说 / 原创解说），三种创作模式（热剧混剪 / 原创混剪 / 新剧）；所有 18 个 API 错误码都配了推荐动作；任务创建前先做预算校验，避免跑一半钱烧光。Skill 同时支持 OpenClaw、Windsurf、WorkBuddy、QClaw、Claude Code、Cursor、有道龙虾、腾讯元宝等 8+ 平台。
+
+**适合谁**：做影视解说、解说类短视频、需要批量产出的创作者；**不适合谁**：==想做深度原创剧评或严肃影评的人——Skill 是流水线式生成，不是评论文章==。
+
+**最小上手**
+
+先装 CLI：
+
+```bash
+pip install "narrator-ai-cli @ git+https://github.com/NarratorAI-Studio/narrator-ai-cli.git"
+narrator-ai-cli config set app_key <your_app_key>
+```
+
+再装 Skill：
+
+```bash
+git clone https://github.com/NarratorAI-Studio/narrator-ai-cli-skill.git ~/.openclaw/skills/narrator-ai-cli
+```
+
+然后直接说：
+
+```
+Create a narration video for The Shawshank Redemption in a comedy style.
+```
+
+*开源地址：* **https://github.com/NarratorAI-Studio/narrator-ai-cli-skill**
+
+## 四、总结与行动建议
+
+- 如果你是本地 Agent 重度用户，先装 **video-catcher** + **creator-buddy**，覆盖视频下载和公众号/小红书/视频三大创作主场景。
+- 内容产能跟得上但 AI 味太重的，加一个 **avoid-ai-writing**；封面产出卡住的，加 **gbro-cover-design** 或 **ip-as-logo-skill**。
+- 想做影视解说短视频批量化产出的，**narrator-ai-cli-skill** 是现成流水线。
+
+下一步建议：挑 2 个 Skill 装到 Claude Code 或 Codex 里跑一轮——只装不用，Skills 永远是 README。
+
+#AI视频剪辑 #脚本化视频 #口播视频 #VideoCatcher #CreatorBuddy #IpAsLogoSkill #GbroCoverDesign #AvoidAiWriting #NarratorAiCliSkill #video-catcher
+
+![](/assets/blog-images/6-agent-skills-ai-w9yqk4/img02.webp)
+
+![](/assets/blog-images/6-agent-skills-ai-w9yqk4/img03.webp)
+
+![](/assets/blog-images/6-agent-skills-ai-w9yqk4/img04.webp)
+
+![](/assets/blog-images/6-agent-skills-ai-w9yqk4/img05.webp)
+
+![](/assets/blog-images/6-agent-skills-ai-w9yqk4/img06.webp)
+
+![](/assets/blog-images/6-agent-skills-ai-w9yqk4/img07.webp)
+

@@ -1,0 +1,92 @@
+---
+title: "输入「应县木塔」就出一整套可视化？Heritage Architecture Studio 把建筑数字化做成了流水线"
+publishedAt: "2026-05-19"
+summary: "输入「应县木塔」就出一整套可视化？Heritage Architecture Studio 把建筑数字化做成了流水线"
+image: "/assets/blog-images/heritage-architecture-studio-jqemf3/img01.webp"
+tags: ["AI", "Agent", "开发"]
+author: "Adam"
+---
+![](/assets/blog-images/heritage-architecture-studio-jqemf3/img01.webp)
+
+选择标题（3 选 1）
+
+输入「应县木塔」就出一整套可视化？Heritage Architecture Studio 把建筑数字化做成了流水线
+
+10 类固定视图 + JSON Schema + 双端 QA：Heritage Architecture Studio 把 AI 画建筑的不确定性砍掉 80%
+
+不写一行建模代码，却能交付可校验的历史建筑 Three.js 展厅？这个 Hermes Skill 有点东西
+
+# 输入「应县木塔」就能产出整套建筑可视化？Heritage Architecture Studio 把这件事拆成了流水线
+
+做历史建筑数字化的过程中，你大概率踩过这些坑：让 AI 描述一座古塔，它张口就来一堆"精美绝伦"的形容词，等真要画参考图，视角混乱、比例对不上；想让它输出 JSON 给前端用，结果字段全凭心情，三个月后回头看根本不知道哪个 key 是哪根柱子的；想再进一步生成可交互网页，得到的又是一堆不能旋转、加载半天的 Three.js 烂摊子。文化遗产数字化需要的是可复现、可校验、可交付的工作流，不是又一次"AI 玄学"。
+
+![](/assets/blog-images/heritage-architecture-studio-jqemf3/img02.webp)
+
+## 项目简介：用一句话概括
+
+Heritage Architecture Studio 是一个 Hermes Skill：输入历史建筑名称，自动输出建筑分析、固定视图 Prompt、多视图参考板、JSON 规范，再生成经过真实浏览器验证的程序化 Three.js 展厅。核心关键词：10 类固定视图、Draft 2020-12 JSON Schema、确定性校验、桌面移动双端 QA。当前版本 v1.1.1，MIT 协议。
+
+![](/assets/blog-images/heritage-architecture-studio-jqemf3/img03.webp)
+
+## 核心功能深度解析
+
+### 1. 建筑语义自动分析
+
+Skill 拿到「应县木塔」后，第一步拆解出类型、风格、年代、文化、材质、特征结构这六个维度的元数据，并且强制区分四类信息：确认事实、推断、简化、不确定。这条规矩直接切掉了 AI 最爱干的"猜数据"毛病——没有权威出处，宁可标"unknown"，绝不编一个看起来很精确的斗拱数量。
+
+### 2. 10 类固定视图库
+
+视角不再自由发挥。Hero Perspective、正背左右四立面、Additional Perspective Views（至少两张）、顶视、底视或内部结构、屋顶细节、装饰细节，共 10 类强制画面，外加统一的渲染契约：白底、等比、正交、博物馆级参考板、PBR 材质、柔和影棚光。这种强约束让多座建筑之间天然可比，研究者画册式排版也能整齐对齐。
+
+### 3. 自包含 JSON 规范
+
+所有建筑参数装进一份内嵌 Draft 2020-12 JSON Schema 的自包含 JSON，连完整 Prompt 都嵌在 JSON 字段里。配套的 `validate_prompt_output.py` 校验器会检查 Prompt / JSON 的确定性，关键字缺失、字段类型错误直接报错。意味着这份产物可以进版本控制、可以二次加工、可以喂给下游任何渲染管线，不用每次都靠 prompt 玄学。
+
+### 4. 容错与范围控制
+
+图片服务挂了怎么办？保留 Prompt 和 JSON，能跑通的部分照跑。三维网页验证要求生产构建、HTTP 服务、真实像素、交互、桌面与移动端五项全部通过。同时支持六种执行范围：完整流程、Prompt-only、Prompt+JSON、JSON-only、参考板-only、Three.js-only，按需裁剪，不强推全量。
+
+![](/assets/blog-images/heritage-architecture-studio-jqemf3/img04.webp)
+
+## 技术亮点与性能数据
+
+仓库内置 `init_workspace.py` 初始化工作区，`validate_repo.py` 做仓库级校验，`validate_prompt_output.py` 做 Prompt / JSON 校验。产物以 `.skill` 包分发，v1.1.1 的 SHA-256 已锁定（`b97550fddb4eb62119faeea909f96019f1028ed3878034a2fc61094c035ce364`），分发可追溯。Three.js 产物明确标注"可解释的程序化重建"，不冒充文物级 CAD 复原——这条边界声明，比多数同类项目更诚实。
+
+## 适用场景与人群
+
+**数字人文与建筑史课程**：一键产出统一视角的多座古建筑参考板，做横向比较图集。**博物馆与文化遗产机构**：用程序化 Three.js 页面做线上展厅，无需重度建模。**游戏 / 影视概念设计**：固定视图库 + JSON 规范直接喂给下游美术或程序化生成管线。**AI Agent 开发者**：把它当作参考实现，看一个完整 Skill 如何把生成、校验、QA 串成流水线。**不适合谁**：需要测绘级逆向建模、点云精度、BIM 输出的工程场景——本项目明确不替代保护工程测绘。
+
+![](/assets/blog-images/heritage-architecture-studio-jqemf3/img05.webp)
+
+## 竞品对比
+
+| 维度 | Heritage Architecture Studio | 通用 AI 绘图 Prompt | 传统 BIM / 测绘 |
+|---|---|---|---|
+| 视角规范 | 10 类固定视图，强约束 | 自由发挥 | 自由建模 |
+| 数据可校验 | JSON Schema + 校验器 | 不可校验 | 强校验 |
+| 网页产物 | Three.js + 桌面移动 QA | 通常无 | 需另外开发 |
+| 不确定性处理 | 强制四类分级标注 | 常被包装成"精确" | 数据精确 |
+| 上手成本 | 一行命令安装 | 低 | 高 |
+
+## 如何快速上手
+
+一行安装 Skill：
+
+```bash
+hermes skills install thursdaycapital/heritage-architecture-studio/skills/heritage-architecture-studio --category creative --yes
+```
+
+新开会话执行 `/reset`，输入建筑名即可。要限定范围时，把"只输出 Prompt"、"JSON only"、"先做参考板"等关键词直接写进输入。本地校验跑 `python3 scripts/validate_repo.py`，校验 Prompt / JSON 实例用 `validate_prompt_output.py` 配 `--prompt` 与 `--json` 参数。
+
+![](/assets/blog-images/heritage-architecture-studio-jqemf3/img06.webp)
+
+## 总结与行动建议
+
+Heritage Architecture Studio 的核心价值是：把历史建筑从一段 prompt 变成一条可复现、可校验、可交付的流水线。10 类固定视图解决"画得乱"，JSON Schema + 校验器解决"字段飘"，双端 QA 解决"网页跑不动"，不确定性分级解决"AI 乱编"。如果你的工作流里需要批量、可比、可二次加工的历史建筑数字资产，从「陵派扳宫」或「佛光寺东大殿」开始跑一遍，体验会比读 README 更直接。
+
+- GitHub：https://github.com/thursdaycapital/heritage-architecture-studio
+- Releases（含 `.skill` 包与 SHA-256）：https://github.com/thursdaycapital/heritage-architecture-studio/releases/latest
+
+一句话安利：输入一座古建筑的名字，拿回一套能进版本库的可视化资产——这是它最值得收藏的地方。
+
+#heritage-architecture-studio #HeritageArchitectureStudio #thursdaycapital #前端开发 #Web开发 #开源项目 #GitHub

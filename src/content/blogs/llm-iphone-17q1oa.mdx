@@ -1,0 +1,90 @@
+---
+title: "别再越狱了：让 LLM 直接操控你的真 iPhone"
+publishedAt: "2026-07-26"
+summary: "想让 AI 帮你点开手机上的天气、回复一条微信、订一杯咖啡，结果发现它根本碰不到你的手机？市面上大多数手机自动化方案，要么要求你越狱，要么让你折腾 Xcode 装 WebDriverAgent，要么依赖云端模拟器——真实…"
+image: "/assets/blog-images/llm-iphone-17q1oa/img01.webp"
+tags: ["AI", "Agent", "开发"]
+author: "Adam"
+---
+![](/assets/blog-images/llm-iphone-17q1oa/img01.webp)
+
+## 一、开篇：你还在为这件事头疼吗？
+
+想让 AI 帮你点开手机上的天气、回复一条微信、订一杯咖啡，结果发现它根本碰不到你的手机？市面上大多数手机自动化方案，要么要求你越狱，要么让你折腾 Xcode 装 WebDriverAgent，要么依赖云端模拟器——真实设备的操控权始终隔着一堵墙。对个人开发者和 Agent 玩家来说，「让 LLM 直接操作我的真 iPhone」一直是个悬而未决的痛点。phone-harness 这个项目，正是冲着这堵墙来的。
+
+## 二、一句话看懂：这是个什么项目
+
+phone-harness 是一个 Python 项目，让 LLM Agent 直接控制你的真实 iPhone。它无需越狱、无需 Xcode、无需 WebDriverAgent，只借助 macOS 的「iPhone 镜像」窗口，就能把 macOS 屏幕当作传输通道：用 `screencapture` 加 Vision 框架 OCR 当作「眼睛」，用 HID 层 CGEvents 当作「手」。截至本文撰写，仓库已收获 1682 Stars，是 Agent + 真机操控领域一个相当轻量但巧妙的存在。
+
+![](/assets/blog-images/llm-iphone-17q1oa/img02.webp)
+
+## 三、核心功能深度解析
+
+### 1. 看见屏幕：Vision 框架 OCR 提取可点击坐标
+
+phone-harness 截取 iPhone Mirroring 窗口后，调用 Apple Vision 框架做文字识别，返回屏幕上每个字符串及其像素坐标。这相当于给 Agent 提供了一个「穷人版 DOM」——没有语义、没有结构，但每个可点击元素都有准确位置。Agent 拿到坐标后就能决定下一步点哪里。
+
+### 2. 操控手机：HID 层 CGEvents 直发输入
+
+「手」这一端用的是 macOS 的 `CGEvent`，在 HID 层直接构造触摸、点击、长按、拖动、滚轮、滑动等手势，并支持 Unicode 输入和 macOS 快捷键转发（Cmd+1 回到桌面、Cmd+2 切应用、Cmd+3 打开 Spotlight）。这套链路绕开了 AppleScript `click at`（被静默忽略）的坑，也避免了「输入框没焦点」导致的丢键问题。
+
+### 3. 自我验证：截图即真值
+
+iOS 没有 DOM，截图就是 Ground Truth。每次操作后再次 OCR+截图比对，Agent 就能确认动作是否生效。整个流程天然形成「看见→行动→验证」的闭环。
+
+### 4. 无守护进程：每次调用自包含
+
+镜像传输是无状态的，窗口边界和截图都按需查询，不需要常驻守护进程。每次执行 `./phone-harness` 都是一次干净启动，对调试和脚本化极其实用。
+
+### 5. Agent 可扩展：agent-workspace 自由追加
+
+核心代码 ~500 行被保护，但 `agent-workspace/agent_helpers.py` 会自动注入到每次执行的命名空间。Agent 在运行中缺什么工具，自己往这个文件里补即可，无需修改核心。
+
+![](/assets/blog-images/llm-iphone-17q1oa/img03.webp)
+
+## 四、技术亮点与性能数据
+
+phone-harness 的架构亮点在于「用 macOS 原生能力拼出最小可用集合」：iPhone Mirroring 渲染 + screencapture + Vision OCR + CGEvent 输入，整条链路只有 ~500 行核心代码，没有中间服务、没有协议层、没有设备驱动。它支持 macOS Sequoia 及以上系统，与 Apple 自家的镜像窗口无缝兼容，生态成本几乎为零。设计上，每次调用都是 stateless，无守护进程，部署只需一次权限授权（辅助功能 + 屏幕录制）。代价也很明确：仅支持单设备单会话，不支持多指手势（捏合）、不支持摄像头/Face ID 流程、DRM 视频会黑屏、OCR 看不见无标签图标。
+
+![](/assets/blog-images/llm-iphone-17q1oa/img04.webp)
+
+## 五、适用场景与人群
+
+场景一：Agent 自动化测试——让 LLM 在真机上反复点开 App、操作 UI，比模拟器更贴近用户真实体验；场景二：个人效率脚本——让 Agent 帮你查天气、发消息、点外卖，无需手动操作；场景三：Agent 应用研究——研究「具身 Agent 在真实移动 OS 上的行为闭环」，phone-harness 是门槛最低的实验台。适合人群：Agent 玩家、独立开发者、做 GUI Agent 研究的从业者。不适合的人：需要多指手势或摄像头的复杂自动化场景，以及只用 Windows/Linux 的用户。
+
+## 六、竞品对比
+
+| 维度 | phone-harness | WebDriverAgent | 云端模拟器方案 |
+|---|---|---|---|
+| 是否需要越狱/Xcode | 否 | 需要 Xcode | 否 |
+| 真机操控 | 支持 | 支持 | 否（模拟器） |
+| 部署复杂度 | 低（仅 macOS 权限） | 中 | 高（依赖云资源） |
+| 核心代码量 | ~500 行 | 数千行 + 维护团队 | N/A |
+| 多指/摄像头 | 不支持 | 支持 | 取决于模拟器 |
+
+选它的核心理由：你要的是「让 LLM 直接动我的真手机」，而不是「搭一套完整的移动测试平台」。phone-harness 用 macOS 原生能力绕开了所有传统方案的脚手架，门槛低到令人发指。
+
+![](/assets/blog-images/llm-iphone-17q1oa/img05.webp)
+
+## 七、如何快速上手
+
+只需两步。第一步：把 iPhone Mirroring 与你的手机配对一次（需要实体手机确认配对提示），并在「系统设置 → 隐私与安全性」中给终端授权「辅助功能」和「屏幕录制」。第二步：在 Claude Code 或 Codex 中粘贴 README 的 Setup prompt，让 Agent 自动克隆仓库到 `~/.phone-harness`，读取 `install.md` 完成安装，注册为 `phone-harness` 技能。完成后运行 `./phone-harness --doctor` 验证链路。最小可用示例：
+
+```bash
+./phone-harness <<'PY'
+open_app("Notes")
+tap_text("New Note")
+type_text("hello from the harness")
+PY
+```
+
+进阶建议：把 `SKILL.md` 作为日常操作手册熟读；需要新功能时改 `agent-workspace/agent_helpers.py`，它会自动注入到每次脚本执行；遇到 OCR 识别不到的图标，配合支持视觉的多模态模型截图识别，效果更稳。
+
+![](/assets/blog-images/llm-iphone-17q1oa/img06.webp)
+
+## 八、总结与行动建议
+
+phone-harness 的核心价值就一句话：把 macOS iPhone Mirroring 变成 Agent 的「手和眼」，用 ~500 行代码打通 LLM 到真 iPhone 的最后一段链路。它不适合工业级移动测试自动化，但绝对是 Agent 玩家、研究者、独立开发者体验「真机 Agent」门槛最低的入口。项目地址：https://github.com/ShawnPana/phone-harness，详细的安装与排错见 `install.md`，日常用法见 `SKILL.md`。如果你也试过让 Agent 操作手机却总被越狱、Xcode、云端模拟器劝退，不妨试试它——半小时内，你就能看见 AI 真的点开了你手机上的天气。
+
+![](/assets/blog-images/llm-iphone-17q1oa/img07.webp)
+

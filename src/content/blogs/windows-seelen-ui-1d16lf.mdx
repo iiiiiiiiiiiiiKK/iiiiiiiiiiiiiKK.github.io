@@ -1,0 +1,93 @@
+---
+title: "Windows 桌面太难用？Seelen UI 直接把它整套换掉"
+publishedAt: "2026-04-06"
+summary: "Windows 桌面太难用？Seelen UI 直接把它整套换掉"
+image: "/assets/blog-images/windows-seelen-ui-1d16lf/img01.webp"
+tags: ["开源", "前端", "系统"]
+author: "Adam"
+---
+![](/assets/blog-images/windows-seelen-ui-1d16lf/img01.webp)
+
+选择标题（3 选 1）
+
+Windows 桌面太难用？Seelen UI 直接把它整套换掉
+
+17.9K Stars 的 Seelen UI：把 Windows 桌面变成可编程工作台
+
+不用换系统也能拥有 macOS 级桌面体验：Seelen UI 凭什么
+
+# Seelen UI：把 Windows 桌面改造成你想要的样子
+
+## 一、开篇：别再手动折腾它了
+
+每个用 Windows 的开发者都有过这种时刻：盯着任务栏右下角拥挤的系统托盘，想把窗口快速铺成三栏却只能手动拖拽，想找个应用得在开始菜单里翻半天。Windows 11 改了一版又一版，任务栏、开始菜单、虚拟桌面依旧在「能用」和「好用」之间反复横跳。截至 2026 年初，这个被 17.9K Stars 标记的开源项目 Seelen UI 给出了不一样的答案：直接把 Windows 桌面环境整套替换掉。
+
+## 二、项目简介：一句话说明它是什么
+
+Seelen UI 是一个用 Rust 编写的 Windows 桌面环境完整替代方案——它不是主题包，也不是美化补丁，而是把任务栏、Dock、应用启动器、窗口管理器、通知弹出层、虚拟桌面这些日常交互组件全部重新实现一遍的产品。它支持 70+ 种语言、提供 CSS/JSON 主题引擎和插件 Widget 系统，已上架 Microsoft Store 和 Winget，同时在 GitHub Releases 提供经过签名的安装包。
+
+## 三、核心功能深度解析
+
+### 1. 平铺式窗口管理器
+
+Seelen UI 内置的平铺窗口管理器支持 BSP、列布局、堆叠等多种自动排列算法，窗口之间可配置内外间距。所有操作都可以靠键盘完成：调整大小、交换位置、聚焦切换，双手根本不需要离开键盘。对比 Windows 原生的 Snap 助手只能二等分或四等分，Seelen UI 的优势在于布局可编程、可重复，对写代码、跑多窗口调试的人来说特别友好。
+
+### 2. 动态主题色与 CSS/JSON 主题引擎
+
+Seelen UI 会实时分析当前壁纸，自动提取一个和谐的主题色应用到所有 Shell 元素上——不用手动挑色，桌面整体配色永远跟壁纸一致。主题本身用作用域化的 CSS 加 JSON 配置描述，字体、边框、动画、配色都可改。社区主题可以直接安装，每个 Widget 还能带独立样式，覆盖深色/浅色模式自动切换。
+
+### 3. 应用启动器与媒体控制
+
+启动器走的是 Rofi 路线的键盘驱动设计：模糊搜索能在毫秒级命中应用、文件、Shell 命令和自定义脚本。媒体控制模块则兼容几乎所有主流播放器，播放、暂停、切歌、进度条拖动都能从工具栏或独立 Widget 上操作，看视频或听音乐时不用切窗口。
+
+### 4. 虚拟桌面与 Widget 桌面层
+
+虚拟桌面支持自定义命名、独立壁纸、平滑切换动画，还能写规则把特定应用钉到指定工作区。Widget 可以直接铺在桌面壁纸层——时钟、系统监控、媒体控制、天气、自定义面板全部可拖拽摆放，所有 Widget 都跟随主题自动变色。
+
+![](/assets/blog-images/windows-seelen-ui-1d16lf/img02.webp)
+
+## 四、技术亮点与性能数据
+
+Seelen UI 用 Rust 编写核心，UI 层借助 WebView2 渲染，保证启动速度和内存占用可控。Widget SDK 允许开发者用 Svelte + TypeScript 构建自定义组件，并通过完整 IPC 访问系统状态——这意味着生态可以自己长出来。配置文件全部以纯文件形式存储，可直接放进 Git 做版本管理、跨机同步。安装包经过代码签名，同时支持 Microsoft Store、Winget（`winget install --id Seelen.SeelenUI`）、GitHub Releases 三条分发渠道，企业和个人用户都能找到适合自己的更新通道。
+
+![](/assets/blog-images/windows-seelen-ui-1d16lf/img03.webp)
+
+## 五、适用场景与人群
+
+Seelen UI 至少适合三类人：一是每天在多窗口之间切换的全栈开发者，平铺窗口管理器加键盘流能省下大量拖拽时间；二是对桌面美观和一致性有强需求的设计师与内容创作者，动态主题色加 Widget 桌面层能搭出杂志感的工作台；三是习惯 Linux/macOS 桌面体验、又必须留在 Windows 生态的工程师，Dock、启动器、虚拟桌面规则一套就能复刻 macOS 习惯。它不太适合纯办公用户、企业统一管控环境，以及依赖 Windows 原生辅助功能的用户。
+
+![](/assets/blog-images/windows-seelen-ui-1d16lf/img04.webp)
+
+## 六、竞品对比
+
+| 项目 | Seelen UI | Rainmeter | PowerToys | 原生 Windows |
+|---|---|---|---|---|
+| 替换任务栏/Dock | ✔ 完整替换 | ✘ 仅美化 | ✘ 增强不替换 | — |
+| 平铺窗口管理 | ✔ 内置 | ✘ 无 | ✘ FancyZones 有限 | ✘ Snap 四分 |
+| CSS/JSON 主题 | ✔ 完整引擎 | ✘ 皮肤为主 | ✘ 无 | ✘ 无 |
+| 自定义 Widget | ✔ SDK + IPC | ✔ 第三方 | ✘ 无 | ✘ 无 |
+| 虚拟桌面增强 | ✔ 命名+壁纸+规则 | ✘ 无 | ✘ 无 | ✔ 仅基础 |
+| 键盘优先 | ✔ 全功能 | ✘ 部分 | ✔ 部分 | ✘ |
+
+相比 Rainmeter 的「桌面贴纸」定位和 PowerToys 的「系统功能补强」定位，Seelen UI 是真正对标 AwesomeWM、Hyprland 那一类 Linux 桌面环境思路的 Windows 实现。
+
+![](/assets/blog-images/windows-seelen-ui-1d16lf/img05.webp)
+
+## 七、如何快速上手
+
+在 Windows 11 上安装最省事：从 Microsoft Store 搜索 Seelen UI 直接安装，自动跟随系统更新；爱用终端的话执行 `winget install --id Seelen.SeelenUI`；想第一时间拿到新版本就去 GitHub Releases 页面下载签名版的 `.exe` 或 `.msix`。Windows 10 用户注意提前装好 Microsoft Edge 和 WebView 运行时，setup.exe 安装包已自带 WebView。新装后用设置界面的引导把工具栏、Dock、平铺管理器、Widget 逐个启用，再去官方文档和 Discord 社区深入配置主题和工作区规则。
+
+![](/assets/blog-images/windows-seelen-ui-1d16lf/img06.webp)
+
+## 八、总结与行动建议
+
+Seelen UI 用一个 Rust 写的开源项目，把 Windows 桌面从「能用的系统组件」拉到了「可编程的工作环境」这一档——平铺布局、动态主题、键盘启动器、Widget 桌面层、自带 SDK，每一项都直击 Windows 原生的痛点。如果你每天要在十几个窗口之间反复跳转，又不想为了好用的桌面切换到 Linux，不妨给 Seelen UI 一次机会，从启用任务栏替换和平铺管理器开始，逐步把它调成自己想要的样子。
+
+- GitHub 仓库：https://github.com/eythaann/seelen-ui
+- 官方文档：https://seelen.io/apps/seelen-ui
+- Discord 社区：https://discord.seelen.io
+
+#seelen-ui #SeelenUi #eythaann #前端开发 #Web开发 #开源项目 #GitHub
+
+![](/assets/blog-images/windows-seelen-ui-1d16lf/img07.webp)
+

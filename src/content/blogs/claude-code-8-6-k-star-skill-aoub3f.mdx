@@ -1,0 +1,125 @@
+---
+title: "Claude Code 联网总翻车？这个 8.6k Star 的 Skill 直接补齐浏览器操作"
+publishedAt: "2026-08-18"
+summary: "团队里一个研究员跑来找你：「帮我把竞品官网的新功能、价格、用户评价整理一份对比。」你打开 Cursor 或 Claude Code，刚敲完一段 prompt，AI 回你一句：「抱歉，我无法访问外部网站。」"
+image: "/assets/blog-images/claude-code-8-6-k-star-skill-aoub3f/img01.webp"
+tags: ["AI", "Agent", "开源"]
+author: "Adam"
+---
+![](/assets/blog-images/claude-code-8-6-k-star-skill-aoub3f/img01.webp)
+
+## 一、开篇：别再手动折腾它了
+
+团队里一个研究员跑来找你：「帮我把竞品官网的新功能、价格、用户评价整理一份对比。」你打开 Cursor 或 Claude Code，刚敲完一段 prompt，AI 回你一句：「抱歉，我无法访问外部网站。」
+
+这场景你大概率撞见过。Claude Code、Gemini CLI 这些 AI Agent 自带的 `WebSearch`、`WebFetch` 只覆盖最基础的 HTTP 抓取：拿不到登录态、搞不定动态渲染、绕不开反爬，更别说视频截帧、文件上传这些「重度操作」。结果就是，Agent 干到一半卡住，剩下的活还是回到你手上。
+
+今天要拆的这个项目，就是冲着这个痛点来的。
+
+![](/assets/blog-images/claude-code-8-6-k-star-skill-aoub3f/img02.webp)
+
+## 二、项目简介：一句话说明它是什么
+
+`web-access`（GitHub：eze-is/web-access，Star 8.6k，主语言 JavaScript）是一个面向 Claude Code、Cursor、Gemini CLI、Codex CLI 等所有支持 SKILL.md 的 Agent 的 Skill 包。它的核心定位只有一句：给 AI Agent 装上完整的联网和浏览器操作能力。
+
+它补的不是一个点，而是三层能力：联网工具的智能调度、CDP 浏览器自动化、本地浏览器书签与历史的检索。版本已经走到 v2.5.2，最新的 Edge 浏览器支持让这套方案的兼容面又宽了一圈。
+
+## 三、核心功能深度解析
+
+### 1. 联网工具的自动选择与组合
+
+Agent 在不同场景下需要不同的联网手段：纯静态页面一个 `curl` 就够；需要绕过反爬交给 Jina；要登录态、动态内容、交互操作就上 CDP 浏览器。这个 Skill 把 `WebSearch`、`WebFetch`、`curl`、`Jina`、`CDP` 五种工具摆到 Agent 面前，并写明每一种的适用场景。Agent 拿到任务后，会按「场景驱动」而不是「步骤驱动」的方式选择，可单一可组合，不再是死板的固定路径。
+
+### 2. CDP Proxy 直连用户日常浏览器
+
+这一条是整个 Skill 的杀手锏。CDP Proxy 通过 WebSocket 直连你已经登录好的 Chrome 或 Edge，你不用单独跑一个无头浏览器，cookie、token、企业 SSO 的登录态天然继承下来。接口走 HTTP API：`/new` 新建 tab、`/eval` 执行 JS、`/click` 与 `/clickAt` 区分 JS 点击和真实鼠标事件、`/setFiles` 上传文件、`/screenshot` 截图、`/scroll` 滚动，全程用 `curl` 就能完成。Proxy 还会在 15 分钟闲置后自动关 tab，避免 Agent 异常退出留下孤儿进程。
+
+### 3. 三种点击方式的精细区分
+
+很多站点对自动化点击有自己的检测：有的只认 JS 派发的 `click` 事件，有的必须真实鼠标坐标，有的只对人类输入开放。Skill 把这三类都做了对应实现：`/click` 走 `element.click()`，速度快但容易触发反自动化；`/clickAt` 走 CDP 的 `Input.dispatchMouseEvent`，能模拟真实坐标点击；`/setFiles` 处理文件上传这一步常见但被很多工具忽略的操作。
+
+### 4. 本地书签与历史检索（find-url）
+
+公网搜不到的内部系统、回想不起地址的旧页面、最近高频访问的站点，这些需求光靠 `WebSearch` 拿不下来。`scripts/find-url.mjs` 直接读 Chrome / Edge 本地数据库，支持关键词、时间窗、访问频度多维度排序，跨默认浏览器遍历，特别适合「帮我打开我们公司 OA 改密码页」这类 prompt。
+
+### 5. 并行分治与站点经验沉淀
+
+面对「调研 5 个产品官网」这种多目标任务，Skill 会分发子 Agent 并行跑，共享同一个 Proxy、tab 级隔离。多次操作同一站点后，操作经验（URL 模式、平台特征、已知陷阱）会按域名存下来，跨 session 复用，下次再碰小红书之类的「重灾区」，少踩一半坑。
+
+![](/assets/blog-images/claude-code-8-6-k-star-skill-aoub3f/img03.webp)
+
+## 四、技术亮点与性能数据
+
+架构上，CDP Proxy 是一个常驻 Node.js 进程，对外暴露 7 个 HTTP 端点（`/new`、`/eval`、`/click`、`/clickAt`、`/setFiles`、`/screenshot`、`/scroll` 等），对内通过 WebSocket 复用浏览器自带的 `chrome://inspect` / `edge://inspect` 通道。这意味着不需要额外装 puppeteer，不需要下载 Chromium，不需要命令行参数启动浏览器。
+
+跨平台层面，脚本从 bash 全面迁移到 Node.js，Windows（Git Bash）、Linux、macOS 都能跑；`config.env` 用 `${CLAUDE_SKILL_DIR}` 字符串替换语法绕过 Windows 路径转换问题。生态兼容性上，只要 Agent 支持 SKILL.md 规范就能加载，不绑定 Claude Code 一家。
+
+DOM 边界穿透也是个工程细节：用 `eval` 递归遍历可以穿透 Shadow DOM 和 iframe 这种 CSS 选择器跨不过去的边界，配合 v2.4 引入的「平台错误提示不可信」「URL 自带上下文」等技术事实，让 Agent 面对反爬和动态结构不再束手无策。
+
+![](/assets/blog-images/claude-code-8-6-k-star-skill-aoub3f/img04.webp)
+
+## 五、适用场景与人群
+
+**适用人群：** 用 Claude Code / Cursor / Codex CLI 做实际工作的产品经理、独立开发者、研究员、运营、内容创作者。
+
+**具体场景：**
+
+1. **深度调研**：让 Agent 同时打开 10 个竞品官网，对比功能、定价、用户评价，自动汇总成表格。
+2. **跨平台内容运营**：在已登录的浏览器里，让 Agent 帮你在小红书、公众号、视频号发布内容、上传封面、填写表单。
+3. **企业内部系统操作**：Agent 通过本地书签定位内部 OA、Confluence、Notion 页面，配合登录态直接执行数据查询。
+4. **视频与媒体分析**：用 CDP 的视频截帧能力，在任意时间点抽帧做内容理解，DOM 直取图片视频 URL 做素材整理。
+
+**不适合：** 单纯只想要「念个 URL 出来就行」的轻量场景，原生 `WebFetch` 就够用，杀鸡用牛刀反而增加 token 开销。
+
+## 六、竞品对比
+
+| 能力 | 原生 WebFetch | 浏览器插件方案 | web-access Skill |
+|------|--------------|--------------|-----------------|
+| 登录态支持 | 无 | 依赖插件登录 | 复用本地浏览器 Cookie |
+| 动态渲染 | 有限 | 好 | 好（CDP） |
+| 反爬对抗 | 差 | 一般 | Jina + 浏览器策略 |
+| 工具自动选择 | 无 | 无 | WebSearch/Fetch/curl/Jina/CDP 五选 |
+| 多目标并行 | 无 | 弱 | 子 Agent 共享 Proxy |
+| 跨 Agent 平台 | 取决于 Agent | 局限于浏览器 | SKILL.md 规范通用 |
+
+最关键的区别：传统插件方案是「人加一层壳」，而 web-access 是「让 Agent 自己懂什么时候该用什么工具」，把决策权交还给模型。
+
+![](/assets/blog-images/claude-code-8-6-k-star-skill-aoub3f/img05.webp)
+
+## 七、如何快速上手
+
+最快的一行命令：
+
+```bash
+npx skills add eze-is/web-access
+```
+
+这条命令会调用 Vercel 的 skills CLI，自动检测你的 Agent 环境并把 Skill 装到正确位置。
+
+如果你不想用 CLI，直接把链接发给 Agent 让它自己装：
+
+> 帮我安装这个 skill：https://github.com/eze-is/web-access
+
+前置条件只有两条：**Node.js 22+**，以及在你日常用的 Chrome 或 Edge 里打开对应 inspect 页面勾选「Allow remote debugging for this browser instance」。首次运行会在 `~/.claude/skills/web-access/config.env` 自动生成一份配置文件（gitignored），可以固定默认浏览器为 Chrome 或 Edge，也保留「每次问」的灵活模式。
+
+装完之后直接发指令：「帮我在小红书搜索『xxx 账号』」「同时调研这 5 个 SaaS 产品官网」「读一下这个页面并总结要点」就行，Skill 会自动接管。如果有需要，也可以固定浏览器偏好：
+
+```bash
+WEB_ACCESS_BROWSER=edge
+```
+
+提醒一句：CDP 模式走的是你自己的浏览器账号，社交平台操作建议用小号。
+
+![](/assets/blog-images/claude-code-8-6-k-star-skill-aoub3f/img06.webp)
+
+## 八、总结与行动建议
+
+web-access 的核心价值就一句话：把 AI Agent 从「能联网」升级到「会联网」。它不替你决定走哪条路，而是把 WebSearch、WebFetch、curl、Jina、CDP 这五种工具的适用边界讲清楚，让 Agent 根据任务自己调度，外加一整套浏览器操作原语和站点经验沉淀。
+
+如果你已经在用 Claude Code 或同类 CLI，强烈建议装上试试，特别适合需要长期、稳定执行联网任务的场景。
+
+- GitHub：https://github.com/eze-is/web-access
+- 官网：https://web-access.eze.is
+- 设计详解：https://mp.weixin.qq.com/s/rps5YVB6TchT9npAaIWKCw
+
+一句话推荐：让 AI 自己决定怎么联网，从装 web-access 开始。

@@ -1,0 +1,133 @@
+---
+title: "DBeaver 装 JRE、TablePlus 只服务 Mac：DBX 想用 20 MB 一把梭"
+publishedAt: "2026-08-02"
+summary: "开发者的桌面里，几乎都装过至少两款工具：Java 写的 DBeaver、限 macOS 的 TablePlus、加上一个老旧的 Navicat 备份。每次换电脑都要重新装 JRE，每次升级都可能和系统 Java 版本打架…"
+image: "/assets/blog-images/dbeaver-jre-tableplus-mac-dbx-20-mb-1hga5i/img01.webp"
+tags: ["AI", "开源", "数据"]
+author: "Adam"
+---
+![](/assets/blog-images/dbeaver-jre-tableplus-mac-dbx-20-mb-1hga5i/img01.webp)
+
+## 一、开篇：你还在为这件事头疼吗？
+
+开发者的桌面里，几乎都装过至少两款工具：Java 写的 DBeaver、限 macOS 的 TablePlus、加上一个老旧的 Navicat 备份。每次换电脑都要重新装 JRE，每次升级都可能和系统 Java 版本打架，想连一个新数据库还得手动下驱动。GitHub Issues 上抱怨工具臃肿的反馈几乎周周都有，而团队里只要有人用 Windows、有人用 Mac，工具链就分裂成两套。
+
+更难受的是 AI 工具链。Claude Code、Cursor、Windsurf 这些 AI 编程助手想读你的数据库，你得把连接信息复制来复制去；想让他们帮你写 SQL，又得在编辑器、AI、数据库客户端之间反复横跳。一个统一的"数据库工作台"这件事，喊了好多年，没人真的做出来。
+
+DBX 想用 20 MB 的体积和一份 Rust 二进制，把这件事一次性解决。
+
+## 二、项目简介：一句话说明它是什么
+
+DBX 是一款用 Rust 编写、Tauri 2 框架驱动的轻量级跨平台数据库管理工具，主打「单文件 20 MB、零运行时依赖、支持 70+ 数据库」。它同时提供桌面端（macOS / Windows / Linux）、Docker 自托管的 Web 版、原生 CLI，以及独立的 MCP Server。
+
+核心关键词：跨平台、Rust 原生、AI 助手、MCP 协议、70+ 数据库。
+
+GitHub 仓库 t8y2/dbx 收获 14,297 Stars，登上 Product Hunt Featured、HelloGitHub 推荐，并被 TrendShift 收录。它支持 MySQL、PostgreSQL、SQLite、Redis、MongoDB、DuckDB、ClickHouse、SQL Server、Oracle、达梦、人大金仓、OceanBase、GaussDB 等主流和国产数据库，覆盖密度在同类工具里数一数二。
+
+![](/assets/blog-images/dbeaver-jre-tableplus-mac-dbx-20-mb-1hga5i/img02.webp)
+
+## 三、核心功能深度解析
+
+### 1. 20 MB 单二进制，零运行时
+
+DBX 用 Tauri 2 替代 Electron，没有内置 Chromium，也没有 Java JRE 或 Python venv。下载下来就是一个 ~20 MB 的可执行文件，macOS / Windows / Linux 三端通用。对比之下，DBeaver 的安装包动辄 200 MB 起跳，还要再装一个几百 MB 的 JRE；TablePlus 只服务 macOS 用户。DBX 这条路线对运维和 CI 环境尤其友好，DuckDB 文件预览、SQL 编辑器、AI 面板全在一个进程内。
+
+### 2. 内置 AI 助手，直接出 SQL
+
+DBX 把 AI 嵌进了编辑器，选中表或一段 SQL，用自然语言描述需求，就能拿到生成结果；也能让 AI 解释查询、优化 SQL、修复报错。支持 Claude、OpenAI，以及任何 OpenAI 兼容端点；本地模型可以用 Ollama 直接接。生成出来的 SQL 会先过一道内置的安全检查，避免误删数据。对习惯用 Claude Code / Cursor 的人来说，这等于把数据库侧的工作也并进了同一条 AI 流水线。
+
+### 3. MCP Server：让 AI 编程助手直连你的数据库
+
+DBX 单独发布了一个 Rust 写的 MCP Server 包，npm 安装命令是 `npx @dbx-app/mcp-server`，同时提供 macOS / Linux / Windows 的原生二进制。在 Claude Code、Cursor、Windsurf 的 `.mcp.json` 里写一段配置，AI 代理就能列出你在 DBX 里配置好的连接、浏览表结构、执行 SQL，甚至直接在 DBX 的 UI 里打开结果页。连接复用、白名单、Read only / Data read/write / Full access 三档权限，都在 DBX 的 Settings → MCP 里集中管理，机器可读的字段值是 `read_only`、`safe_write`、`high_risk_write`。
+
+![](/assets/blog-images/dbeaver-jre-tableplus-mac-dbx-20-mb-1hga5i/img03.webp)
+
+### 4. 数据网格与数据迁移
+
+查询结果区是虚拟滚动的，能扛大结果集；表头点击就能筛选、排序、改 WHERE；编辑过的单元格在保存前会先生成 SQL 预览；导出支持 CSV、JSON、Markdown、XLSX、INSERT 语句。表导入支持 CSV 和 Excel；数据迁移可以直接在不同数据库之间灌数据；Schema Diff 用来对比两个连接的差异；ER 图把表关系画出来。还有个细节：拖一个 Parquet / CSV / JSON 文件进来，DBX 直接用内置的 DuckDB 引擎做即时预览，不用先建表再导入。
+
+## 四、技术亮点与性能数据
+
+技术栈上，前端是 Vue 3 + TypeScript + shadcn-vue + Tailwind，编辑器核心是 CodeMirror 6；后端全部是 Rust，数据库驱动用 sqlx、tiberius、redis-rs、mongo-rust-driver；框架是 Tauri 2，Web 版是同一份 Rust 核心直接编译出的 HTTP 服务。
+
+这一套选型带来三个直接收益：
+
+1. 安装包稳定控制在 20 MB 左右，内存占用比 Electron 类工具低一个数量级；
+2. 同一份 Rust 代码可以同时编译出桌面端、Docker 镜像、CLI、MCP Server，功能矩阵一致；
+3. 没有内置 Chromium、没有 JRE、没有 Python venv，符合 air-gapped 环境和企业合规要求。
+
+兼容性方面，桌面端覆盖 macOS / Windows / Linux；Docker 镜像支持 amd64 / arm64；Web 版可以放在反向代理后面，通过 `DBX_PUBLIC_BASE_PATH` 设置子路径。MCP Server 同时给出 Node.js 启动器和原生二进制两种形态，离线、服务器、CI 三类场景都能用。
+
+![](/assets/blog-images/dbeaver-jre-tableplus-mac-dbx-20-mb-1hga5i/img04.webp)
+
+## 五、适用场景与人群
+
+### 适合谁
+
+- 同时维护多种数据库的后端 / 全栈开发者：MySQL、PostgreSQL、Redis、MongoDB、DuckDB 一把梭；
+- 重度使用 AI 编程助手的工程师：希望 Claude Code、Cursor 能直连真实数据库；
+- 国产化 / 信创团队：达梦、人大金仓、OceanBase、GaussDB、GoldenDB、Vastbase、Doris、SelectDB、StarRocks 一并支持；
+- 运维与平台团队：想要一个能在内网 Docker 自托管、给整个团队用的 Web 版数据库控制台。
+
+### 不适合谁
+
+- 只想用图形化设计 ER 图、不需要写 SQL 的产品 / 业务同学；
+- 已经买了 Navicat / DataGrip 企业版、且没有跨平台和 AI 需求的团队。
+
+## 六、竞品对比
+
+| 维度 | DBX | DBeaver | TablePlus | Beekeeper Studio |
+|-----|-----|---------|-----------|------------------|
+| 安装包体积 | ~20 MB | 200 MB+（含 JRE） | ~100 MB | ~150 MB |
+| 运行时依赖 | 无 | Java JRE | 无 | 部分驱动依赖 |
+| 平台覆盖 | macOS / Windows / Linux | 全平台 | 仅 macOS（社区版有 Win/Linux） | 全平台 |
+| 数据库数量 | 70+ | 80+ | 30+ | 40+ |
+| 内置 AI 助手 | 有 | 无 | 无 | 无 |
+| MCP Server | 有（独立包） | 无 | 无 | 无 |
+| Docker / Web 自托管 | 有 | 社区版有 | 无 | 无 |
+| 主语言 | Rust（Tauri） | Java | Swift / Electron | Electron |
+
+DBX 的差异化很清晰：用 Rust 把"轻量"和"跨平台"同时做到位，再把 AI 和 MCP 协议原生接进去，而不只是当个 GUI 壳。
+
+![](/assets/blog-images/dbeaver-jre-tableplus-mac-dbx-20-mb-1hga5i/img05.webp)
+
+## 七、如何快速上手
+
+桌面端安装最省事。macOS 直接 `brew install --cask dbx`；Windows 用 Scoop `scoop install dbx` 或 WinGet `winget install t8y2.dbx`；Linux 用户可以从 FlatPark 装 Flatpak，或者直接到 GitHub Releases 拿 AppImage / deb。
+
+想要团队版就跑 Docker：
+
+```bash
+docker run -d --pull=always --name dbx -p 4224:4224 -v dbx-data:/app/data t8y2/dbx:latest
+```
+
+国内网络可以把镜像换成 `docker.cnb.cool/dbxio.com/dbx:latest`，拉取更快。浏览器访问 `http://localhost:4224` 即可，多架构镜像同时覆盖 amd64 和 arm64。
+
+接入 AI 编程助手只要在 `.mcp.json` 里加一段：
+
+```json
+{
+  "mcpServers": {
+    "dbx": { "command": "npx", "args": ["-y", "@dbx-app/mcp-server"] }
+  }
+}
+```
+
+CLI 用户可以装 `@dbx-app/cli`，或者通过 Homebrew `brew install dbx-cli`，直接用 `dbx query local "select 1" --json` 在脚本里调数据库。
+
+## 八、总结与行动建议
+
+DBX 的核心价值，是把「轻量跨平台数据库客户端」和「AI + MCP 工作流」这两件事压到一个 20 MB 的 Rust 二进制里。它不需要 JRE、不带 Chromium，能在桌面、Docker、CLI、MCP Server 多种形态之间共享同一份连接配置，对多数据库、AI 编程助手、信创替换这三类需求尤其合拍。
+
+如果你还在忍受 DBeaver 升级带来的 JRE 折腾，或者希望 Claude Code / Cursor 能直接读你的真实库结构，可以现在就装一个试试：
+
+- GitHub：https://github.com/t8y2/dbx
+- 官网：https://dbxio.com
+- 文档：https://dbxio.com/en/docs/what-is-dbx
+- MCP 包：https://github.com/t8y2/dbx/tree/main/packages/mcp-server
+- CLI 包：https://github.com/t8y2/dbx/tree/main/packages/cli
+
+Apache-2.0 开源，不收集遥测，不强制联网，Air-gapped 环境也能跑。免费、轻量、能跟 AI 一起干活，这样的工具，值得放进你的装机清单。
+
+![](/assets/blog-images/dbeaver-jre-tableplus-mac-dbx-20-mb-1hga5i/img06.webp)
+

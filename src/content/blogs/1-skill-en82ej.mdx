@@ -1,0 +1,133 @@
+---
+title: "凌晨 1 点还在手动建草稿箱？这套 Skill 套件替你收尾公众号最后五公里"
+publishedAt: "2026-10-15"
+summary: "凌晨 1 点，你刚把公众号稿件改到第 8 稿，正文写得漂亮，但摆在面前的还有 5 件事：选 CSS 主题、配 3 张图、生成微信兼容的 HTML、截图肉眼质检、点开公众号后台建草稿箱。任何一个环节翻车，群发都得推迟。这套…"
+image: "/assets/blog-images/1-skill-en82ej/img01.webp"
+tags: ["AI", "Agent", "视频"]
+author: "Adam"
+---
+## 一、开篇：如果有个工具能替你做完这一步…
+
+凌晨 1 点，你刚把公众号稿件改到第 8 稿，正文写得漂亮，但摆在面前的还有 5 件事：选 CSS 主题、配 3 张图、生成微信兼容的 HTML、截图肉眼质检、点开公众号后台建草稿箱。任何一个环节翻车，群发都得推迟。这套 DUYI WeChat Skill Suite 瞄准的，就是这个被反复卡住的「最后五公里」。
+
+![](/assets/blog-images/1-skill-en82ej/img01.webp)
+
+## 二、项目简介：一句话说明它是什么
+
+DUYI WeChat Skill Suite 是一套围绕微信公众号生产链路设计的 Agent Skill 套件，定位在「文章已经写好、下一步要推进到可发布状态」这个环节。它把排版、配图、HTML 渲染、截图质检、API dry-run、创建草稿箱拆成 5 个独立 Skill，由 `duyi-wechat` 做总控调度。项目使用 TypeScript 编写，当前仓库 6 Stars，是一套典型的小而专工具。
+
+## 三、核心功能深度解析
+
+### 1. CSS 风格层：`duyi-wechat-css-layer`
+
+负责主题体系与风格选择，把「换皮」做成可切换的样式层。同一份正文可以一键切换到不同视觉风格，省去手动改 CSS 的时间。
+
+### 2. 排版渲染：`duyi-wechat-paipan`
+
+核心排版引擎，负责把 Markdown 转成 WeChat-ready HTML。这是微信编辑器最容易踩坑的一步——粘贴丢格式、图片自适应错位、代码块溢出，这套 Skill 通过统一渲染管线解决。
+
+### 3. 封面与配图：`duyi-wechat-peitu`
+
+封面图和正文配图交给它处理，替代了人工去稿定设计 / Canva 拉图再上传的流程，直接在 Skill 内部完成图片产出。
+
+![](/assets/blog-images/1-skill-en82ej/img02.webp)
+
+### 4. 草稿箱发布：`duyi-wechat-fabu`
+
+负责创建微信公众号草稿箱、跑 API dry-run、做手机预览。在链路没确认通过前，它不会动正式接口，避免污染线上数据。
+
+![](/assets/blog-images/1-skill-en82ej/img03.webp)
+
+### 5. 总控调度：`duyi-wechat`
+
+串起上面四个 Skill，形成完整流水线。配合 Agent 运行，用户只需要一句话指令，例如「使用 duyi-wechat 处理这篇公众号稿」，即可启动全流程。
+
+![](/assets/blog-images/1-skill-en82ej/img04.webp)
+
+## 四、技术亮点与性能数据
+
+这套套件的设计哲学是「职责拆分 + 安全边界清晰」。5 个 Skill 各司其职，既能组合跑全流程，也能只跑中间环节——你只要说「只排版看看，不进草稿箱」，它就停在 HTML 这一步。
+
+在架构上，它做到三点：
+
+- **私密配置隔离**：微信公众号 `app_id` / `app_secret` 放在 `~/.wechat-article-suite/.env`，仓库不携带任何密钥。
+- **运行环境解耦**：Skills 装到 `~/.agents/skills/`，再软链到 Claude、Codex、Hermes 各自的目录，一份配置多处运行。
+- **运行时轻量化**：不打包 `node_modules`，不附带本地浏览器登录配置，发布产物最小。
+
+## 五、适用场景与人群
+
+**适用场景**：
+
+1. 公众号作者已经写好 Markdown 稿件，需要一套可复用的「排版 + 配图 + 建草稿」流水线。
+2. AI Agent 开发者想让自己的 Agent 直接具备公众号生产能力，把 Skill 装进 Claude / Codex / Hermes 即可。
+3. 内容团队需要标准化公众号产出视觉，多个作者共用同一套主题与渲染规范。
+
+**适合谁**：公众号重度作者、Agent 工具开发者、需要批量产出公众号内容的团队。
+
+**不适合谁**：只想做单篇群发、不愿意配置 Skill 运行环境的人；以及需要「自动定时群发」这类不在交付边界内的自动化需求。
+
+![](/assets/blog-images/1-skill-en82ej/img05.webp)
+
+## 六、竞品对比
+
+| 维度 | DUYI WeChat Skill Suite | 手动公众号后台 | 一体化排版编辑器（如秀米） |
+|---|---|---|---|
+| 接入 Agent | 原生支持 | 不支持 | 不支持 |
+| 排版 + 配图 + 建草稿一条龙 | 是 | 否 | 仅排版 |
+| 密钥不进仓库 | 是 | 不适用 | 不适用 |
+| 可拆分使用（只排版 / 只配图） | 是 | 否 | 否 |
+| 正式群发 | 不在交付内 | 是 | 部分支持 |
+
+它的差异点在 Agent-native 设计——其他工具面向「人点按钮」，它面向「Agent 调用 Skill」，这是当前公众号工具里相对稀缺的角度。
+
+## 七、如何快速上手
+
+**第 1 步：克隆仓库**
+
+```bash
+git clone https://github.com/duyi2076/duyi-wechat-skill-suite.git
+cd duyi-wechat-skill-suite
+```
+
+**第 2 步：安装 5 个 Skills 到 `~/.agents/skills/`**
+
+```bash
+mkdir -p "$HOME/.agents/skills"
+for skill in duyi-wechat duyi-wechat-css-layer duyi-wechat-paipan duyi-wechat-peitu duyi-wechat-fabu; do
+  mkdir -p "$HOME/.agents/skills/$skill"
+  rsync -a "skills/$skill/" "$HOME/.agents/skills/$skill/"
+done
+```
+
+**第 3 步：软链到 Agent 环境**（Claude / Codex / Hermes 三选一或全选）
+
+```bash
+ln -sfn "../../.agents/skills/duyi-wechat" "$HOME/.claude/skills/duyi-wechat"
+```
+
+**第 4 步：安装运行依赖**——`duyi-wechat-fabu` 用 Bun，`duyi-wechat-paipan` 用 npm，分别到对应目录下 install 即可。
+
+**第 5 步：配置密钥**
+
+```bash
+mkdir -p "$HOME/.wechat-article-suite"
+cat > "$HOME/.wechat-article-suite/.env" <<'EOF'
+WECHAT_APP_ID=replace_with_your_app_id
+WECHAT_APP_SECRET=replace_with_your_app_secret
+EOF
+```
+
+**第 6 步：在 Agent 里下达指令**：「使用 duyi-wechat 处理这篇公众号稿，完成排版、配图、HTML QA，并创建微信公众号草稿箱。」
+
+## 八、总结与行动建议
+
+DUYI WeChat Skill Suite 的核心价值是把公众号生产链路「Skill 化」，让 Agent 能像调用工具一样完成排版、配图、建草稿箱。它适合已经习惯用 Agent 写公众号稿的人，把最后五公里交给工具。
+
+**使用建议**：先用「只排版看看，不进草稿箱」跑通 HTML 渲染链路，确认样式满意后再启用 `duyi-wechat-fabu` 的 dry-run，最后再放开到真实草稿箱创建。
+
+**项目链接**：https://github.com/duyi2076/duyi-wechat-skill-suite
+
+值得一试的理由只有一个：当你不想再凌晨 1 点手动点 5 次按钮，这套 Skill 就是替身。
+
+![](/assets/blog-images/1-skill-en82ej/img06.webp)
+

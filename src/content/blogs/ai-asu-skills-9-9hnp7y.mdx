@@ -1,0 +1,110 @@
+---
+title: "用 AI 写了代码却写不进简历？ASu-skills 把 9 个求职入口串成证据链"
+publishedAt: "2026-05-30"
+summary: "用 AI 写了代码却写不进简历？ASu-skills 把 9 个求职入口串成证据链"
+image: "/assets/blog-images/ai-asu-skills-9-9hnp7y/img01.webp"
+tags: ["AI", "Agent", "开源"]
+author: "Adam"
+---
+![](/assets/blog-images/ai-asu-skills-9-9hnp7y/img01.webp)
+
+选择标题（3 选 1）
+
+用 AI 写了代码却写不进简历？ASu-skills 把 9 个求职入口串成证据链
+
+ASu-skills：9 个 AI 入口，让校招从「海投石沉大海」变成「证据闭环投递」
+
+没编一句假话，却把简历做出花：ASu-skills 的 9 段证据链有多狠
+
+# ASu-skills：把求职拆成 9 个 AI 入口，再也不用一套简历打天下
+
+## 一、开篇：从踩坑到真香，只差这一个项目
+
+校招季最让人崩溃的不是写代码，而是「明明做了很多事，简历上却写不出三行」。一位用户曾在 GitHub 上反馈：他用 AI 完成了三个项目，可在简历里只能写「熟练使用 React」，投递 50 份简历全部石沉大海。同样的情况也发生在另一位候选人身上——她把 AI 编程对话当成项目经历，结果面试官一句「这个方案谁定的」就问住了她。
+
+问题出在哪？AI 时代的求职链路被切成了碎片：AI 编程、简历改写、JD 分析、面试准备、进度跟踪散落在七八个工具里，每个工具只管一段，候选人要在不同窗口反复搬运事实，最终要么夸大其词，要么前后矛盾。ASu-skills 想做的，就是把这整条链路用 9 个可独立调用的入口串起来，让「真实经历 → 可核验证据 → 简历文件 → 投递动作」走完全闭环。
+
+## 二、项目定位：它解决的是什么问题
+
+ASu-skills 是一个面向求职与开发场景的 AI Skills 插件包，主仓库语言为 HTML，GitHub Stars 已突破 5181。它的核心特性可以浓缩为四个关键词：**九个独立入口**、**证据驱动**、**多平台兼容**、**事实边界**。
+
+项目支持 Codex、Claude Code、TraeWork、Qoder 四种原生安装，同时为 Cursor、OpenCode、WorkBuddy 提供桥接入口。全部入口共用同一套 `skills/`、`assets/` 和 `references/`，入口清单以根目录 `skills.registry.json` 为单一事实源，由 `npm run sync:skills` 生成并对账。这意味着改一个入口，全平台同步生效，CI 还会用 `--check` 校验一致性。
+
+![](/assets/blog-images/ai-asu-skills-9-9hnp7y/img02.webp)
+
+## 三、核心功能深度解析
+
+### 1. `/contributor`：做真实的开源贡献
+
+这个入口不替你写代码，而是按目标岗位、技术栈和可投入时间帮你筛选 GitHub 候选 issue，先核对维护迹象、贡献规则、issue/PR 状态和重复风险，再准备独立分支上的最小改动和验证结果。它会在用户逐项确认后才 fork、push、提交 PR，并跟踪 CI、review 和合并状态。未合并的 PR 记为「已提交」或「协作中」，只有 GitHub 显示已合并且项目明确采用，才使用更强的成果表述。
+
+### 2. `/evidence-recap`：把 AI 编程对话还原成证据链
+
+这是 ASu-skills 的差异化亮点。它按九段结构整理材料：问题背景、方案决策、个人动作、交付状态、落地范围、效果证据、个人边界、待补证据、面试追问。默认会对密钥、邮箱、客户标识和内部路径做泛化处理，确保敏感信息不会进入公开 skill 文件。这套结构天然区分了「个人做的」「AI 完成的」「团队共担的」，让简历不再冒领 AI 成果。
+
+### 3. `/great-resume` + `/make-resume`：改写与制作解耦
+
+`/great-resume` 负责内容定位：目标岗位定位、项目改写、成果证据、HR 开场白。信息不足时会给出可用初稿并标记 `【待补】`，不会自行编造 title、公司、技术栈或数据。`/make-resume` 负责文件交付：18 个中文 HTML 模板、A4 单页或双页排版、浏览器内编辑文字/照片/字体/颜色、可保存本地 HTML、打印导出 PDF，并可选导出 LaTeX `.tex` 源文件（默认 ASu、紧凑单栏、学术风三套版式）供 Overleaf 继续编辑。
+
+![](/assets/blog-images/ai-asu-skills-9-9hnp7y/img03.webp)
+
+### 4. `/job-match` + `/job-apply` + `/offer`：投递全流程闭环
+
+`/job-match` 把 JD 拆成硬性条件、核心能力、加分项，逐项对照生成要求—证据矩阵，最多 5 个优先补强项，并给出「建议投递 / 补充材料后投递 / 谨慎投递 / 暂不建议投递」的可解释结论。它不会用关键词重合伪造精确匹配分数。`/job-apply` 通过 Kimi WebBridge（基于 Chrome DevTools Protocol）连接已登录浏览器，自动填写字段、上传简历附件，默认停在提交前让用户核对。`/offer` 把招聘邮件、聊天记录、截图整理成求职漏斗，默认状态含 `已投递 / 筛选中 / 测评中 / 面试 / Offer / 拒绝 / 待确认`，普通自动回执不能直接推断为面试或 Offer，进度表支持搜索、筛选、统计、CSV/JSON 备份与打印 PDF。
+
+### 5. `/interview`：把简历问穿
+
+它从简历和目标岗位提取需要验证的 Claim，先约定面试轮次、时长和反馈策略，再通过「一次只问一个问题」的连续追问检查用户是否能讲清个人职责、技术实现、指标口径、决策取舍和失败案例。每道核心题使用预先锁定的评分契约，会话账本记录已验证证据与缺口。复盘后可用变体题、反事实题、故障题复练薄弱 Claim，但它不会替用户编造答案，也不会用缺乏校准依据的精确总分掩盖证据不足。
+
+## 四、技术亮点与性能数据
+
+- **单一事实源架构**：`skills.registry.json` 作为唯一入口清单，新增/删除入口先改这里，再由 `npm run sync:skills` 同步到 Claude Code、Codex、TraeWork、OpenCode、WorkBuddy、Qoder 各插件清单与安装脚本，CI 通过 `--check` 校验一致性，避免九份清单漂移。
+- **九段证据链模型**：`/evidence-recap` 把 AI 编程对话结构化为九段，天然区分人机协作边界，是当前求职类工具里少见的「事实先行」设计。
+- **浏览器桥接而非爬虫**：`/job-apply` 依赖 Kimi WebBridge 通过本机 daemon + CDP 连接用户已登录的浏览器，登录会话与页面内容保留在本机；登录、密码、短信验证码、邮箱验证码、MFA、通行密钥、验证码必须由用户完成，不读取 Cookie 或令牌。
+- **LaTeX 双轨输出**：`/make-resume` 在 HTML 之外提供 `.tex` 源文件，三套版式都无需上传额外宏包或配置字体，可直接在 Overleaf 用 XeLaTeX 编译。
+
+![](/assets/blog-images/ai-asu-skills-9-9hnp7y/img04.webp)
+
+## 五、适用场景与人群
+
+**场景一：缺可验证经历的应届生**。先用 `/contributor` 完成与岗位相关的开源贡献，再用 `/evidence-recap` 整理证据，最后交给 `/great-resume` 转成简历表述，把「无实习」变成「有可核验 PR」。
+
+**场景二：海投效率低、JD 匹配模糊的求职者**。用 `/job-match` 区分已匹配、表达缺口、能力缺口、待确认，输出投递优先级；再用 `/job-apply` 填写申请表，停在提交前核对。
+
+**场景三：面试前需要查漏补缺的候选人**。用 `/interview` 预测问题并通过追问暴露弱项，复盘后用变体题复练指标口径与个人贡献边界。
+
+适合谁：应届毕业生、校招/社招候选人、想从零搭建可核验项目经历的人、需要管理多公司投递进度的求职者。**不适合谁**：只想要一键「润色」夸大简历的人——项目明确写了事实边界，会用「【待补】」拒绝编造。
+
+## 六、竞品对比
+
+| 工具 | 入口数量 | 证据链 | 浏览器填写 | 进度表 | 事实边界声明 |
+| --- | --- | --- | --- | --- | --- |
+| ASu-skills | 9 个独立入口 | 九段结构 | 支持（Kimi WebBridge） | 内置 `application-tracker.html` | 明确 |
+| 通用简历模板站 | 单一交付 | 无 | 无 | 无 | 无 |
+| AI 简历改写工具 | 单一交付 | 无 | 无 | 无 | 弱 |
+| 招聘网站 Bot | 单一动作 | 无 | 支持 | 无 | 无 |
+
+ASu-skills 的差异点在于把「证据复盘 → 内容改写 → 文件制作 → JD 分析 → 浏览器填写 → 进度管理」串成一条链路，跨入口共享 `career-claim-ledger` 主张—证据账本，让开源贡献、经历提升、简历文件引用同一份事实和确认状态。
+
+![](/assets/blog-images/ai-asu-skills-9-9hnp7y/img05.webp)
+
+## 七、如何快速上手
+
+**第一步：选平台安装**。Codex 用户直接把仓库链接发给 Codex 并说明安装；Claude Code 用户执行 `/plugin marketplace add Hisn00w/ASu-skills` 与 `/plugin install asu-skills@asu`，再 `/reload-plugins`；TraeWork 用户复制仓库到 `~/.trae-cn/plugins/<publisher>/asu-skills/<version>/`；Cursor / OpenCode / WorkBuddy / Qoder 各自仓库内有桥接安装说明。
+
+**第二步：选第一个入口**。项目在 README 里给了对照表：缺项目用 `/contributor`，有 AI 对话记录用 `/evidence-recap`，已有项目仓库用 `/project-guide`，已有经历要匹配岗位用 `/great-resume`，内容已定要出 HTML 简历用 `/make-resume`。
+
+**第三步：组合使用**。推荐链路：先 `/contributor` 或 `/evidence-recap` 拿到证据 → `/project-guide` 出导学和面经 → `/great-resume` 改写经历 → `/make-resume` 出 HTML/PDF/LaTeX → `/job-match` 对 JD → `/job-apply` 填表（停在提交前） → `/interview` 查漏 → `/offer` 管进度。
+
+## 八、总结与行动建议
+
+ASu-skills 的核心价值不是「让简历更好看」，而是把 AI 时代的求职链路拆成 9 个可独立调用、又彼此共享事实的入口，强迫工具按「真实经历 → 可核验证据 → 简历文件 → 投递动作」的顺序工作，从根上避免夸大与冒领。它用九段证据链、单一事实源注册表、Kimi WebBridge 本机桥接这三件套，把「AI 写了什么」和「我做了什么」分得清清楚楚。
+
+如果你正在校招/社招、被「有 AI 项目但写不进简历」困住、或者投递 50 份没回音，建议先装上 ASu-skills，从 `/evidence-recap` 或 `/great-resume` 任选一个入口开始，体会「工具不再替你编造」是什么感觉。
+
+- GitHub 仓库：https://github.com/Hisn00w/ASu-skills
+- 官网：https://hisn00w.github.io/ASu-skills/
+
+一句话推荐：**当别人还在用 AI 润色夸大简历时，ASu-skills 在帮你把真实经历变成可核验的证据链。**
+
+#asu-skills #AsuSkills #hisn00w #机器学习 #深度学习 #开源项目 #GitHub

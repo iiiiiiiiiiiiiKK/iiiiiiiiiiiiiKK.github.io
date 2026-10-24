@@ -1,0 +1,115 @@
+---
+title: "录屏 1 次，AI 替你干一辈子：微软 Skill Recorder 开源真香"
+publishedAt: "2026-07-30"
+summary: "运营同学每周要把同一份周报从 Confluence 抠出来，重新排版发到企业微信；财务同事每月初要把十几张发票挨个核对再录入系统；开发同学手动跑一遍发布流程，点十几个页面。这些「重复三步」的工作，每个人每周都在做，但真要…"
+image: "/assets/blog-images/1-ai-skill-recorder-13hlz7/img01.webp"
+tags: ["AI", "Agent", "开源"]
+author: "Adam"
+---
+![](/assets/blog-images/1-ai-skill-recorder-13hlz7/img01.webp)
+
+## 一、开篇：从踩坑到真香，只差这一个项目
+
+运营同学每周要把同一份周报从 Confluence 抠出来，重新排版发到企业微信；财务同事每月初要把十几张发票挨个核对再录入系统；开发同学手动跑一遍发布流程，点十几个页面。这些「重复三步」的工作，每个人每周都在做，但真要让 AI 接手，又得花几小时拆流程、写脚本、跑测试。
+
+更现实的问题是：很多任务根本没有 API，只能靠点击浏览器或桌面应用完成，传统自动化工具又贵又难上手。Skill Recorder 的出现，把这条鸿沟直接填平了：演示一次，AI 学会执行，还能举一反三。
+
+## 二、项目简介：一句话说明它是什么
+
+Skill Recorder 是微软开源的桌面录屏工具，把你在屏幕上的一次操作，自动重建为「意图 + 有序步骤」，再生成可复用的 Skill（按需执行）或 Automation（定时/触发执行），输出到 Microsoft Scout、Copilot Cowork 或 Copilot Studio。
+
+核心特性：屏幕录制 + 意图重建、Copilot CLI 驱动、可复用 Skill/Automation、跨平台（macOS 主力，Windows 11 已验证）。仓库已斩获 3007 Stars，主要语言为 TypeScript。
+
+![](/assets/blog-images/1-ai-skill-recorder-13hlz7/img02.webp)
+
+## 三、核心功能深度解析
+
+### 1. 全流程录屏与活动追踪
+
+Skill Recorder 在后台静默录制屏幕、应用切换、浏览器 URL、剪贴板预录和可选的语音旁白。屏幕视频由 Chromium 录制，仅在画面变化或心跳触发时保留低帧率快照，既保证步骤完整，又控制体积。剪贴板只记录短文本预录，用于串联步骤。
+
+### 2. 本地优先 + 意图重建
+
+录制、存储、抽帧和旁白转写全部在本地完成，旁白用 Whisper 在设备端转写，覆盖 99 种语言，首次使用需下载约 252 MB 模型。只有当你点击「Analyze」时，时间线（窗口/文档标题、URL、剪贴板预录）、关键截图和旁白文本才会发送到 GitHub 云端，由 GitHub Copilot CLI 重建为「一个意图 + 有序步骤」。
+
+### 3. Skill 与 Automation 双产出
+
+从一次分析结果，可一键生成 Skill（输出为 `SKILL.md`，由智能体按需调用）或 Automation（按调度/触发运行）。关键设计是：优先调用智能体原生工具（如 `gh` CLI、`web_fetch`），而非死板回放 UI 点击。比如你演示提交一次表单，智能体会泛化到「提交所有同类表单」。
+
+### 4. 录制控制与隐私保护
+
+全局快捷键 `⌘⇧R`（macOS）/ `Ctrl+Shift+R`（Windows）随时开始录制；悬浮控制条支持静音、切麦克风、丢弃录制。每次录制前都会提醒「不要录制密码、Token、API Key 等敏感信息」，分析前也可手动编辑重建结果。
+
+![](/assets/blog-images/1-ai-skill-recorder-13hlz7/img03.webp)
+
+## 四、技术亮点与性能数据
+
+- **本地优先架构**：录制、抽帧、Whisper 转写全部本地完成，仅分析阶段上传，保护隐私的同时降低带宽占用。
+- **意图重建 + 泛化能力**：基于 GitHub Copilot CLI 的 describer 与 builder 双组件，配合 `evals/` 中的 fixture 评测套件（`npm run eval` / `npm run eval:builder`），可量化重建质量与泛化效果。
+- **确定性发布**：以源码方式发布，固定 40 位 commit 哈希，从脚本到源码全程锁定，避免供应链漂移；不进行全局安装，卸载干净。
+- **跨平台兼容**：macOS 主力，Windows 11（x64 与 ARM64）已验证；依赖 Node.js 24 与 Electron，开发态支持 Vite 热更新。
+
+## 五、适用场景与人群
+
+- **运营/财务/HR 等重复办公场景**：周报搬运、发票核对、报表汇总、批量表单提交，演示一次即可交给 AI 重复执行。
+- **个人自动化爱好者**：把每天的「打开网页 → 点菜单 → 填字段」一类流程固化下来，配合 Copilot Cowork 定时触发。
+- **企业 IT / 业务团队**：把零散的「我知道怎么操作」沉淀成可审计、可共享的 Skill 文档，降低人员流动带来的隐性知识流失。
+
+不适合：纯命令行脚本可解的任务（直接写脚本更高效）、对实时性要求极高（毫秒级）的场景，以及无 Copilot 访问权限的账户。
+
+![](/assets/blog-images/1-ai-skill-recorder-13hlz7/img04.webp)
+
+## 六、竞品对比
+
+| 工具 | 录制方式 | 输出形态 | 泛化能力 | 隐私策略 |
+|---|---|---|---|---|
+| Skill Recorder | 屏幕 + 应用切换 + URL + 旁白 | SKILL.md / Automation，原生工具优先 | 强（一次示例泛化同类任务） | 本地处理，仅 Analyze 上传 |
+| 传统 RPA（如 UiPath） | UI 录制 + 选择器 | 专属脚本 | 弱（按固定坐标/选择器回放） | 通常本地，但脚本维护成本高 |
+| 通用录屏工具（OBS 等） | 仅视频 | 视频文件 | 无 | 完全本地，但无 AI 重建 |
+| Selenium / Playwright | 需手动编写脚本 | 代码 | 强，但门槛高 | 本地 |
+
+选择 Skill Recorder 的核心理由：门槛最低（演示即可）、输出形态最 AI 友好（直接对接 Copilot）、且真正具备泛化能力。
+
+![](/assets/blog-images/1-ai-skill-recorder-13hlz7/img05.webp)
+
+## 七、如何快速上手
+
+### 安装（macOS / Ubuntu）
+
+打开 [最新 Release](https://github.com/microsoft/skill-recorder/releases/latest) 复制对应平台的命令，模式如下：
+
+```bash
+commit="<40-character-release-commit>"; curl -fsSL "https://raw.githubusercontent.com/microsoft/skill-recorder/$commit/install.sh" | SKILL_RECORDER_COMMIT="$commit" bash
+```
+
+关闭终端后还想继续运行，加 `SKILL_RECORDER_DETACHED=1`。macOS 会在 `~/Applications` 生成「Skill Recorder (Source)」；Ubuntu 会添加应用入口。
+
+### Windows（PowerShell）
+
+```powershell
+$commit="<40-character-release-commit>"; $env:SKILL_RECORDER_COMMIT=$commit; irm "https://raw.githubusercontent.com/microsoft/skill-recorder/$commit/install.ps1" | iex
+```
+
+会在桌面与开始菜单生成快捷方式。
+
+### 首次录制三步走
+
+1. 启动后授予「屏幕录制」权限。
+2. 按 `⌘⇧R` / `Ctrl+Shift+R` 开始录制，正常完成你的任务。
+3. 点击 Analyze，首次会提示登录 Copilot；确认重建结果后一键生成 Skill 或 Automation。
+
+### 进阶
+
+- 想本地开发：克隆 Release 修订版本后 `npm ci && npm run dev`，Vite + Electron 热更新开箱即用。
+- 想评估重建质量：`npm run eval` 跑 describer，`npm run eval:builder` 跑泛化效果。
+
+## 八、总结与行动建议
+
+Skill Recorder 的核心价值一句话讲清：把「我会做」变成「AI 会做」，且只演示一次。它用本地优先的录制策略降低隐私顾虑，用 Copilot CLI 的意图重建 + 泛化能力把单次操作升级为可复用资产，再借助 Scout / Cowork / Copilot Studio 形成完整闭环。
+
+建议先从一个高频、低风险的重复任务（比如周报搬运）试手，体会一次录制 → 多次复用的杠杆。
+
+项目地址：[github.com/microsoft/skill-recorder](https://github.com/microsoft/skill-recorder)；安装脚本请查看 [INSTALL.md](https://github.com/microsoft/skill-recorder/blob/main/INSTALL.md)。一句话安利：演示一次，AI 替你干一辈子。
+
+![](/assets/blog-images/1-ai-skill-recorder-13hlz7/img06.webp)
+

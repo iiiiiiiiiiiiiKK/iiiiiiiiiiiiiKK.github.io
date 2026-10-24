@@ -1,0 +1,193 @@
+---
+title: "做视频、写 PPT、画架构图：5 个开源 skill 全包了"
+publishedAt: "2026-06-11"
+summary: "私藏 5 个我每天都在用的 AI Agent 开源神器"
+image: "/assets/blog-images/ppt-5-skill-6dsrar/img01.webp"
+tags: ["AI", "Agent", "开源"]
+author: "Adam"
+---
+![](/assets/blog-images/ppt-5-skill-6dsrar/img01.webp)
+
+选择标题（3 选 1）
+
+私藏 5 个我每天都在用的 AI Agent 开源神器
+
+这 5 个 GitHub 神器，把我一周的活压成一天
+
+做视频、写 PPT、画架构图：5 个开源 skill 全包了
+
+## 一、开篇：这个痛点，几乎每个开发者都踩过
+
+你接到一个需求，要在三天内出一部 AI 短剧：拆角色、写大纲、出场景设定、写剧本、画分镜。你打开 ChatGPT 聊了三小时，角色表改了八版，剧本里的人物名和分镜对不上，分镜提示词写到一半发现忘了角色的外观设定。
+
+又或者，你要把一篇口播稿剪成视频。打开剪映，手动切掉所有"嗯""啊""那个"，字幕一条条对齐时间戳，加标题、调响度、导出。三个小时过去了，成片还差一个封面。
+
+再或者，老板让你把一份方案做成 PPT。你打开 WPS，选模板，对齐文字，调配色，画流程图，改字号，又花了一晚上。
+
+这五个项目，就是为这些场景准备的。
+
+![](/assets/blog-images/ppt-5-skill-6dsrar/img02.webp)
+
+## 二、项目速览
+
+| 仓库 | Stars | 主要语言 | 一句话定位 |
+|---|---|---|---|
+| eternityspring/shuohao-skills | 3.6k | JavaScript | AI 短剧全流程 skill 集合 |
+| duyi2076/duyi-scripted-video-edit | 37 | Python | 中文口播自动剪辑 skill |
+| mujingquan835/dashiai-ppt-skill | 169 | JavaScript | 可编辑 PPTX 生成与网页编辑 skill |
+| tt-a1i/archify | 68k | JavaScript | 架构图、工作流、时序图生成 skill |
+| yizhiyanhua-ai/fireworks-tech-graph | 11k | Python | 自然语言生成 SVG/PNG 技术图 |
+
+## 三、项目解析
+
+### eternityspring/shuohao-skills — 从一本小说到分镜，一条流水线跑完
+
+这个项目把"AI 短剧制作"拆成五个互相衔接的 skill：`novel-outline`（改编大纲）、`novel-characters`（角色设定）、`novel-art`（美术设定）、`novel-script`（剧本）、`novel-storyboard`（分镜）。每个 skill 输出标准 JSON，下游直接消费，避免"角色名不统一"这种连环坑。
+
+**核心能力是"序列化产出 + 质量门脚本"**。五个 skill 各有 10–17 道脚本检查，覆盖大写到提示词对齐的确定性逻辑，不调模型、不花额度，跑一次不到一秒。`novel-storyboard` 还内置对 MiniMax H3 提示词格式的对齐指令与切点时刻逐字对账。
+
+**适合谁**：想做 AI 短剧但被"五份产出对不上"卡住的创作者；用 Claude Code 或 Codex 的开发者。
+
+**不适合谁**：只想做个 30 秒单镜头短视频的人——这套是为多集、有角色一致性需求的长内容准备的。
+
+**最小上手**
+
+直接告诉 Agent：
+
+```
+帮我安装这个 skill：https://github.com/eternityspring/shuohao-skills
+```
+
+或者手动：
+
+```bash
+git clone https://github.com/eternityspring/shuohao-skills.git
+cd shuohao-skills && ./scripts/install.sh
+```
+
+装好后丢一本小说进去：
+
+```
+把这本《xxx》做成 AI 短剧，从大纲跑到分镜
+```
+
+*开源地址：* **https://github.com/eternityspring/shuohao-skills**
+
+![](/assets/blog-images/ppt-5-skill-6dsrar/img03.webp)
+
+### duyi2076/duyi-scripted-video-edit — 口播稿自动剪，边界很克制
+
+这个 skill 只做一件事：把口播稿剪成可发布的视频。它竖版走 `duyi-koubo-lite`，横版走 `duyi-koubo-wide`，两者共用 `duyi-koubo-core` 引擎和 `duyi-stage` 视觉层。
+
+**边界写得清清楚楚**：只删口语冗余、纠正 ASR 听错的字，不替说话者改写、不补观点、不润色。剪辑决定由 Agent 写入 JSON，时间戳、切点、字幕、合成和验收全由脚本算。横版还支持左侧信息卡和右侧素材层，时机由 Agent 决定。
+
+**适合谁**：每天要剪口播、想把"删嗯啊、加字幕、调响度"这堆机械活自动化的人。
+
+**不适合谁**：想换内容、调语序的——这不是它的职责，强行用会越界。
+
+**最小上手**
+
+装好后直接告诉 Agent：
+
+```
+用 duyi-scripted-video-edit 把这段口播剪成竖版视频
+```
+
+前提：需要自己接 ASR 适配器（豆包 Agent Plan ASR 是作者验证过的）。
+
+```bash
+export DUYI_ASR_TOOL=/path/to/asr-adapter.py
+export DUYI_ASR_ENV=/path/to/asr.env
+```
+
+*开源地址：* **https://github.com/duyi2076/duyi-scripted-video-edit**
+
+![](/assets/blog-images/ppt-5-skill-6dsrar/img04.webp)
+
+### mujingquan835/dashiai-ppt-skill — 网页可编辑，再导出真 PPTX
+
+12 套主题、1020 个版式页面、8576 个可调控件。先在浏览器里改，改完一键导出成可编辑 PPTX——文字、图表、版式都能在 PowerPoint 里继续动。
+
+**亮点是"带控制台的网页编辑器 + 真实 PPTX 导出"**。每一页由"版式 + 文案字段"构成，点文字就地改、拖图替换媒体槽、滑杆调模块数量。导出后逐节点还原，文字保持可编辑，不是图片转 PDF。
+
+**适合谁**：要做行业研究、融资复盘、竞品分析、方案汇报这类结构化 PPT，又不想被模板套死的人。
+
+**不适合谁**：要逐像素手工定制视觉的品牌设计——这是模板引擎，不是设计工具。
+
+**最小上手**
+
+让 Agent 装：
+
+```
+帮我安装 dashiai-ppt skill：npx skills add https://github.com/mujingquan835/dashiai-ppt-skill --skill dashiai-ppt
+```
+
+装好后说：
+
+```
+把这份《xxx 竞品分析》做成 PPT，先出九宫格让我选主题
+```
+
+*开源地址：* **https://github.com/mujingquan835/dashiai-ppt-skill**
+
+![](/assets/blog-images/ppt-5-skill-6dsrar/img05.webp)
+
+### tt-a1i/archify — 说一句话，出一张可交互的架构图
+
+68k Stars 的体量。用自然语言描述一个系统，它生成自包含 HTML 架构图，支持动画、可校验、可导出。覆盖架构图、工作流、时序图、数据流、生命周期五种类型。
+
+**核心能力是"自然语言 → 交互式 HTML"**。你说"画一个浏览器调 API、API 查 Redis、未命中查 PostgreSQL 并回填缓存的请求流"，它直接出可点的图。继续说"加鉴权""高亮缓存未命中路径""换浅色主题"，图跟着改。支持 Cursor、Claude Code、Codex CLI、OpenCode。
+
+**适合谁**：技术写文档、写方案、做分享时需要画架构图，又不想开 draw.io 拖半天的人。
+
+**不适合谁**：要严格 UML 符号学合规的学术场景——它更偏产品文档风格。
+
+**最小上手**
+
+安装：
+
+```bash
+npx skills add tt-a1i/archify -g
+```
+
+然后告诉 Agent：
+
+```
+Use Archify to diagram a web request: Browser calls the API, the API checks Redis, and a cache miss queries PostgreSQL and fills the cache.
+```
+
+*开源地址：* **https://github.com/tt-a1i/archify**
+
+![](/assets/blog-images/ppt-5-skill-6dsrar/img06.webp)
+
+### yizhiyanhua-ai/fireworks-tech-graph — 14 种图、12 种风格，几何对齐的 SVG
+
+11k Stars。这个 skill 把自然语言描述转成 SVG + PNG 技术图，重点是"几何安全"——文字不溢出、节点不重叠、连线不断。覆盖 14 种图（含完整 UML）和 12 种视觉风格，其中 4 种工程风格带可执行契约（C4、云部署、事件流、可靠性调查）。
+
+**亮点是"几何校验 + PNG/SVG/GIF 多格式导出"**。`export-png` 命令会校验根画布、检查图片尺寸、原子写入并回读像素尺寸，生成的 1920px PNG 拿来直接放文档不糊。支持 SVG-to-GIF 语义动画，离线 HTML 交互图也能出。
+
+**适合谁**：写技术博客、做架构评审、出方案文档需要配图，又懒得自己画的人。
+
+**不适合谁**：要手绘风格、品牌定制插画——它是工程图，不是设计稿。
+
+**最小上手**
+
+告诉 Agent：
+
+```
+帮我安装 fireworks-tech-graph skill
+```
+
+然后：
+
+```
+Generate a Mem0 memory architecture diagram, dark style
+```
+
+*开源地址：* **https://github.com/yizhiyanhua-ai/fireworks-tech-graph**
+
+## 四、总结与行动建议
+
+先装 `tt-a1i/archify`，日常出图最高频，68k Stars 验证过稳定性。再装 `dashiai-ppt-skill`，工作汇报场景一次解决。`shuohao-skills` 按需——只有做 AI 短剧才需要，门槛在小说的规模。
+
+#AI视频剪辑 #脚本化视频 #口播视频 #ShuohaoSkills #DuyiScriptedVideoEdit #DashiaiPptSkill #Archify #FireworksTechGraph #shuohao-skills #duyi-scripted-video-edit

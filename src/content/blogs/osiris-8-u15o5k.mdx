@@ -1,0 +1,130 @@
+---
+title: "OSIRIS：情报分析师还在切 8 个网站？这个开源项目把它压成了一张地图"
+publishedAt: "2026-04-18"
+summary: "OSIRIS：情报分析师还在切 8 个网站？这个开源项目把它压成了一张地图"
+image: "/assets/blog-images/osiris-8-u15o5k/img01.webp"
+tags: ["AI", "Agent", "开源"]
+author: "Adam"
+---
+![](/assets/blog-images/osiris-8-u15o5k/img01.webp)
+
+选择标题（3 选 1）
+
+OSIRIS：情报分析师还在切 8 个网站？这个开源项目把它压成了一张地图
+
+OSIRIS 上手 5 分钟：16 个实时图层 + AI Agent，0 密钥就能跑
+
+没写一行后端，我用 OSIRIS 搭出了一个 Palantir 同款态势驾驶舱
+
+# OSIRIS：开源版的全球情报驾驶舱，把 17,000 个监控点塞进一张地图
+
+## 一、开篇：你还在为这件事头疼吗？
+
+做情报分析或态势感知的工程师都懂这种痛苦：航班数据要去 OpenSky，地震要封 USGS，CCTV 要挨个城市扒 RSS，制裁名单要去 OFAC 下载 CSV，钱包追溯要切换 blockstream 和 Blockscout，新闻流要自己写解析脚本。一个分析任务往往要在七八个网站之间来回切换，左边看飞机，右边看地震，还要把 CCTV 链接复制到浏览器新标签里挨个打开。
+
+更要命的是，大多数所谓「态势感知仪表盘」是用 DOM 节点堆出来的，几千个实体一上来就卡成幻灯片，更别说在 3D 地形下做实时渲染了。
+
+GitHub 上有个项目直接把这件事做成了「一站式」：17,000+ 路公共摄像头、全球实时航班、地震、火点、卫星、海事、制裁名单、Telegram 公开频道、加密钱包追溯，全部塞进一个 GPU 加速的 WebGL 地图里，而且完全开源。它叫 OSIRIS。
+
+## 二、项目定位：它解决的是什么问题
+
+OSIRIS（Open Source Intelligence & Reconnaissance Integrated System）的定位非常明确：做一个开源版的全球情报平台，对标 Palantir 这种闭源、高价的态势感知系统。
+
+核心关键词：开源、实时、OSINT、WebGL 渲染、一体化。
+
+项目用 TypeScript 编写，基于 Next.js 16 + MapLibre GL JS，所有地图数据走 WebGL 而非 DOM，目前 GitHub 上已收获 10,601 Stars，README 直接挂出了 [osirisai.live](https://osirisai.live) 的在线 Demo。
+
+![](/assets/blog-images/osiris-8-u15o5k/img02.webp)
+
+## 三、核心功能深度解析
+
+### 1. 16 个可切换的实时数据图层
+
+OSIRIS 把情报域拆成了 16 个独立图层：商业/私人/军用航班、39 个全球港口 + 10 个海上要冲、17,000+ 路 CCTV、M2.5+ 地震、NASA FIRMS 火点、23 个全球新闻直播流、NOAA 空间天气、卫星轨道、CVE 漏洞、13 个冲突区、加密钱包追溯、OFAC 制裁名单、Telegram 公开频道地理化等。每个图层都可以独立开关，并显示当前实体计数。
+
+实现上做了三件事：一是按需加载（Progressive Loading），图层关闭时不发请求；二是视口感知（Viewport-aware），只拉取当前可视区域的数据；三是用 `layerFetchedRef` 防止重复请求，最终把边缘请求量比首版压减了 75%。
+
+### 2. RECON 工具箱：把分析师工具集成进地图
+
+RECON Toolkit 把 Port Scanner（TCP 扫描 + 服务指纹）、DNS Lookup（全记录解析）、WHOIS（自动交叉 OFAC SDN）、SSL/TLS 检查、IP 情报（含 ASN 与威胁信誉，同样自动交叉制裁名单）、NVD CVE 查询、BTC + ETH 钱包追溯（带 OFAC 红标）、独立 SANCTIONS 检索全部集成到右侧面板。
+
+以 WHOIS 为例：注册人姓名会自动跑一遍 OFAC SDN 名单，命中就在面板里弹红色 inline 警示，省掉分析师手动去 sanctionssearch.ofac.treas.gov 粘贴查询的步骤。
+
+### 3. OI 预测引擎：自带 MCP 的地图 Agent
+
+OI 是 OSIRIS 自带的预测 Agent，按 `O` 就能用自然语言「指挥」地图：自动飞到目标区域、打开对应图层、找出当前可见航班/地震/火点/卫星/摄像头，在地球仪上用青色标记搜索范围，并在卡片里列出结果。
+
+更狠的是 OI Forecast：受 MiroFish 启发，它会把影响某个事件的多方「角色」在多个并行模拟世界里互相博弈，最后由报告 Agent 结合预测市场与统计基线写出校准过的预测报告，每个声明都附带可点击的来源链接。
+
+它的 API 设计也相当克制：REST API 在 `/api/oi`，SSE 实时流，MCP Server 挂在 `/api/mcp`，Hermes、Claude、Cursor 这些 Agent 可以直接跑预测、操控图层、读取情报。
+
+### 4. Telegram 与 CCTV：被忽略的公开情报源
+
+Telegram OSINT 图层不需要 Bot Token、不走 MTProto，直接抓 `t.me/s/<channel>` 的公开网页预览，默认精选 5 个频道（含 EN + RU/UA 战报），配合 EN/西里尔/阿拉伯文多语言地名字典做地理化解析，点击青色点位即可看原文跳回 Telegram。
+
+CCTV 图层的数据源是 bekijkhet.nu——一个由 Bram 和 Annelies 自 2012 年起手工维护的全球公共摄像头目录，OSIRIS 直接把索引拉过来，加上 TfL、WSDOT、Caltrans、ODOT、MDOT、香港运输署、台湾 THB、NZTA、Rijkswaterstaat 以及最新接入的 TxDOT ITS。新增的「圈选区域」功能可以在地图上画一块地，自动找出里面的所有摄像头，导出为 GeoJSON。
+
+![](/assets/blog-images/osiris-8-u15o5k/img03.webp)
+
+## 四、技术亮点与性能数据
+
+- 渲染管线：全部走 MapLibre GL JS 的 WebGL，文档明示「thousands of concurrent entities on-screen」依然 60fps。
+- 优化数据：边缘请求比首版下降 75%；稳定数据轮询放宽到 15-30 分钟；新闻流等静态数据走内存缓存，零外部调用。
+- 框架：Next.js 16（App Router + Turbopack）+ TypeScript 5 + Framer Motion + Lucide React。
+- 部署：Vercel Edge Network，同时也提供多阶段 `node:22-alpine` Docker 镜像（~220 MB，非 root 用户），镜像里塞了 CasaOS 元数据，支持一键安装；GHCR 上有预构建镜像 `ghcr.io/simplifaisoul/osiris:latest`。
+- 兼容性：核心图层零密钥可用，OpenAI / Anthropic / Gemini / OpenRouter / Groq / DeepSeek / xAI / Mistral / Qwen 的 Key 全部保留在浏览器本地，按请求塞 Header，永不上服务端。
+
+![](/assets/blog-images/osiris-8-u15o5k/img04.webp)
+
+## 五、适用场景与人群
+
+适合谁：OSINT 分析师、调查记者、安全研究、应急响应团队、做地缘政治或航运分析的从业者，以及任何想自己跑一个「全球态势感知驾驶舱」的开发者。
+
+不适合谁：需要访问闭源/付费情报源的企业合规团队（OSIRIS 只聚合公开数据），以及对实时性要求到秒级以下的军事级场景（多数图层是分钟级）。
+
+三个典型场景：① 安全研究人员在做事件复盘时，打开 OSIRIS 圈选冲突区，一键拉出区内全部 CCTV；② 加密调查员粘贴 BTC 地址，看是否在 OFAC 红标；③ 记者报道地震加泰罗尔，直接在地图上叠加 USGS 实时震级与周边 CCTV 画面。
+
+![](/assets/blog-images/osiris-8-u15o5k/img05.webp)
+
+## 六、竞品对比
+
+| 项目 | OSIRIS | Palantir Gotham | Bellingcat 开源工具集 | 各类独立 OSINT 站点 |
+|-----|--------|----------------|----------------------|--------------------|
+| 成本 | MIT 开源免费 | 企业级 license，六位数美元起 | 免费但需自组装 | 免费 |
+| 数据整合 | 16 图层一体化 | 多源但闭源 | 分散 | 单一 |
+| 渲染性能 | WebGL 60fps | 企业级 | 取决于自建 | DOM 渲染 |
+| AI Agent | OI + MCP | Foundry/AIP | 无 | 无 |
+| 自托管 | Docker 一键 | 不支持 | 需自行集成 | 不适用 |
+
+相比之下，OSIRIS 的核心差异点是把「多源 OSINT + GPU 渲染 + AI Agent + 自托管」一次性打通，而 Bellingcat 系工具仍需用户自行胶水代码。
+
+## 七、如何快速上手
+
+最简三步启动本地开发：
+
+```
+git clone https://github.com/simplifaisoul/osiris.git
+cd osiris
+npm install
+npm run dev
+```
+
+打开 `http://localhost:3000`，所有核心图层零密钥可用。RECON Toolkit 需要后端扫描器：在 `.env` 里填入 `SCANNER_URL` 与 `SCANNER_KEY`（用 `openssl rand -hex 32` 生成）。
+
+Docker 自托管：复制 `.env.template` 到 `.env`，`docker compose up -d`，端口由 `OSIRIS_PORT` 控制。或直接拉 GHCR 预构建镜像 `docker pull ghcr.io/simplifaisoul/osiris:latest`。
+
+进阶建议：接入 OpenSky 的 OAuth2 凭据（2025 年 3 月起强制）以提高航班速率上限；为 OI 配置你自己的 OpenAI/Anthropic/Gemini Key，注意 Key 只存在浏览器 `localStorage` 并按请求 Header 发送，永远不会落服务端。
+
+![](/assets/blog-images/osiris-8-u15o5k/img06.webp)
+
+## 八、总结与行动建议
+
+OSIRIS 用一个开源项目把 Palantir 级态势感知的高门槛打了下来：16 个实时图层、WebGL 60fps 渲染、OI 预测 Agent、MCP Server、CasaOS 一键安装、零密钥核心体验——每个点都踩在 OSINT 从业者真实的工作痛点上。
+
+如果你正为情报源分散而头疼，先把 OSIRIS 跑起来，按 `F` 打开航班、`E` 打开地震、`O` 唤出 OI，体验「用一句话指挥地球仪」的感觉。
+
+项目链接：GitHub `simplifaisoul/osiris`、在线 Demo [osirisai.live](https://osirisai.live)、Discord 社区。
+
+一句话安利：把它当成你的 OSINT 瑞士军刀，再慢慢往里加自己的数据。
+
+#osiris #Osiris #simplifaisoul #数据库 #开源项目 #GitHub

@@ -1,0 +1,83 @@
+---
+title: "PS5 文件想在 Linux 跑起来？这个 4.2 万 Star 的开源项目替你搬过来"
+publishedAt: "2026-04-01"
+summary: "PS5 文件想在 Linux 跑起来？这个 4.2 万 Star 的开源项目替你搬过来"
+image: "/assets/blog-images/ps5-linux-4-2-star-16dz9j/img01.webp"
+tags: ["开源", "效率", "系统"]
+author: "Adam"
+---
+![](/assets/blog-images/ps5-linux-4-2-star-16dz9j/img01.webp)
+
+选择标题（3 选 1）
+
+PS5 文件想在 Linux 跑起来？这个 4.2 万 Star 的开源项目替你搬过来
+
+AnyPS5 用零模拟层把 PS5 可执行文件转成原生 Linux/Windows 格式
+
+4 万 Star 的开源工具：跳过模拟器，直接把 PS5 可执行文件搬到 PC
+
+# 4.2 万 Star 的开源工具：把 PS5 可执行文件自动搬到 Linux 与 Windows
+
+## 一、你还在为这件事头疼吗？
+手头有一份 PS5 平台的可执行文件，想在 Linux 服务器或 Windows 桌面上跑起来做研究、跑测试、做移植评估，却发现：没有 PS5 模拟器、没有官方 SDK、没有 PS5 硬件。三座大山直接把人挡在门外。对开发者而言，"跨平台"四个字在游戏主机领域几乎等于天方夜谭，更别提要做《血源诅咒》《漫威蜘蛛侠 2》这类 PS5 独占作品的兼容性研究——只能看着 .prx 文件干瞪眼。PS5 SDK 闭源、x86_64 指令特殊、系统调用完全私有，市面上的开源方案长期停留在 PS3、PS4 阶段，PS5 几乎是空白地带。
+
+## 二、项目简介：一句话看懂 AnyPS5
+AnyPS5 是一个 PS5 可执行文件自动移植工具，定位是「把 PS5 平台的可执行文件转成 Linux/Windows 原生格式」，核心特性四个关键词：**自动转换**、**无模拟层**、**SPIR-V 着色器重编译**、**GPLv2 开源**。截至目前已突破 42K Stars，是该领域罕见的活跃开源项目。主语言 C++，配套 Web 在线转换器与一整套文档体系（架构、构建、风格规约、贡献指南）。
+
+## 三、核心功能深度解析
+
+![](/assets/blog-images/ps5-linux-4-2-star-16dz9j/img02.webp)
+
+### 1. 自动 Relinker：把可执行文件改写成目标平台原生格式
+项目自带的 `relinker` 能把 PS5 的 ELF 直接转成 Linux 或 Windows 原生的可执行文件，不是套一层壳，而是改写符号表、节区、入口点和动态链接指向，转完直接 `./binary` 就能运行。无需修改原始二进制字节码，运行逻辑零损耗。
+
+### 2. system prx 库的原生重实现
+`core/libs/prx` 目录里有完整的系统库 reimpl，覆盖 `libc`、`libkernel`、图形、音频、文件系统等 PS5 私有 prx 接口。这些库通过动态链接接入，转换后的可执行文件仍能按 PS5 原有方式调用系统功能——但调用的是 Linux/Windows 上等价版本的实现。
+
+### 3. 着色器重编译器：从 PS5 字节码到 SPIR-V
+着色器是 PS5 的硬骨头。AnyPS5 自带的 shader 重编译器能直接读取 PS5 GPU 着色器字节码，输出标准 SPIR-V。开启 `ANYPS5_ENABLE_SPIRV_TOOLS` 后，会用 Spirv-Tools 做验证，确保输出结果可被 Vulkan 驱动直接消费。这一步打通后，PS5 的图形管线才有机会在 PC 上复现。
+
+### 4. SDL 输入映射与配置
+项目用 SDL 做输入抽象，自动适配手柄摇杆和扳机键，键盘鼠标则通过 `anyps5-input.ini` 文件自定义。对移植评估而言，这一层把「手柄按键重新对一遍」这种脏活直接省掉。
+
+![](/assets/blog-images/ps5-linux-4-2-star-16dz9j/img03.webp)
+
+## 四、技术亮点与性能数据
+AnyPS5 的几个架构选择值得一说。**零模拟层**：不跑中间进程、不做指令级仿真，把 PS5 系统调用直接映射到宿主系统同义接口，启动开销几乎可以忽略；**C++ 实现 + 强类型错误处理**：所有不支持和异常状态严格抛 `std::runtime_error`，`what()` 输出 stderr 后进程终止，不会留半成品进程；**着色器经过 Spirv-Tools 验证**：用工业级验证器兜底，避免下游驱动拿到非法 SPIR-V 后黑屏崩溃；**Web 转换器走本地处理**：`https://boykopovar.github.io/AnyPS5/` 在线转换，文件全程不离开浏览器，规避隐私和版权风险。
+
+社区维护的 `blocker map` 持续追踪每款 PS5 游戏的移植阶段（哪一阶段卡住、哪些库缺、GPU 覆盖率多少），进展透明可查。
+
+![](/assets/blog-images/ps5-linux-4-2-star-16dz9j/img04.webp)
+
+## 五、适用场景与人群
+**适合谁**：做主机兼容性研究、游戏移植评估、安全分析的工程师与高校学生；做逆向工程的爱好者；想给现有工具链加 PS5 兼容性支持的开发团队。**不太适合谁**：把 PS5 游戏当普通模拟器玩的普通玩家；希望"一键通吃 PS5 全部游戏"的非技术用户（这只是移植工具，不是成熟模拟器）。具体场景包括：把 PS5 自研 demo 移植到 Linux 验证算法、把 PS5 工具链集成进 CI 做 ABI 兼容测试、做零运行时损耗的 PS5 系统调用映射研究。
+
+![](/assets/blog-images/ps5-linux-4-2-star-16dz9j/img05.webp)
+
+## 六、与类似项目的对比
+
+| 维度 | AnyPS5 | RPCS3（PS3 模拟器） | fpPS4（PS4 模拟器） |
+| --- | --- | --- | --- |
+| 目标平台 | PS5 | PS3 | PS4 |
+| 运行方式 | 可执行文件直接转原生格式 | 完整指令解释执行 | 完整指令解释执行 |
+| 模拟层 | 无 | 有 | 有 |
+| 着色器输出 | 标准 SPIR-V | GLSL | GLSL/Vulkan |
+| 许可证 | GPLv2 | GPLv2 | GPLv2 |
+
+横向看，PS5 这个赛道 AnyPS5 是少数能跑通 relinker + 着色器重编译的开源实现，比拼的不是「谁兼容的游戏多」（项目 README 也坦言这是非游戏研究用途），而是「架构是否干净、文档是否齐全、社区是否活跃」。
+
+## 七、如何快速上手
+**在线用**：浏览器打开 https://boykopovar.github.io/AnyPS5/ ，拖入文件、选目标平台（Linux/Windows），点转换下载，文件不离开本地。**本地编译**：Clone 仓库后按 `docs/dev/BUILD.md` 操作，依赖 C++ 编译器与 SPIRV-Tools（按需开启）。**配置文件**：手柄自动识别，键鼠编辑仓库根目录下的 `anyps5-input.ini`。**进阶路径**：阅读 `docs/dev/ARCHITECTURE.md` 摸清 relinker、prx reimpl、shader 重编译三条主线，再到 `discussions/categories/game-bring-up` 看真实游戏的 bring-up 报告。
+
+![](/assets/blog-images/ps5-linux-4-2-star-16dz9j/img06.webp)
+
+## 八、总结与行动建议
+AnyPS5 把 PS5 可执行文件到 Linux/Windows 的自动移植做成了一条干净链路——relinker 改写格式、prx 重写系统调用、shader 编译到 SPIR-V，三层各司其职，零模拟层让它在性能和启动速度上具备工程优势。它的核心价值不是"破解 PS5"，而是提供了一套研究 PS5 系统行为、做 ABI 兼容分析的工程级工具栈。**建议**：先在 Web 转换器上跑一个 demo 文件熟悉流程，再 clone 仓库跑通本地构建，最后挑一个你熟悉的 PS5 系统调用链深入读源码。
+
+- GitHub：https://github.com/boykopovar/AnyPS5
+- Web 转换器：https://boykopovar.github.io/AnyPS5/
+- Discord：https://discord.gg/BHFztBPUe
+
+一句话安利：这是少数能让你在 Linux 上"直接跑"PS5 可执行文件的工程级开源工具。
+
+#anyps5 #Anyps5 #boykopovar #命令行工具 #开发工具 #开源项目 #GitHub

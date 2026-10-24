@@ -1,0 +1,268 @@
+---
+title: "6 个被我收藏的开源神器，Mac 党前端表格党都能用上"
+publishedAt: "2026-06-08"
+summary: "6 个被我收藏的开源神器，Mac 党前端表格党都能用上"
+image: "/assets/blog-images/6-mac-onyyxp/img01.webp"
+tags: ["开源", "文档", "开发"]
+author: "Adam"
+---
+![](/assets/blog-images/6-mac-onyyxp/img01.webp)
+
+选择标题（3 选 1）
+
+6 个被我收藏的开源神器，Mac 党前端表格党都能用上
+
+私藏清单：这 6 个 GitHub 项目专治我的开发卡点
+
+亲测好用，6 个 GitHub 上的小众开源工具一次盘点
+
+## 一、开篇：为什么你需要这个工具？
+
+你刚配了一台 M 系列 Mac，想本地跑 Linux 容器测试代码，结果 Docker Desktop 一启动风扇就狂转；你做 iOS 自动化，要在 16GB 内存的笔记本上同时跑十几个模拟器，系统直接卡到崩溃；你做前端，要在 React 里加一个无限画布的白板，市面上的库要么收费要么 API 难用；你处理表格，SheetJS 已经从 npm 下架，老项目一夜之间构建失败。
+
+这些场景不冷门，而是每个开发者桌面上的日常。今天这份清单就是我在过去几个月里反复翻牌子的 6 个项目，每一个都解决了一个具体的卡点。
+
+## 二、项目速览
+
+| 仓库 | Stars | 主要语言 | 一句话定位 |
+|---|---|---|---|
+| apple/container | 50.1k | Swift | Apple 出品的 macOS 原生 Linux 容器 |
+| MobAI-App/simslim | 2.0k | Go | 把 iOS 模拟器内存压到原来的 1/4 |
+| productdevbook/hucre | 2.2k | TypeScript | 零依赖、可摇树的电子表格引擎 |
+| hishamk/spatialboard | 14 | TypeScript | React 无限画布 + 节点图编辑器 |
+| AmintaCCCP/GithubStarsManager | 3.6k | TypeScript | 本地优先的 GitHub Stars 管理器 |
+| rizkimuhammada/cosmic-ui | 748 | Astro | 赛博朋克风格的 React 组件库 |
+
+## 三、项目解析
+
+### apple/container — macOS 上跑 Linux 容器的官方答案
+
+苹果官方用 Swift 写了一个容器工具，每个容器跑在一个轻量虚拟机里，完全针对 Apple silicon 优化。**它吃的是 macOS 26 的虚拟化和网络新特性**，启动速度比传统 Docker Desktop 快，内存占用更低。
+
+容器使用标准 OCI 镜像，从 Docker Hub、GHCR 拉取的镜像直接能用，构建出来的镜像也能 push 回去。系统服务由 `container system start` 拉起，命令风格和 Docker CLI 几乎一致，迁移成本极低。
+
+适合谁：
+- 在 Apple silicon 上做 Linux 容器开发的工程师
+- 嫌 Docker Desktop 太重、想找原生替代品的团队
+- 需要 OCI 兼容、但又不想装虚拟机软件的人
+
+不适合谁：
+- Intel Mac 用户（==硬性要求 Apple silicon==）
+- 仍停留在 macOS 15 或更早版本的系统
+
+**最小上手**
+
+从 Release 页下载签名安装包，双击装好后启动服务：
+
+```bash
+container system start
+```
+
+跑第一个容器：
+
+```bash
+container run --rm alpine echo hello
+```
+
+这条命令会拉取 alpine 镜像，在一个轻量 Linux VM 里跑 `echo hello`，退出后自动清理。
+
+*项目地址：* **https://github.com/apple/container**
+
+### MobAI-App/simslim — 让一台 Mac 顶十台模拟器
+
+iOS 模拟器一启动就拉起 180 多个后台服务：Siri、Spotlight、照片分析、News、iCloud 同步……这些在你做开发测试时毫无用处，但每个进程都在吃内存。**simslim 把这些 daemon 关掉，单个模拟器内存从 4GB 降到 0.9GB**。
+
+实测数据非常硬：M1 Pro 16GB 笔记本上，原生模拟器跑到 5 个就开始疯狂 swap，slim 之后 12 个同屏还能跑。每个被关闭的服务都按类别管理（Siri、Widgets、iCloud、Push、App Store 等），需要的话可以单独保留，比如 `--except search` 留着 Spotlight。
+
+适合谁：
+- 在 CI 环境或本地批量跑 iOS 模拟器的工程师
+- 用多模拟器做 AI Agent 驱动测试的团队
+- 笔记本内存吃紧、想榨干硬件的开发者
+
+不适合谁：
+- 只跑一两个模拟器、对内存不敏感的用户
+- 需要用到 Siri 或 iCloud 同步的特定测试场景
+
+**最小上手**
+
+安装：
+
+```bash
+brew install mobai-app/tap/simslim
+```
+
+列出所有模拟器并瘦身后启动：
+
+```bash
+simslim list
+simslim on <udid>
+```
+
+随时能切回原样：
+
+```bash
+simslim off <udid>
+```
+
+*开源地址：* **https://github.com/MobAI-App/simslim**
+
+### productdevbook/hucre — SheetJS 倒下后的接棒者
+
+SheetJS 几个月前把自己从 npm 下架，老项目一夜构建失败；同时它的 Pro 版把样式、条件格式、迷你图等一大堆功能锁进了付费墙。**hucre 是一个零依赖、纯 TypeScript 写的电子表格引擎**，支持 XLSX / CSV / ODS / JSON / NDJSON / XML 读写，还做了完整 round-trip。
+
+打包体积是它的杀手锏：只引 CSV 模块 gzip 后 3.7KB，引 XLSX 读写是 68KB，整库全量也才 129KB。CI 里用 `pnpm size` 卡着预算，谁超了构建直接挂。所有功能点（13 种条件格式、迷你图、流式读写、Edge runtime 支持、CSP 兼容）都对齐甚至超过 SheetJS。
+
+适合谁：
+- 正在为 SheetJS 下架做迁移的前端/Node 工程师
+- 在 Edge runtime、Cloudflare Workers、Deno 里处理表格的开发者
+- 对打包体积敏感、对 TypeScript 类型有要求的项目
+
+不适合谁：
+- 需要极复杂的 Excel 宏（VBA）支持的场景
+- 仍依赖老旧 CJS-only Node 环境的项目
+
+**最小上手**
+
+安装：
+
+```bash
+npm install hucre
+```
+
+读取一个 XLSX：
+
+```ts
+import { readXlsx, writeXlsx } from "hucre"
+const workbook = await readXlsx(buffer)
+console.log(workbook.sheets[0].rows)
+```
+
+按需引入，把体积压到最小：
+
+```ts
+import { parseCsv, writeCsv } from "hucre/csv"
+```
+
+*开源地址：* **https://github.com/productdevbook/hucre**
+
+### hishamk/spatialboard — React 无限画布的现成方案
+
+想做 tldraw、Miro、Figma 那种无限画布，市面上的方案要么贵要么难集成。**spatialboard 把白板、节点图编辑器、演示文稿、LLM 可读格式四合一**，全部装在一个 MIT 协议的 TypeScript 库里。
+
+引擎核心是 `SpatialEngine`，所有节点都是 React 组件 + 声明式定义，自定义节点就是它的核心 API。手绘风格的笔迹（roughjs）、便签、富文本、图片、Frame、缩放/对齐/吸附/分组/撤销历史/小地图全部内置。节点之间还能定义输入输出端口和纯函数 `compute`，`DataFlowEngine` 自动传播值并检测环路。最绝的是 Frame 还能当幻灯片用，`engine.enterPresentation()` 一行进入演示模式，自带 fade/zoom/3D cube 过渡。
+
+适合谁：
+- 想做白板、流程图、思维导图、知识管理工具的独立开发者
+- 需要在画布上跑数据流或接 LLM 的 Agent 产品
+- 想要一个可演示画布（自带幻灯片模式）的团队
+
+不适合谁：
+- 要做完整 Figma 级矢量编辑器（路径编辑、布尔运算等）的项目
+- 仍在 React 17 或更早版本上的老项目
+
+**最小上手**
+
+安装：
+
+```bash
+npm install spatialboard
+```
+
+挂载一个空白画布：
+
+```tsx
+import { SpatialBoard, SpatialEngine } from "spatialboard"
+import "spatialboard/style.css"
+import { useMemo } from "react"
+
+const engine = useMemo(() => new SpatialEngine(), [])
+return <SpatialBoard engine={engine} />
+```
+
+*项目地址：* **https://github.com/hishamk/spatialboard**
+
+### AmintaCCCP/GithubStarsManager — 治一治你的 Star 仓鼠症
+
+你可能 star 了上千个仓库，但下次想找的时候只记得「是个 React 状态管理库」，名字全忘了。**GitHub Stars Manager 把你的 star 全量同步到本地，用 AI 总结、分类，再通过语义搜索和问答帮你捞回来**。
+
+数据 100% 存在本地，支持多模型 AI、Release 追踪、Asset 过滤、一键下载。除了 GitHub 风格的手动标签，它还有自然语言问答：「我之前 star 过的、适合做 RAG 的 Python 库有哪些？」这种问题它直接答得出来。客户端覆盖 Windows、macOS、Linux 三平台。
+
+适合谁：
+- star 了 500+ 仓库、需要二次检索的开发者
+- 关注项目 Release 动态、不想一个个点 Watch 的开源爱好者
+- 在意数据隐私、希望本地存储的工程师
+
+不适合谁：
+- 只 star 不超过 50 个仓库、对搜索需求低的用户
+- 需要云端多人协作共享 star 列表的团队场景
+
+**最小上手**
+
+从 Release 页面下载对应平台安装包，安装后登录 GitHub 授权同步：
+
+```bash
+# macOS 直接拖入 Applications
+# Linux 解压 AppImage 后赋予执行权限
+chmod +x GithubStarsManager.AppImage
+```
+
+同步完成后直接用自然语言问：
+
+```
+我之前 star 过的、用于本地 LLM 推理的项目有哪些？
+```
+
+*项目地址：* **https://github.com/AmintaCCCP/GithubStarsManager**
+
+### rizkimuhammada/cosmic-ui — 赛博朋克风的 React 组件库
+
+做后台做烦了，想给新项目换个口味。**cosmic-ui 是赛博朋克风格的 React 组件库**，Button、Dialog、Menu、Combobox、Toast、Tabs、Accordion、Alert、Checkbox、RadioGroup、Switch、Input、Textarea、Chart、Frame 一应俱全。
+
+底层是 Zag.js 状态机 + 自研的 Frame SVG 装饰系统，类型用 `cva` + `twMerge` 组合，与 Tailwind 生态无缝衔接。文档站从原来的 Vite + React SPA 重构到了 Astro，静态输出 + React Islands，SEO 和首屏速度都更好。组件默认风格是 Sci-Fi 的霓虹边框 + 扫描线，但底层都是薄封装，CSS 变量随便改。
+
+适合谁：
+- 做 Dashboard、监控页、工具类产品的开发者
+- 想要现成 sci-fi 视觉又不想自己造轮子的团队
+- 学习 Zag.js 状态机和 Astro 多框架整合的工程师
+
+不适合谁：
+- 走极简、企业 Material 风的产品
+- 不愿意用 Tailwind 的项目
+
+**最小上手**
+
+安装依赖并启动文档站预览：
+
+```bash
+npm install
+npm run dev
+```
+
+直接在 React 项目里引用组件：
+
+```tsx
+import { Button } from "cosmic-ui"
+```
+
+*项目地址：* **https://github.com/rizkimuhammada/cosmic-ui**
+
+## 四、总结与行动建议
+
+这份清单横跨容器、模拟器、表格、画布、GitHub 管理、前端组件六个完全不同的领域，但有一个共同点：每个都解决了一个我真实撞到过的具体痛点，而不是为了存在而存在。
+
+如果只挑两个先装，我会选 **apple/container**（替换笨重的 Docker Desktop）和 **productdevbook/hucre**（接住 SheetJS 留下的烂摊子）。剩下的 simslim 做 iOS 多开、spatialboard 做白板产品、StarsManager 治 star 仓鼠症、cosmic-ui 换视觉口味，都按需上桌。
+
+#AI视频剪辑 #脚本化视频 #口播视频 #Container #Simslim #Hucre #Spatialboard #Githubstarsmanager #CosmicUi #cosmic-ui
+
+![](/assets/blog-images/6-mac-onyyxp/img02.webp)
+
+![](/assets/blog-images/6-mac-onyyxp/img03.webp)
+
+![](/assets/blog-images/6-mac-onyyxp/img04.webp)
+
+![](/assets/blog-images/6-mac-onyyxp/img05.webp)
+
+![](/assets/blog-images/6-mac-onyyxp/img06.webp)
+
+![](/assets/blog-images/6-mac-onyyxp/img07.webp)
+

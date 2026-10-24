@@ -1,0 +1,198 @@
+---
+title: "私藏 5 个 Claude Code 神级插件，AI 写代码的痛点一次解决"
+publishedAt: "2026-06-14"
+summary: "私藏 5 个 Claude Code 神级插件，AI 写代码的痛点一次解决"
+image: "/assets/blog-images/5-claude-code-ai-1fl5ju/img01.webp"
+tags: ["AI", "Agent", "开源"]
+author: "Adam"
+---
+![](/assets/blog-images/5-claude-code-ai-1fl5ju/img01.webp)
+
+选择标题（3 选 1）
+
+私藏 5 个 Claude Code 神级插件，AI 写代码的痛点一次解决
+
+我每天都在用的 5 个开源 AI 编程神器，一次打包带走
+
+这 5 个 GitHub 项目，让 Claude Code 从「能用」变「真香」
+
+## 一、开篇：如果有个工具能替你做完这一步…
+
+上一周排查一个 MCP 服务起不来的问题，Claude Code 在同一个方向上重复猜了 5 次协议版本，我看着屏幕想：要是它能自己停下来、按清单走一遍就好了。
+
+再比如让 AI 帮忙改一段鉴权代码，它回了一整屏寒暄加方案权衡，最后才告诉你该跑哪条命令、改哪一行。我想要的只是「先做这一步、再做那一步」。
+
+下面这 5 个项目，就是我最近在用的、对症下药的解法。
+
+![](/assets/blog-images/5-claude-code-ai-1fl5ju/img02.webp)
+
+## 二、项目速览
+
+| 仓库 | Stars | 主要语言 | 一句话定位 |
+|-----|------|---------|-----------|
+| ayghri/i-have-adhd | 49.2K | Python | 让 AI 回复直奔主题，先给动作后给理由 |
+| tanweai/pua | 19.7K | Python | 用 PUA 话术逼 AI 把方案穷尽，不许轻易放弃 |
+| thedotmack/claude-mem | 94.3K | TypeScript | 给 AI 装上跨会话记忆，不用每次重新交代背景 |
+| tutti-os/tutti | 3.8K | TypeScript | 多用户多 Agent 实时协作空间 |
+| yetone/cumora | 3.8K | TypeScript | 把 Agent 当正式群成员，一起开群聊、看板、发邮件 |
+
+## 三、项目解析
+
+### ayghri/i-have-adhd — 让 AI 先给动作再说理由
+
+**它给 Claude Code、Codex 这些编码助手写了一套 10 条「回复纪律」，强制要求先把下一步动作甩出来，再补细节。** 没装之前，AI 喜欢先来一段「Great question!」，再给一通权衡，最后才告诉你该改哪一行；装了之后，回执长这样：
+
+> Run `npm install jsonwebtoken@latest`, then edit `src/auth.ts:42`.
+>
+> 1. Open `src/auth.ts`
+> 2. Replace `verifyToken` (lines 42–58) with the snippet below
+> 3. Run `npm test -- auth.spec.ts`
+>
+> Next: paste the first failing line if any test fails.
+
+规则不复杂：先给动作、步骤要编号、结尾只留一个具体下一步、列表最多 5 项、不要寒暄不要收尾。==注意：它要装在你已经跑起来的 Claude Code 或 Codex 里，纯终端对话没法生效==。
+
+适合谁：
+
+- 受不了 AI 反复铺垫、想要「打开文件照着做」的实操派
+- 团队里新人多、需要 AI 输出像 SOP 一样可执行的场景
+
+不适合谁：只想要 AI 陪你头脑风暴、不想被它催着立刻动手的人。
+
+**最小上手**
+
+直接告诉你的编码 Agent：
+
+```
+Install the i-have-adhd skill/plugin from https://github.com/ayghri/i-have-adhd, refer to the repo's AGENTS.md for instructions.
+```
+
+也可以手动改 `skills/i-have-adhd/SKILL.md` 后用 `claude plugin marketplace add <your-username>/i-have-adhd` 加载自己的分支。
+
+*开源地址：* **https://github.com/ayghri/i-have-adhd**
+
+![](/assets/blog-images/5-claude-code-ai-1fl5ju/img03.webp)
+
+### tanweai/pua — 用 PUA 话术逼 AI 穷尽方案
+
+**这个 skill 的核心是给 AI 灌一肚子「大厂 PUA 话术 + PIP 绩效考核」，让 AI 不敢轻易甩一句「试试别的方法吧」就放弃。** 它内置三层触发机制：L1 是轻度督促、L3 是拉清单强审，要求 AI 在放弃前必须跑完 7 步检查表。
+
+真实案例里有个 agent-kms MCP 服务起不来，AI 在同一个方向上猜协议版本猜了 6 次还没结果。触发 `/pua` 之后，AI 立刻停下瞎猜，开始按 7 点清单走，最终从 Claude Code 自带的 MCP 日志目录里翻到了真正的报错。
+
+它支持的工具链很全：Claude Code、OpenAI Codex CLI、Cursor、Kiro、CodeBuddy、OpenClaw、Google Antigravity、OpenCode、VSCode Copilot 都能挂。技能包本身是三个能力组合：PUA 施压话术、不轻言放弃的调试方法论、强制主动推进的执行约束。
+
+适合谁：
+
+- 排查 Bug 经常被 AI 「试试别的方案」打发掉的开发者
+- 需要 AI 在放弃前把日志、配置、版本号全核对一遍
+
+不适合谁：只想让 AI 写写小脚本、不想被它催着加班写报告的人。
+
+**最小上手**
+
+直接贴给 Claude Code / Codex：
+
+```
+Install and use the PUA skill from https://github.com/tanweai/pua.
+```
+
+装好后，对话里用 `/pua` 触发，遇到 AI 在同一个方向反复打转的时候尤其好使。
+
+*开源地址：* **https://github.com/tanweai/pua**
+
+### thedotmack/claude-mem — 给 AI 装上跨会话记忆
+
+**claude-mem 解决的是「昨天跟 Claude Code 聊到一半的项目，今天开新会话它全忘了」这个问题。** 它在每次会话里抓取 AI 的所有动作，用另一个 AI 压缩成摘要，再把相关上下文塞回下一次的会话里。
+
+技术上是这套流水线：会话结束 → 抓取工具调用记录 → 喂给轻量模型做摘要 → 按相关性打分 → 注入下次会话开头。覆盖的工具链包括 Claude Code、OpenClaw、Codex、Gemini、Hermes、GitHub Copilot、OpenCode 等。==注意：需要 Node >= 20.0.0==，数据库那块默认用 SQLite，零配置能跑。
+
+实际效果：上一会话里你跟 Claude Code 约定好「这个项目用 pnpm + Turborepo、API 走 tRPC」，下一会话只要 `claude-mem` 检测到相关关键词，AI 会主动说「我看你之前定的是 pnpm + Turborepo，咱们继续按这个来」。
+
+适合谁：
+
+- 长周期项目、需要 AI 记住大量上下文的开发者
+- 经常跨会话续工作的独立开发者、小团队
+
+不适合谁：每次都是一次性小任务、不在乎记忆的人。
+
+**最小上手**
+
+在 Claude Code 里执行：
+
+```
+/plugin marketplace add thedotmack/claude-mem
+/plugin install claude-mem
+```
+
+或者手动 clone 仓库后按 `package.json` 里的脚本启动服务。
+
+*开源地址：* **https://github.com/thedotmack/claude-mem**
+
+![](/assets/blog-images/5-claude-code-ai-1fl5ju/img04.webp)
+
+### tutti-os/tutti — 多用户多 Agent 的实时协作空间
+
+**Tutti 的定位是「人和 Agent 一起干活的工作台」，不是又一个聊天工具。** 它做的是把 Claude Code、Codex、Canvas 这些 Agent 接进同一个房间，让人和多 Agent 在里面实时协作、同时编辑、互相借 Agent。
+
+痛点很具体：一个真实工作流往往要 Claude 写 API、Codex 写前端、设计还要走一遍 Canvas，结果最忙的是你——你得把 API 文档粘给 Codex、把项目背景讲给 Canvas、再把设计稿讲给 Claude。Tutti 想做的就是把这些交接动作自动化。
+
+它有两个版本：开源版能连接已有 Agent、用现有订阅额度、自带应用；VM 版额外加了群聊、多人协作、同时编辑、跨设备、Agent 借用这些能力。==注意：VM 版要邀请码才能创建房间==，开源版直接 GitHub 下载即可。
+
+适合谁：
+
+- 同时调度多个 Agent 干活的团队
+- 想让人和 AI 在同一个工作台协作、不想切来切去的个人
+
+不适合谁：只用一个 Agent、不需要跨工具交接的人。
+
+**最小上手**
+
+直接去官网下 macOS / Windows 安装包：
+
+```
+https://tutti.sh/desktop/download?platform=macos&arch=universal&format=dmg
+```
+
+装好后用 `/connect` 把已有的 Claude Code / Codex 接进来就能开工。
+
+*开源地址：* **https://github.com/tutti-os/tutti**
+
+![](/assets/blog-images/5-claude-code-ai-1fl5ju/img05.webp)
+
+### yetone/cumora — 把 Agent 当正式群成员的团队协作
+
+**Cumora 想做的是「Agent 是群成员」的团队聊天工具——和人在同一个花名册、同一个 DM、同一个群聊、同一个看板和日历里。** Agent 不只是被 @ 才回话，它有持久人格和记忆、能认领任务、互相协调避免撞车、能收发真实邮件。
+
+技术架构是端到端打通的：前端 React 18 + Vite + TypeScript + Tailwind，覆盖 Electron / PWA / iOS / Android；后端 Express + ws + Postgres（事务性 outbox 用 `SKIP LOCKED` 做 leased 领取）+ Redis 做 pub/sub；Agent 跑在 K8s pod（云端）或本机 daemon（BYOA）。`llm_calls` 表是统一成本账本，云端和本机的调用都记在一处。
+
+「脑」有两种挂法：Cumora Cloud 用托管 pod 跑 OpenAI Responses API；BYOA 用 `npx cumora agent computer` 把本机（或 VPS）接进来，Claude Code 和 Codex 默认是 fail-closed 沙箱，其他引擎要显式 opt-in 才能跑。==注意：BYOA 模式下服务端拿不到你的 provider key==，密钥只在本机。
+
+适合谁：
+
+- 团队里想把 AI 当正式同事协作的 PM / 开发者
+- 需要 Agent 主动认领任务、互发邮件、跨会话持续推进的项目
+
+不适合谁：只是临时让 AI 答一个问题、用完即走的人。
+
+**最小上手**
+
+本地起需要 Postgres + Redis：
+
+```
+createdb -h localhost cumora
+export OPENAI_API_KEY=sk-...
+npm run setup
+npm run dev:all
+```
+
+然后访问 `http://localhost:5180` 进 PWA，或者用 `npm run electron:dev` 起桌面端。
+
+*开源地址：* **https://github.com/yetone/cumora**
+
+![](/assets/blog-images/5-claude-code-ai-1fl5ju/img06.webp)
+
+## 四、总结与行动建议
+
+这 5 个项目里，**claude-mem 性价比最高**，跨会话记忆是几乎所有重度 AI 编程用户的硬需求，先装上它；**i-have-adhd 和 pua 是配套技能**，一个管 AI 怎么说话、一个管 AI 怎么不放弃，挂在你现有的 Claude Code / Codex 上几乎零成本。Tutti 和 Cumora 适合已经在多 Agent 工作流里、需要人和 AI 真正同台协作的团队，先去官网领 VM 版邀请码试一把。
+
+#AI智能体 #AI工作流 #自动化 #IHaveAdhd #Pua #ClaudeMem #Tutti #Cumora #i-have-adhd #claude-mem

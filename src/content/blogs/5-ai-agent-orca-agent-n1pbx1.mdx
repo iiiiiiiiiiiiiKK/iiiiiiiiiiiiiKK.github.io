@@ -1,0 +1,112 @@
+---
+title: "5 个 AI Agent 同时跑崩笔记本？Orca 给出多 Agent 并行的正解"
+publishedAt: "2026-08-04"
+summary: "最近一次重构让团队彻底破防：5 个 AI Agent 同时改代码，3 个 Terminal + 2 个 IDE 叠在一起，Chrome 又占了一堆内存，笔记本风扇狂转三个小时后蓝屏重启。任务进度全靠微信群手动同步，谁的 …"
+image: "/assets/blog-images/5-ai-agent-orca-agent-n1pbx1/img01.webp"
+tags: ["AI", "Agent", "开源"]
+author: "Adam"
+---
+![](/assets/blog-images/5-ai-agent-orca-agent-n1pbx1/img01.webp)
+
+## 一、开篇：十个 Agent 同时跑，桌面卡成 PPT
+
+最近一次重构让团队彻底破防：5 个 AI Agent 同时改代码，3 个 Terminal + 2 个 IDE 叠在一起，Chrome 又占了一堆内存，笔记本风扇狂转三个小时后蓝屏重启。任务进度全靠微信群手动同步，谁的 Agent 跑完了得在群里喊一声。
+
+这不是段子，而是当前 AI 编程工作流的真实切片。当 Claude Code、Codex、Cursor、Grok 这些 CLI Agent 各自为战，开发者就被迫变成了人肉调度器：切换窗口、对齐状态、合并分支、核对结果——纯协作成本就能吃掉三成生产力。
+
+GitHub 上 43.8K Stars 的 Orca，正是冲着这个痛点来的：把「Agent 编排」做成一个真正可用的桌面 IDE 形态。
+
+## 二、一句话看懂：这是个什么项目
+
+Orca 把自己定位为「Agent Development Environment（ADE）」，核心使命就一句话——让一组并行 Agent 像一支有序的工程团队一样工作。
+
+- **核心定位**：面向「100x 构建者」的 AI 编排 IDE
+- **关键特性**：多 Agent 并行、Worktree 隔离、移动端遥控、终端 + IDE + 浏览器三合一
+- **生态覆盖**：原生适配 Claude Code、Codex、Cursor、Grok 等 25+ CLI Agent
+- **里程碑**：GitHub 43,832 Stars，MIT 协议，macOS / Windows / Linux 全平台
+
+Orca 项目本身也用 TypeScript 写成，桌面端基于 Electron 构建，对开发者几乎零接入成本——你能想到的 CLI Agent，它都能直接编排。
+
+## 三、核心功能深度解析
+
+### 1. Parallel Worktrees：一条 Prompt 分发给五个 Agent
+
+这是 Orca 最具差异化的能力。你把同一个需求扔进去，它会自动 fork 出 N 个独立 git worktree，每个跑一个 Agent，互不污染。跑完之后横向对比结果，挑赢家合并即可。
+
+传统做法要么串行等，要么手动 `git worktree add` 写一堆命令。Orca 把这件事压成了 UI 上的一个按钮。
+
+### 2. Mobile Companion：手机端监控 + 操控
+
+Agent 跑着跑着人离开了工位？Orca 提供了 iOS / Android 客户端，Agent 完成后推送通知，你可以直接在手机上回 prompt、调整方向。等于把「Agent 巡检」做成了 7×24 的随身能力。
+
+### 3. Ghostty 级 Terminal + VS Code 编辑器
+
+Orca 内嵌了基于 WebGL 渲染的终端，无限分屏、滚动回溯能跨重启保留；编辑器则直接集成 VS Code 内核并开启全局 autosave。文件、图片可以拖进 Agent prompt，不需要先 `cat` 出来再粘贴。
+
+### 4. Design Mode：在真浏览器里圈 UI
+
+嵌入式 Chromium 窗口，点击任意 UI 元素，Orca 自动把对应 HTML、CSS 和局部截图打包发给 Agent。比手写「帮我改右上角第三个按钮的颜色」清楚 10 倍。
+
+### 5. SSH Worktrees + CLI
+
+远端开发机也能挂到 Orca 里跑 Agent，断线自动重连 + 端口转发齐全。同时提供 `orca` CLI，让 Agent 也能反过来调用 Orca 自动化工作流——双向闭环。
+
+![](/assets/blog-images/5-ai-agent-orca-agent-n1pbx1/img02.webp)
+
+## 四、技术亮点与性能数据
+
+Orca 的工程取舍非常明确：**不做 Agent，只做 Agent 的编排层**。这个定位带来几个关键收益：
+
+- **零侵入兼容**：支持任意 CLI Agent，「能跑在终端里就能跑在 Orca 里」
+- **WebGL 终端**：渲染性能对齐 Ghostty，避免大量分屏时的掉帧
+- **Git 原生**：每个 Agent 都跑在独立 worktree，分支管理零心智负担
+- **跨端一致**：桌面 + 移动端 + 无头 Linux 服务端（`orca serve`）一套协议通吃
+- **每日发版**：官方明确表示「feature list 永远落后于 changelog」，迭代节奏接近 Cursor 早期
+
+## 五、适用场景与人群
+
+**典型场景**
+
+1. **多方案并行验证**：同一个需求让 Claude 和 Codex 同时写，挑最佳实现
+2. **远程开发 + Agent 后台跑**：本地笔记本发任务，远程 4090 机器跑 Agent，手机上跟进
+3. **UI 改稿**：Design Mode 圈元素，Agent 直接产出 diff，无需描述坐标
+4. **PR / Issue 评审**：内置 GitHub + Linear 浏览，worktree 直接关联任务
+
+**适合谁**：同时维护多条 AI 编程任务流的独立开发者、AI 团队 Tech Lead、想做 Agent 工作流产品化的工程师。
+
+**不适合谁**：只用单一 Agent 写小脚本的轻量用户、无法接受 Electron 桌面应用的极简主义者。
+
+![](/assets/blog-images/5-ai-agent-orca-agent-n1pbx1/img03.webp)
+
+## 六、竞品对比
+
+| 工具 | 定位 | 多 Agent 并行 | 移动端 | 任意 CLI Agent |
+|------|------|---------------|--------|----------------|
+| Orca | Agent 编排 IDE | ✅ Worktree 隔离 | ✅ iOS / Android | ✅ 25+ |
+| Cursor | AI IDE | ❌ 单 Agent | ❌ | ❌ 内建为主 |
+| Claude Code 原生 CLI | 单 Agent 终端 | ❌ | ❌ | 仅 Claude |
+| Aider / Continue | 插件式辅助 | ❌ | ❌ | 有限 |
+
+Orca 不和单点 IDE 正面竞争，它切入的是「Agent 团队管理」这个空白赛道。
+
+## 七、如何快速上手
+
+1. 从 onorca.dev 下载桌面端，或 `brew install --cask stablyai/orca/orca`
+2. 用自己的 Claude / Codex 账号登录（保留你的订阅，不走中转）
+3. 打开一个 Git 仓库，点「+ Worktree」创建第一个并行 Agent
+4. 输入需求，选择要跑的 Agent，回车开始
+5. 需要远程跑？跑 `orca serve` 在 VPS 上挂个无头实例
+
+进阶玩法：把 Orca CLI 接进自己的 CI，让 Agent 在 CI 里自己点自己——属于「Agent 操作 Agent」的典型用法。
+
+![](/assets/blog-images/5-ai-agent-orca-agent-n1pbx1/img04.webp)
+
+## 八、总结与行动建议
+
+Orca 解决的是一个真实且高频的问题：**当 AI Agent 从「一个玩具」变成「一支团队」，我们缺的不是更强的模型，而是更好的调度台**。它用 Worktree 隔离、跨端遥控、终端/IDE/浏览器三合一，给出了一套当前最完整的答案。
+
+- **GitHub**：https://github.com/stablyai/orca
+- **官网下载**：https://onorca.dev
+- **文档**：https://www.onorca.dev/docs
+
+一句话推荐：**如果你已经离不开 2 个以上 AI Agent，是时候把它们从 5 个终端窗口里搬到 Orca 了。**

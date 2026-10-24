@@ -1,0 +1,213 @@
+---
+title: "私藏 7 个让我少加班的开源神器，后端、前端、运维都用得上"
+publishedAt: "2026-06-09"
+summary: "私藏 7 个让我少加班的开源神器，后端、前端、运维都用得上"
+image: "/assets/blog-images/7-ddgc8p/img01.webp"
+tags: ["开源", "视频", "开发"]
+author: "Adam"
+---
+![](/assets/blog-images/7-ddgc8p/img01.webp)
+
+选择标题（3 选 1）
+
+私藏 7 个让我少加班的开源神器，后端、前端、运维都用得上
+
+我每天都在用的 7 个开源项目，一次性盘给你
+
+别再重复造轮子：这 7 个开源工具值得立刻收藏
+
+## 一、开篇：别再手动折腾它了
+
+周五下午 6 点，后端同事发现生产数据库没做自动备份，只能手动 `mysqldump` 然后 scp 到另一台机器；前端同学想接一个登录系统，发现每个新项目都要重新写一遍注册、找回密码、OAuth 回调；数据团队想抓一批网页做分析，结果反爬、JS 渲染、代理池轮换一晚上只跑通 3 个 URL。这些事，每一个都不复杂，但每次都要重新造一遍轮子。这次盘点的 7 个项目，就是把这些事「一次配好、长期受益」的轮子。
+
+## 二、项目速览
+
+| 仓库 | Stars | 语言 | 一句话定位 |
+|---|---|---|---|
+| supabase/supabase | 110k+ | TypeScript | 开箱即用的 Postgres 全栈平台 |
+| goauthentik/authentik | 25k+ | Python | 自托管的身份认证 SSO 中心 |
+| oceanbase/oceanbase | 10k+ | C++ | 国产原生分布式关系数据库 |
+| t8y2/dbx | 20k+ | Rust | 25 MB 跨平台通用数据库客户端 |
+| gobackup/gobackup | 3k+ | Go | 数据库与文件定时备份 CLI |
+| firecrawl/firecrawl | 180k+ | TypeScript | 把任意网页变成 LLM 可读的干净数据 |
+| public-apis/public-apis | 480k+ | Python | 社区维护的免费 API 目录大全 |
+
+![](/assets/blog-images/7-ddgc8p/img02.webp)
+
+## 三、项目解析
+
+### supabase/supabase — 用 Postgres 一站搞定后端全家桶
+
+**Supabase 让你跳过自建后端的重复劳动，直接拿到一个生产可用的 Postgres 平台。** 托管的 Postgres 数据库、Auth 鉴权、自动生成的 REST / GraphQL API、Realtime 订阅、文件存储、Edge Functions、AI + 向量检索，都在同一个控制台里。底层由 Postgres、PostgREST、GoTrue、Realtime、Storage-api 这些开源组件拼装而来，所以不存在被锁定的问题。
+
+- **适合谁**：从 0 起步做 Web / 移动 / AI 应用的个人或小团队；想替代 Firebase 但不想被绑定的项目
+- **不适合谁**：已经在用专业 DBA 团队、或者强依赖 Oracle 私有特性的传统企业
+
+**最小上手**
+
+注册后拿到 URL 和 anon key，安装 JS 客户端：
+
+```
+npm install @supabase/supabase-js
+```
+
+一行代码拿到当前登录态：
+
+```
+const supabase = createClient('https://xxx.supabase.co', 'anon-key')
+```
+
+*开源地址：* **https://github.com/supabase/supabase**
+
+![](/assets/blog-images/7-ddgc8p/img03.webp)
+
+### goauthentik/authentik — 一个 IdP 管住所有登录
+
+**authentik 是给现代应用做 SSO 的开源身份提供方，支持 SAML、OAuth2 / OIDC、LDAP、RADIUS。** 它既能作为公司的统一登录入口，也能反向代理接入已有的 LDAP / Active Directory。被很多团队用来替换 Okta、Auth0、Entra ID，企业版提供更高级的合规和运维功能。
+
+- **适合谁**：需要统一员工 / 客户登录的中大型团队；希望自托管以掌控用户数据的企业
+- **不适合谁**：只做一个内部小工具、登录用户不超过 50 人的项目
+
+**最小上手**
+
+用 Docker Compose 起一个最小实例：
+
+```
+curl -L https://goauthentik.io/docker-compose.yaml -o docker-compose.yml
+```
+
+然后启动并访问 `:9000` 初始化：
+
+```
+docker compose up -d
+```
+
+*开源地址：* **https://github.com/goauthentik/authentik**
+
+### oceanbase/oceanbase — 蚂蚁开源的原生分布式数据库
+
+**OceanBase 是一套自下而上重写的分布式关系数据库，单集群可扩展到 1500 节点、PB 级数据、万亿行记录。** TPC-C 实测 7.07 亿 tmpC，TPC-H 30000GB 跑出 1526 万 QphH；同时兼容 MySQL 协议，从单机 MySQL 迁过来基本无改造成本。RPO = 0、RTO &lt; 8 秒的故障恢复指标，让它在金融级场景里跑了很多年。
+
+- **适合谁**：数据量大且持续增长、对高可用和成本敏感的业务；对 MySQL 兼容性有硬要求
+- **不适合谁**：QPS 不高、数据量在 GB 级别的小项目
+
+**最小上手**
+
+最省事的体验方式是官方 all-in-one：
+
+```
+bash -c "$(curl -s https://obbusiness-private.oss-cn-shanghai.aliyuncs.com/download-center/opensource/oceanbase-all-in-one/installer.sh)"
+```
+
+部署一个最小单机：
+
+```
+obd demo
+```
+
+*开源地址：* **https://github.com/oceanbase/oceanbase**
+
+### t8y2/dbx — 25 MB 的跨平台数据库瑞士军刀
+
+**DBX 把 90+ 种数据库装进一个 25 MB 的二进制，覆盖 MySQL、PostgreSQL、SQLite、Redis、MongoDB、DuckDB、SQL Server、达梦等。** 同时提供桌面端、Docker、CLI 三种使用方式，内置 AI 助手解释慢 SQL，还自带 MCP Server，能让本地 Agent 直接连进去操作数据。
+
+- **适合谁**：经常在不同类型数据库之间切换的 DBA / 后端 / 数据分析师；想要一个工具替代 Navicat、DBeaver、TablePlus 的人
+- **不适合谁**：只连一种数据库、对原生客户端没有额外需求
+
+**最小上手**
+
+桌面端直接装包，CLI 一行启动：
+
+```
+docker run -d -p 8090:8090 dbxio/dbx
+```
+
+然后浏览器打开 `http://localhost:8090` 就能用：
+
+```
+open http://localhost:8090
+```
+
+*开源地址：* **https://github.com/t8y2/dbx**
+
+![](/assets/blog-images/7-ddgc8p/img04.webp)
+
+### gobackup/gobackup — 一次配置，备份跑数年
+
+**GoBackup 是用 Go 写的备份 CLI，把数据库和文件定时压缩加密后传到云存储。** 内置 MySQL、PostgreSQL、Redis、MongoDB、SQLite、MSSQL 等数据库源；目标端覆盖 S3、阿里云 OSS、腾讯云 COS、华为 OBS、Backblaze B2、SCP、FTP、MinIO 等 20+ 存储。自带 daemon 定时、邮件 / 飞书 / Slack / 钉钉通知，单二进制无依赖。Ruby China 的生产服务器用它连续跑了数年，每月存储成本不到 3 毛钱。
+
+- **适合谁**：中小型应用服务器、个人 VPS、需要合规留存的业务
+- **不适合谁**：需要做 PITR、跨区域容灾、TB 级实时同步的大型基础设施
+
+**最小上手**
+
+一行脚本安装：
+
+```
+curl -sSL https://gobackup.github.io/install | sh
+```
+
+起一个后台守护进程：
+
+```
+gobackup start
+```
+
+*开源地址：* **https://github.com/gobackup/gobackup**
+
+### firecrawl/firecrawl — 把网页变成 LLM 直接吃的 Markdown
+
+**Firecrawl 是面向 AI Agent 的网页数据 API，把任意 URL 转成干净的 Markdown、结构化 JSON、截图或 PDF。** 自带旋转代理、JS 渲染、403 绕过，P95 延迟 3.4 秒，覆盖 96% 的公开网页。支持 Search、Scrape、Crawl、Batch Scrape、Interact 一整套接口，并能通过一行命令接入任意 MCP Client。
+
+- **适合谁**：在做 RAG、Agent、数据采集、SEO 监控、AI 摘要的团队
+- **不适合谁**：只需要爬一两个固定页面的轻量需求
+
+**最小上手**
+
+Python 安装 SDK：
+
+```
+pip install firecrawl-py
+```
+
+抓一个 URL 并转 Markdown：
+
+```
+from firecrawl import Firecrawl
+Firecrawl(api_key="fc-xxx").scrape("https://example.com", formats=["markdown"])
+```
+
+*开源地址：* **https://github.com/firecrawl/firecrawl**
+
+![](/assets/blog-images/7-ddgc8p/img05.webp)
+
+### public-apis/public-apis — 社区维护的免费 API 字典
+
+**public-apis 是一个被 48 万人 Star 的免费 API 目录，按动物、天气、金融、音乐、新闻、地理等几十个分类整理。** 每一条都标注是否需要 API Key、是否支持 HTTPS、CORS、Auth 方式。每天少则几个、多则几十条 PR 在补充新接口，是写 Side Project 时随手翻一翻的速查表。
+
+- **适合谁**：做 Demo、毕业设计、个人项目时需要数据源的开发者
+- **不适合谁**：需要 SLA 保障、企业级稳定性的线上业务（这类场景请用付费 API）
+
+**最小上手**
+
+直接克隆仓库到本地搜：
+
+```
+git clone https://github.com/public-apis/public-apis
+```
+
+或者访问网页版按分类翻：
+
+```
+open https://publicapis.dev
+```
+
+*开源地址：* **https://github.com/public-apis/public-apis**
+
+![](/assets/blog-images/7-ddgc8p/img06.webp)
+
+## 四、总结与行动建议
+
+如果你只能挑一个先装，先上 **Supabase**——它能直接干掉 80% 的后端样板代码；如果你已经在为生产数据库发愁，**GoBackup** 配置一次就能躺平好几年；做 AI 应用或者数据采集的同事，下班前把 **Firecrawl** 和 **public-apis** 加入书签就够了。
+
+#大模型 #LLM #RAG #Supabase #Authentik #Oceanbase #Dbx #Gobackup #Firecrawl #PublicApis

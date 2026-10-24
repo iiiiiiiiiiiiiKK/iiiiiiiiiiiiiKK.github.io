@@ -1,0 +1,134 @@
+---
+title: "mattpocock_skills：22 个小颗粒度 AI 技能，不抢你的方向盘"
+publishedAt: "2026-03-31"
+summary: "mattpocock/skills：22 个小颗粒度 AI 技能，不抢你的方向盘"
+image: "/assets/blog-images/mattpocock-skills-22-ai-1m2nba/img01.webp"
+tags: ["AI", "Agent", "开源"]
+author: "Adam"
+---
+![](/assets/blog-images/mattpocock-skills-22-ai-1m2nba/img01.webp)
+
+选择标题（3 选 1）
+
+mattpocock/skills：22 个小颗粒度 AI 技能，不抢你的方向盘
+
+把工程基本功装进 AI：mattpocock/skills 帮你省下整轮代码评审
+
+29 万 Star 的技能库：不为 vibe coding，只为留住工程控制权
+
+# mattpocock/skills：把软件工程基本功，塞进 AI 编码 Agent 的 22 个动作里
+
+## 一、开篇：你以为买了辆赛车，其实 AI 帮你栽进了泥地
+
+做需求评审时，你跟 Agent 描述了一遍目标，Agent 给你刷刷写出一千行代码，看起来很快。结果一跑，全是 Bug；改完一个，冒出三个；三个月后，仓库里没人敢动的"泥球"代码比产品本身还大。
+
+这不是你的错。当下许多 AI 编码工作流 GSD、BMAD、Spec-Kit 走的是"大包大揽"路线——把整个开发流程吞下，让你把控制权交出去。一旦流程本身有 Bug，你连定位的入口都找不到。
+
+mattpocock/skills 反其道而行，把整个开发流程拆成 22 个小颗粒度、可自由组合的 skill（技能），每个只解决一类问题。你想用哪个就装哪个，自己决定装配顺序。仓库在 GitHub 已斩获 **29.58 万 Star**，核心语言 Shell，30 秒装好，下面我把它彻底拆给你看。
+
+![](/assets/blog-images/mattpocock-skills-22-ai-1m2nba/img02.webp)
+
+## 二、项目简介：把软件工程基本功，炼成 22 个可复用的技能
+
+mattpocock/skills 是英国知名工程师 Matt Pocock 从自己日常使用的 `.agents` 目录里提炼出的一套"实战型"技能库，定位很明确——**面向真实工程师，不是 vibe coding**。
+
+核心特性四个关键词：**可组合、可适配、模型无关、基于数十年工程经验沉淀**。Skills 拆得很细，作者鼓励你"魔改"、"据为己有"。所有技能都被划分为 `engineering`（工程）和 `productivity`（生产力）两大类，按"用户调用"与"模型调用"两轴做矩阵排布，方便按角色取用。
+
+## 三、核心功能深度解析
+
+### 1. /grill-me 与 /grill-with-docs：对齐目标，从"审讯"开始
+
+《程序员修炼之道》里有一句话：**"没人确切知道自己想要什么。"** Agent 不知道你要什么，绝大多数失败都源于此。
+
+`/grill-me` 让 Agent 像资深架构师那样"盘问"你——把模糊需求追到字段级、边界条件级、错误处理级。`/grill-with-docs` 把对话沉淀成项目的 `GLOSSARY.md`（词汇表）和 ADR（架构决策记录）。原文有个好例子：把"课程章节中的某节课被设为 real"压缩成"材料化级联"。这样下来，**变量名、文件名、Agent 自己思考时消耗的 Token 都跟着瘦下来**。
+
+### 2. /tdd：用红绿重构循环给 Agent 装上"反馈仪表盘"
+
+就算你和 Agent 已经对齐目标，它写出能跑的烂代码怎么办？答案是**反馈循环**。`/tdd` 强制 Agent 先写一个失败的测试，再写刚好让它通过的代码，最后重构。给 Agent 一致的反馈节奏，出好代码的概率显著提升。配套的还有 `/diagnosing-bugs`，把调试本身也做成阶段门控的纪律化循环。
+
+### 3. /improve-codebase-architecture：定期给代码做"深度扫描"
+
+Agent 的写代码速度越快，软件熵增的速度越快。`/improve-codebase-architecture` 会定期扫描整个仓库，找出"可深化模块"（即用更小接口暴露更多功能的优化点），以可视化 HTML 报告呈现，再带你一一过堂。注意它的定位：**是体检，不是急救**——老仓库里它能找到真问题，但不会替你清淤。
+
+### 4. /to-spec、/to-tickets、/implement：把对话直接变可执行计划
+
+`/to-spec` 跳过采访环节，把当前对话直接合成 Spec 发布到工单系统。`/to-tickets` 把 Spec 拆成 tracer-bullet tickets（示踪子弹式任务，每张声明阻塞关系）。`/implement` 沿用 `/tdd` 在约定边界上落地，最后用 `/code-review` 收口。链条可拆可合，适合不同体量的需求。
+
+### 5. /grilling、/wait-what、/ask-matt：让 Agent 学会"主动盘问"与"听不懂就喊停"
+
+`/grilling` 是 `grill-me`、`grill-with-docs`、`triage`、`wayfinder`、`improve-codebase-architecture` 共用的**可复用盘问原语**。`/wait-what` 是"信号不好就重说"的技能——AI 输出意思不明时立刻触发，让它用 `GLOSSARY.md` 词汇表里的语言重讲一遍。`/ask-matt` 是路由器，告诉你当下该用哪个技能。
+
+![](/assets/blog-images/mattpocock-skills-22-ai-1m2nba/img03.webp)
+
+## 四、技术亮点与性能数据
+
+- **双层调用模型**：用户调用型（手动触发，扮演编排者）与模型调用型（自动匹配场景，存放可复用纪律）严格分层，避免互相递归踩坑。
+- **生态零锁定**：同一套技能可装到 Claude Code、Codex、GitHub Copilot、Gemini CLI、Cursor、OpenCode、Devin、Windsurf、Amp、Pi 十余款主流 Agent，一次编写多处运行。
+- **自动更新机制**：Claude Code、Codex 默认自更；VS Code Copilot 每日拉新；其他 Agent 用 `npx skills@latest update` 手动同步。
+- **可观测的成本优化**：作者实测，共享词汇表建立后，**Agent 单次会话 Token 消耗下降，思考链路缩短**——这是少有的"AI 工作流里写明的成本数据点"。
+- **领域原生**：22 项技能覆盖需求、设计、编码、调试、评审、重构、文档、协作全链路，不是单点工具，而是体系化的工程实践封装。
+
+## 五、适用场景与人群
+
+**适用场景**：
+
+- 中长期项目冷启动——你要给新仓库建立词汇表、TDD 习惯、Code Review 标准。
+- 老代码库体检——定期跑 `/improve-codebase-architecture`，找出"加深"候选模块。
+- 多人协作——把团队的潜在歧义写进 `GLOSSARY.md`，让 Agent 也成"团队一员"。
+
+**适合谁**：能写代码、想保住控制权、对"大包大揽式 AI 流程"警惕的工程师；技术 Lead 想给团队铺一套工程纪律。
+
+**不适合谁**：只想让 AI 一句话吐出完整 App 的纯 vibe coding 玩家；不愿为工程纪律投入一次性配置时间的人。
+
+![](/assets/blog-images/mattpocock-skills-22-ai-1m2nba/img04.webp)
+
+## 六、竞品对比
+
+| 维度 | mattpocock/skills | GSD / BMAD / Spec-Kit 类流程派 |
+|---|---|---|
+| 控制粒度 | 22 个细粒度技能自由组合 | 流程全托管，端到端包办 |
+| 出错定位 | 单个 skill 独立可改可换 | 流程黑盒，定位困难 |
+| 模型兼容 | 任何 Agent，模型无关 | 通常绑定特定 Agent |
+| 上手成本 | 30 秒安装 + 一次性配置 | 需要学习整套流程方法论 |
+| 适合项目 | 长期、需要保留工程纪律的项目 | 一次性原型、PoC |
+
+**一句话选型逻辑**：你想要"AI 助理守纪律"就选 skills；你想要"AI 全程代驾"就选流程派。
+
+![](/assets/blog-images/mattpocock-skills-22-ai-1m2nba/img05.webp)
+
+## 七、如何快速上手
+
+**安装**（按你主力 Agent 任选其一）：
+
+- **Claude Code**：`claude plugin install mattpocock-skills@claude-plugins-official`（自动更新）
+- **Codex**：`codex plugin marketplace add mattpocock/skills` && `codex plugin add mattpocock-skills@mattpocock`
+- **GitHub Copilot**（CLI 和 VS Code 均支持）：`copilot plugin marketplace add mattpocock/skills` 后再装插件
+- **Gemini CLI**：`gemini skills install https://github.com/mattpocock/skills.git --path skills/engineering`
+- **其他 Agent**（Cursor、OpenCode、Devin、Windsurf 等）：`npx skills@latest add mattpocock/skills -a <agent>`
+
+⚠️ 每个 Agent 只选一套来源，否则会出现技能重复。
+
+**最小可用流程**：
+
+1. 安装完成后，**在每个仓库里跑一次** `/setup-matt-pocock-skills`，配置工单系统、标签、文档存放位置。
+2. 改任何东西之前先跑 `/grill-me`（非代码场景）或 `/grill-with-docs`（要建词汇表的工程场景）。
+3. 实现时挂 `/tdd`，收尾挂 `/code-review`，再开 PR。
+4. 每周抽半小时跑 `/improve-codebase-architecture`，把架构债"看见"。
+
+## 八、总结与行动建议
+
+mattpocock/skills 真正卖的不是"插件"，而是一套**软件工程基本功被封装后的纪律模板**。它承认 AI 写代码会加速熵增，所以提供 22 个可挂载的小工具，让你在享受速度的同时保住代码质量与控制权。
+
+行动建议：**今晚就在你主力 Agent 里装一套**——选一个真实要做的小任务，先按 `/grill-me` → `/to-spec` → `/tdd` → `/code-review` 这条最小链路走一遍。如果你已经有老仓库，立刻跑一次 `/improve-codebase-architecture`，你会第一次"看见"代码里那些一直想改没空改的地方。
+
+项目链接：
+
+- GitHub：github.com/mattpocock/skills
+- 技能导航站：skills.sh/mattpocock/skills
+- 作者周刊：aihero.dev/s/skills-newsletter
+
+记住一句话——AI 时代，**工程纪律比以往任何时候都更值钱**。
+
+![](/assets/blog-images/mattpocock-skills-22-ai-1m2nba/img06.webp)
+
+#skills #Skills #mattpocock #AI智能体 #AI工作流 #自动化 #开源项目 #GitHub

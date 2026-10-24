@@ -1,0 +1,145 @@
+---
+title: "每年因为忘记续费，我损失了多少钱？"
+publishedAt: "2026-08-31"
+summary: "去年 12 月 31 日晚上 11 点，我正在跨年倒计时。第二天早上打开邮箱，发现三件事同时发生了："
+image: "/assets/blog-images/post-x9453y/img01.webp"
+tags: ["开源", "写作", "效率"]
+author: "Adam"
+---
+![](/assets/blog-images/post-x9453y/img01.webp)
+
+## 一、开篇：每年因为忘记续费，我损失了多少钱？
+
+去年 12 月 31 日晚上 11 点，我正在跨年倒计时。第二天早上打开邮箱，发现三件事同时发生了：
+
+- 一个用了 5 年的域名过期未续，被注册局释放，回收成本花了 8000 元。
+- 一台香港 VPS 到期停机，上面跑的博客和小工具全部失联。
+- 一张月付流卡号到期没续，直接被运营商注销。
+
+这不是段子，是我那年的真实账单。更扎心的是，这个项目作者「LOSTFREE」和我一样踩过坑，所以才有了今天这篇文章的主角——**RenewHelper（时序·守望）**。它在 GitHub 上已经收获 **381 Stars**，基于 Cloudflare Workers 构建，主打「零服务器、零成本托管」，支持公历/农历周期、多渠道推送、ICS 日历订阅和账单统计，Docker 也能一键私有化部署。
+
+如果你的手机日历里塞满了「记得续费」「记得续费」「记得续费」，这篇值得你读完。
+
+![](/assets/blog-images/post-x9453y/img02.webp)
+
+## 二、项目简介：把「续费焦虑」塞进一个 Worker 里
+
+**RenewHelper** 是一款服务生命周期提醒与管理工具，定位非常清晰：管好你所有「会过期的东西」。它以 Cloudflare Workers 为运行底座，配合 Workers KV 做数据存储，前后端基于 Vue 3 + Element Plus 构建，提供机甲风（Mecha-style）的暗色/亮色双主题 UI。
+
+几个关键词先抛出来：**Serverless 零成本、农历+公历双历法计算、12 种通知渠道、ICS 标准日历订阅、多币种账单看板**。v3.x 起前后端彻底解耦，不再依赖任何外部 CDN，开箱即用。
+
+![](/assets/blog-images/post-x9453y/img03.webp)
+
+## 三、核心功能深度解析
+
+### 1. 三种周期模式：不止「到期提醒」那么简单
+
+RenewHelper 不是简单的「到期 N 天前发条消息」。它把周期管理拆成了三种模式：
+
+- **循环订阅（Cycle）**：每隔固定周期自动顺延，比如月付 Netflix、年付 VPS。配合「自动续期」开关，到期后下次提醒时间自动滚动。
+- **到期重置（Reset）**：到期后需手动操作，到期日才展期。典型场景是 eSIM 充流量、签到加天数这种「不操作就清零」的服务。
+- **固定重复（Repeat）**：基于标准 RRULE 规则引擎，可以表达「每月第二个周五」「每两周的周三和周日」这种复杂规则。
+
+更厉害的是**农历支持**。内置 1900-2100 年高精度农历算法，农历生日、传统节日都能精确推算——这在同类工具里非常少见。
+
+### 2. 12 个通知渠道 + 批量分配
+
+支持 Telegram、Bark、PushPlus、Server 酱3、钉钉、飞书、企微、NotifyX、Resend（邮件）、Gotify、Ntfy、Webhook 共 12 种渠道。每个项目可以独立绑定不同渠道，列表页支持**多选 + 批量分配推送通道**，管理 50+ 订阅也不会点到手酸。每个渠道都能在配置页直接「发送测试」验证连通性。
+
+国内用户特别友好的一点是：项目自带**轻量级 Telegram 反代脚本**（支持 Worker/Pages/Snippets 三种部署方式），解决国内服务器无法直连 Telegram API 的问题。
+
+### 3. ICS 标准订阅：日历 App 直接接管
+
+系统会生成标准 `.ics` 订阅链接，可以直接接入 iOS 日历、Google Calendar、Outlook，甚至手机自带的日程 App。订阅基于时区计算，你设置 `Asia/Shanghai` 后，推送时间会精准落到本地时间。
+
+![](/assets/blog-images/post-x9453y/img04.webp)
+
+## 四、技术亮点与性能数据
+
+**架构层面**有几个值得关注的设计：
+
+- **Cloudflare Workers + KV**：完全 Serverless，免费版每天 10 万次请求 + KV 1000 次写入，个人使用基本不会触顶；Docker 模式用 Miniflare 本地模拟 + Node-cron，对免费额度无限制。
+- **JWT 身份验证 + 内存/KV 混合限流**：登录、API 调用都走限流，5 分钟内错 5 次自动封 IP 15 分钟。
+- **农历算法自研**：覆盖 1900-2100 共 200 年区间，未引入第三方农历库，体积更小、隐私更好。
+- **前后端彻底分离（v3.x）**：单 Worker 自带前端，不依赖任何 CDN 引入，断网也能跑。
+- **数据可视化**：账单看板用 ECharts 展示近 12 个月趋势和近 3 年汇总，多币种自动汇率换算，区分「账单金额（预算）」和「实付金额」。
+
+![](/assets/blog-images/post-x9453y/img05.webp)
+
+## 五、适用场景与人群
+
+**强烈推荐给这几类人：**
+
+- **个人开发者 / 站长**：管一堆 VPS、域名、对象存储、CDN 套餐，再也不会忘续费。
+- **薅羊毛爱好者**：月付流卡、试用订阅、虚拟号……RenewHelper 的批量分配通知功能简直是为你而生。
+- **农历生日/节日党**：再也不会忘农历爸妈生日、中秋端午这种传统节日。
+- **Serverless 玩家**：想白嫖 Cloudflare 免费额度，又不想折腾服务器的同学。
+- **注重隐私的人**：Docker 私有化部署，数据完全在自己手里。
+
+**不太适合：** 团队级别的资产订阅管理（这是个人工具，没有多用户/权限系统）。
+
+## 六、竞品对比
+
+| 项目 | RenewHelper | 普通 Excel/Notion | 商业订阅管理 SaaS |
+| :--- | :--- | :--- | :--- |
+| 部署成本 | 0 元（CF 免费额度） | 0 | 月费几十到几百 |
+| 农历支持 | ✅ 内置 1900-2100 | ❌ 需手动 | ❌ 通常没有 |
+| 通知渠道 | ✅ 12 种 | ❌ 无 | ⚠️ 通常仅邮件 |
+| ICS 日历同步 | ✅ | ❌ | ⚠️ 少数支持 |
+| 数据归属 | ✅ 自己 KV/Docker | ✅ 本地 | ❌ 厂商服务器 |
+| 账单统计 | ✅ 多币种看板 | ⚠️ 需手动 | ✅ 但收费 |
+
+对比结论很清楚：**RenewHelper 在「免费 + 功能完整 + 数据自托管」三角上都打了满分**，商业 SaaS 在协作和报表深度上有优势，但个人用完全没必要。
+
+![](/assets/blog-images/post-x9453y/img06.webp)
+
+## 七、如何快速上手
+
+最省事的姿势是**一键部署**：
+
+1. 点击 README 里的「Deploy to Cloudflare Workers」按钮。
+2. 授权 Cloudflare 访问 GitHub，它会自动 Fork 仓库并创建 Worker + KV 命名空间。
+3. 部署完成后，到 **Settings → Variables** 添加环境变量 `AUTH_PASSWORD`（你的登录密码）。
+4. 进入 **Triggers → Cron Triggers**，添加 `0,30 * * * *`（每半点检查一次）。
+5. 访问你的 `https://renewhelper.xxx.workers.dev`，用密码登录即可。
+
+Docker 党也很简单，新建文件夹，建一个 `docker-compose.yml`：
+
+```yaml
+services:
+  renew-helper:
+    image: ieax/renewhelper:latest
+    restart: unless-stopped
+    ports:
+      - "9787:9787"
+    volumes:
+      - ./data:/data
+    environment:
+      - AUTH_PASSWORD=你的密码
+      - CRON_SCHEDULE=0,30 * * * *
+      - TZ=Asia/Shanghai
+```
+
+然后 `docker compose up -d`。**注意**：Web Crypto API 要求必须在 HTTPS 下运行（localhost 除外），记得用 Caddy 反代套个证书。
+
+![](/assets/blog-images/post-x9453y/img07.webp)
+
+## 八、总结与行动建议
+
+回到开头那个问题：**每年因为忘记续费，我损失了多少钱？**
+
+答案因人而异，但 RenewHelper 至少能让你在「损失」变成「事故」之前收到一条推送。它把续费管理从「凭记忆」变成了「有系统」，把公历/农历、通知推送、日历订阅、账单统计这几件事打包成一个完全免费的工具，并且把数据主权交回给你。
+
+**我的建议：**
+
+1. 先用 Cloudflare 一键部署跑起来，把目前手里所有订阅录一遍（标签分类省事）。
+2. 至少配 2 个通知渠道（推荐 Telegram + Bark），避免单一渠道漏接。
+3. 设置里把时区改对，并导出第一份 JSON 备份。
+4. 进阶用户可以试试 GitHub Actions 自动同步更新，或者用 Docker 私有化部署。
+
+项目地址：https://github.com/ieax/renewhelper
+
+演示站：https://lostfree.de5.net
+
+如果它能帮你省下一次域名赎回费，这杯咖啡就值得请作者喝了 ☕️。
+

@@ -1,0 +1,71 @@
+---
+title: "3255 Stars 的开源神器，让 Claude、Codex、Canvas 第一次坐到了同一张桌子上"
+publishedAt: "2026-09-05"
+summary: "同时用 Claude Code、Codex、Canvas 做项目的开发者，一定对下面这个场景不陌生：Claude 写完 API 后端，Codex 接手前端，但你需要把 API 文档重新粘贴一遍，把上下文再讲一遍；接着为了…"
+image: "/assets/blog-images/3255-stars-claude-codex-canvas-19jkxg/img01.webp"
+tags: ["AI", "Agent", "开源"]
+author: "Adam"
+---
+![](/assets/blog-images/3255-stars-claude-codex-canvas-19jkxg/img01.webp)
+
+## 一、开篇：为什么你需要这个工具？
+
+同时用 Claude Code、Codex、Canvas 做项目的开发者，一定对下面这个场景不陌生：Claude 写完 API 后端，Codex 接手前端，但你需要把 API 文档重新粘贴一遍，把上下文再讲一遍；接着为了生成 UI 素材，你又打开图像工具、下载、上传、再贴到下一个 Agent 里复述需求。
+
+你不是在做工作，你在做信息搬运工。多个 Agent 本该自动化流水线，最后却因为上下文割裂、文件格式不通、订阅各自独立，变成一条不断返工的人工传送带。Tutti（GitHub 3255+ Stars，主语言 TypeScript）正是为解决这个痛点而来：它用一个实时共享工作区，把 Agent、文件、应用、任务全部连起来。
+
+![](/assets/blog-images/3255-stars-claude-codex-canvas-19jkxg/img02.webp)
+
+## 二、项目简介：一句话说明它是什么
+
+Tutti 的定位是「人 + Agent 共建」的实时共享工作区，开源协议 Apache-2.0，官网 tutti.sh。核心关键词有四个：实时共享工作区、Big @ 跨上下文引用、应用生态（图像、设计、文档、PPT）、复用现有订阅。它不替代你的 Claude Code 或 Codex，而是把这些 Agent 装进同一个工作台，让 Codex 能直接看到 Claude 改了什么、跑着什么、产出在哪里。已开放 macOS 本地客户端下载，Windows 正在路上，多人协作版 Tutti · VM 已开放候补名单。
+
+## 三、核心功能深度解析
+
+### 1. 实时共享工作区：让 Agent 共享一个大脑
+
+Tutti 的根基是一块所有 Agent 都能看到的实时工作区：上下文、文件、运行中的任务、应用调用结果全部在线同步。Codex 不再需要「问用户 Claude 刚才改了什么」，它直接读取工作区状态。最具杀伤力的能力叫 Big @——在 Codex 的对话框里，你可以 @ 过去任何一次对话、文件、应用调用、任务结果，甚至 @ Claude Code 之前在某台机器上跑过的会话，然后站在它的肩膀上继续写。配合输入框旁的「+」按钮，本地文件和应用输出也能一键引用，全程零复制粘贴。
+
+### 2. 人与 Agent 共用的应用生态
+
+一个真实工作流往往涉及原型设计、视觉生成、文档撰写、PPT 输出多个环节，传统做法是分别订阅 Claude Design、Midjourney、Notion AI、Gamma，然后手动搬运产物。Tutti 内置了图像生成（AI Canvas）、UI/UX 设计、文档、PPT 等官方应用，这些应用运行在你已有的 Claude / Codex 订阅之上，不额外打包收费。你自己能用，你的 Agent 也能调用——例如让 Codex 调用 prototype-design 应用生成 UI 草图，效果等同于「给 Codex 装上 Claude Design 能力」，结果直接喂给下一步编码。
+
+### 3. 减少「工作之外的工作」：目标到任务 + 控制中心 + 全 GUI
+
+Tutti 把「拆解任务 + 审批 + 监控」三件最容易打断心流的事，做成了三块可视化面板。Goals to Tasks：你只描述目标，比如「我想做一个官网」，Tutti 自动拆成子任务清单，你审阅后指派给最合适的 Agent。Control Center：一个视图聚合所有 Agent 对话、待你审批的动作、运行中的任务，所有需要你介入的事项会被高亮标记，一键处理。GUI Interface：完全图形界面，零命令行，设计师、产品经理、内容创作者可以直接上手。
+
+![](/assets/blog-images/3255-stars-claude-codex-canvas-19jkxg/img03.webp)
+
+## 四、技术亮点与性能数据
+
+Tutti · VM 引入了多层虚拟化技术，把本地 Agent 的工作状态实时同步到云端「Room」，实现跨设备、跨人的多用户协作，同时 Agent 仍跑在本地，订阅和配置保持原样。当前已支持的 Agent 包括 Claude Code、Codex、Hermes，OpenClaw（基于 DeepSeek）开发中。架构层面的关键设计：所有应用输出沉淀在工作区而非散落在本地文件夹，被 Big @ 和「+」引用时不需要重新上传；订阅层做到零额外费用，不在模型上加价打包能力。生态兼容性方面，官方应用、社区应用、自建应用均可接入。
+
+![](/assets/blog-images/3255-stars-claude-codex-canvas-19jkxg/img04.webp)
+
+## 五、适用场景与人群
+
+Tutti 的目标用户是「多 Agent 协作」场景下的所有角色。**独立开发者**：让 Claude 起草方案，Codex 接力开发，无需重复解释项目背景。**设计师**：在设计应用里产出 Mockup，让 Codex 直接转成可运行代码，跳过手动标注。**产品经理**：Codex 写完 PRD 后，让它调用 UI/UX 应用生成原型，无需打开 Figma。**内容创作者**：脚本、配图、排版一站式完成。不适合的人群：只用单一 Agent 且无跨上下文需求的极轻量用户。
+
+## 六、竞品对比
+
+| 维度 | Tutti | 单一 Agent IDE（如 Cursor） | 多 Agent 手动串联 | SaaS 套件型 AI 工作台 |
+|-----|-------|---------------------------|------------------|---------------------|
+| 多 Agent 协作 | 原生支持，实时共享上下文 | 不支持 | 需人工搬运 | 部分支持，但上下文隔断 |
+| 应用生态 | 内置图像/设计/文档/PPT | 无 | 需自己接入 | 自有应用，锁定订阅 |
+| 订阅成本 | 复用现有 Claude/Codex 订阅，零额外 | 需购买 IDE 订阅 | 各自订阅 | 多重新增打包费 |
+| 跨设备多人协作 | Tutti · VM 支持 | 不支持 | 不支持 | 部分支持 |
+| 开源 | Apache-2.0 | 闭源 | 取决于工具 | 闭源 |
+
+Tutti 的差异化在于「不抢 Agent 的活，只做工作台」，并通过共享工作区 + Big @ + 应用生态三件套，把 Agent 之间的协作摩擦降到最低。
+
+![](/assets/blog-images/3255-stars-claude-codex-canvas-19jkxg/img05.webp)
+
+## 七、如何快速上手
+
+第一步，前往 tutti.sh/desktop/download 下载 macOS 客户端（支持 Apple Silicon 与 Intel 通用包）。第二步，启动 Tutti，连接你已有的 Claude Code、Codex 或 Hermes 订阅。第三步，新建工作区，描述一个目标，例如「搭一个产品落地页」，Tutti 自动拆解成子任务并展示在控制中心。第四步，从任务卡里点击「指派」，选择要调用的 Agent 与应用，观察 Big @ 与「+」引用如何串联上下文。进阶建议：尝试在 Codex 中 @ Claude Code 的历史会话，验证零复制粘贴接力；多人协作场景加入 Tutti · VM 候补名单。
+
+![](/assets/blog-images/3255-stars-claude-codex-canvas-19jkxg/img06.webp)
+
+## 八、总结与行动建议
+
+Tutti 把多 Agent 协作从「人工搬运上下文」解放为「实时共享工作区」，核心价值在于三个词：共享、引用、复用。任何人只要同时使用两个以上 AI Agent，都值得下载试用。开源仓库：github.com/tutti-os/tutti；官网与下载：tutti.sh；协作版候补：tutti.sh/waitlist。一句话推荐：让 Codex、Claude、Canvas 第一次真正在同一张桌子上开会。

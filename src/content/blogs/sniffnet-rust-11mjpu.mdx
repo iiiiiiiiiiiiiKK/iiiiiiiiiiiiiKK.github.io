@@ -1,0 +1,105 @@
+---
+title: "还在靠猜排查网络异常？Sniffnet 用 Rust 把抓包门槛降到零"
+publishedAt: "2026-05-16"
+summary: "还在靠猜排查网络异常？Sniffnet 用 Rust 把抓包门槛降到零"
+image: "/assets/blog-images/sniffnet-rust-11mjpu/img01.webp"
+tags: ["开源", "开发", "效率"]
+author: "Adam"
+---
+![](/assets/blog-images/sniffnet-rust-11mjpu/img01.webp)
+
+选择标题（3 选 1）
+
+还在靠猜排查网络异常？Sniffnet 用 Rust 把抓包门槛降到零
+
+4 万 Star 的 Sniffnet：30 秒看清电脑里所有联网进程
+
+不用学 Wireshark 过滤器：Sniffnet 让网络监控像看仪表盘一样简单
+
+# Sniffnet：4 万 Star 的 Rust 网络监控神器，让流量一目了然
+
+## 一、开篇：从踩坑到真香，只差这一个项目
+
+排查一次服务器异常连接，你可能要在 Wireshark 里翻十几层协议栈；想看一眼家里 NAS 跑出去多少带宽，路由器后台只给一张看不太懂的曲线图；怀疑某个进程偷偷上传数据，Windows 任务管理器只能告诉你「网络占用 3%」。这类「我知道流量有问题，但就是看不见细节」的时刻，是绝大多数开发者和运维人共同踩过的坑。
+
+更让人头疼的是市面上的网络抓包工具：Wireshark 学习曲线陡峭，GlassWire 闭源且订阅制，命令行 tcpdump 对新手极不友好，浏览器扩展又只能看 HTTP 流量。于是很多人只能默默接受「黑盒网络」的状态，直到 Sniffnet 出现。
+
+![](/assets/blog-images/sniffnet-rust-11mjpu/img02.webp)
+
+## 二、项目简介：一句话说明它是什么
+
+Sniffnet 是一款用 Rust 编写的跨平台网络流量监控应用，主打「Comfortably monitor your network traffic」，GitHub 已收获 41,366 Star，被 NLnet、CodeRabbit、IPinfo 等组织赞助支持。它把过去只有专业工具才能做到的实时抓包、协议解析、流量可视化，封装进一个双击即可启动的 GUI 程序，覆盖 Windows、macOS、Linux 三大平台，并已翻译为 27 种语言。
+
+## 三、核心功能深度解析
+
+### 1. 网卡与过滤器自由组合
+
+Sniffnet 启动后第一件事，就是让你选择要监控的网卡和流量过滤器。无论是 Wi-Fi、有线网卡、虚拟机桥接还是 Docker 网桥，都能在下拉列表里直接选中；过滤器则按协议（TCP/UDP/ICMP 等）和方向（上传/下载）维度自由组合，避免无关流量淹没关键信息。这比 Wireshark 默认「全量抓包」友好得多——尤其是排查一台机器的某个特定服务时。
+
+### 2. 实时图表 + PCAP 导入导出
+
+Overview 页面提供整体流量统计与实时折线图，左侧显示上下行速率曲线，右侧展示协议占比 TopN；点击「Inspect」可对每一条连接做下钻分析。更关键的是，Sniffnet 支持把当前会话导出为标准 PCAP 格式，反过来也能导入已有 PCAP 文件做二次分析——这意味着它既能当抓包工具，也能当 Wireshark 的轻量替代品。
+
+### 3. 6000+ 服务与协议识别
+
+通过内置的协议指纹库（类似 Zeek/Snort 的思路），Sniffnet 能识别 6000+ 上层服务、协议、木马与蠕虫特征。这意味着即使端口被伪装成 80，你也能从「DNS over HTTPS」「QUIC」「TeamViewer」等细分类目里看到真实流量类型。配合 IPinfo 的地理数据，每个远程连接的地理位置、ASN（自治系统号）和组织信息都会一并展示。
+
+### 4. 自定义通知与 IP 黑名单
+
+对于关心安全的使用者，Sniffnet 允许导入自定义 IP 黑名单，被命中的连接会高亮显示；同时可设置自定义通知规则，例如「某进程上行速率超过 1MB/s 时弹窗」。缩略图模式下，应用最小化到任务栏也能保持后台监控。
+
+![](/assets/blog-images/sniffnet-rust-11mjpu/img03.webp)
+
+### 5. 多主题与跨平台一致性
+
+界面基于 Rust GUI 库 iced 构建，开发者提供了多套主题（含 Deep Cosmos 等深色风格），并支持自定义主题。在 macOS Apple Silicon、Linux ARM、Win x86 上体验一致，下载页覆盖 dmg、msi、deb、rpm、AppImage 等几乎所有常见安装包形态。
+
+## 四、技术亮点与性能数据
+
+- **Rust 带来的低开销**：核心抓包与协议解析使用 pnet、libpcap 等 Rust 绑定，CPU 占用远低于 Electron 类工具，单会话长时间运行内存稳定在 100MB 以内。
+- **iced GUI 跨平台方案**：iced 是 Rust 生态里少有的「声明式 + 类型安全 + 真跨平台」的 GUI 框架，避免了 Tauri/Flutter 在小工具上常见的渲染开销。
+- **数据源整合**：IP 地理位置与 ASN 由 MaxMind 提供，威胁情报与 IP 黑名单支持用户自定义导入，可扩展性强。
+- **多语言生态**：通过 Crowdin 协作翻译，已支持中、英、德、法、俄、葡、西、意、波等 27 种语言，本地化完成度在同类工具里属前列。
+
+![](/assets/blog-images/sniffnet-rust-11mjpu/img04.webp)
+
+## 五、适用场景与人群
+
+- **运维排查**：快速确认某台服务器异常连接的协议类型、来源 ASN、地理位置，比 ssh 上去跑 iftop 直观。
+- **开发调试**：本地起服务时，实时看到哪些程序/端口在对外通讯，避免启动后端口冲突被掩盖。
+- **家庭/办公网络安全**：给 NAS、智能家居设备做定期巡检，导入 IP 黑名单后谁在偷偷「打电话回家」一目了然。
+- **网络与安全学习**：把抽象的 TCP 三次握手、QUIC 建连可视化，对学生友好。
+
+不太适合：需要做深度协议字段解码（如 TLS 内部握手、VoIP RTP 解码）的专业安全研究员；这类需求仍建议回归 Wireshark。
+
+## 六、竞品对比
+
+| 工具 | 平台 | 实时图表 | 协议识别 | 价格 | 学习成本 |
+|------|------|---------|---------|------|---------|
+| **Sniffnet** | Win/macOS/Linux | ✅ 内置 | ✅ 6000+ | 免费开源 | 低 |
+| Wireshark | Win/macOS/Linux | ❌ 需另装插件 | ✅ 极强 | 免费开源 | 高 |
+| GlassWire | Win/macOS/Android | ✅ | ⚠️ 较粗 | 订阅制 | 低 |
+| tcpdump | 全平台 | ❌ | ✅ 命令行 | 免费开源 | 高 |
+
+Sniffnet 的优势在于把 Wireshark 的专业能力和 GlassWire 的易用性做了交集：免费、跨平台、有 GUI、有协议识别、还支持 PCAP 互通。
+
+![](/assets/blog-images/sniffnet-rust-11mjpu/img05.webp)
+
+## 七、如何快速上手
+
+1. **下载安装**：前往 [GitHub Releases](https://github.com/GyulyVGC/sniffnet/releases) 页面，按系统选择 `.msi`、`.dmg`、`.deb`、`.rpm` 或 AppImage 安装包。Linux 用户记得装 `libpcap` 依赖（Ubuntu：`sudo apt install libpcap-dev`）。
+2. **首次启动**：选择要监控的网卡，点击「Start」即可看到实时流量。
+3. **进阶玩法**：在 Filters 里筛选 TCP+Download，进入 Inspect 标签页查看每条连接的协议、地理位置、ASN；通过 Settings 导入自定义 IP 黑名单；用 File → Export 将当前会话导出为 PCAP 后续在 Wireshark 中分析。
+4. **遇到渲染异常**：在 Linux 老旧显卡或虚拟机里，若界面出现黑块或渐变丢失，设置环境变量 `ICED_BACKEND=tiny-skia` 切换到 CPU 软件渲染即可。
+
+## 八、总结与行动建议
+
+Sniffnet 用 Rust 的高性能+iced 的跨平台 GUI，把专业级抓包工具的能力封装进一个「打开即用」的应用。41,366 Star 与 NLnet、IPinfo 等机构的赞助，足以说明它在社区与专业圈层的认可度。
+
+如果你只想看清自己电脑/服务器在跑什么、和谁跑、跑了多少，那就别再和 Wireshark 的过滤器语法死磕了——打开 [sniffnet.app](https://sniffnet.app) 下载 Sniffnet，30 秒内你就能看到第一份「会说话」的网络流量报告。
+
+GitHub 仓库：https://github.com/GyulyVGC/sniffnet
+
+一句话推荐：Sniffnet 让你用喝杯咖啡的时间，把网络流量从「黑盒」变成「可视化面板」。
+
+#sniffnet #Sniffnet #gyulyvgc #开源项目 #GitHub

@@ -1,0 +1,106 @@
+---
+title: "RSS 订阅了一百个源却读不完三条？Radar RSS 用 AI 帮你合并去重"
+publishedAt: "2026-06-27"
+summary: "RSS 订阅了一百个源却读不完三条？Radar RSS 用 AI 帮你合并去重"
+image: "/assets/blog-images/rss-radar-rss-ai-1mjte3/img01.webp"
+tags: ["AI", "开源", "前端"]
+author: "Adam"
+---
+![](/assets/blog-images/rss-radar-rss-ai-1mjte3/img01.webp)
+
+选择标题（3 选 1）
+
+RSS 订阅了一百个源却读不完三条？Radar RSS 用 AI 帮你合并去重
+
+Radar RSS：同一事件跨 3 个源只读 1 次，AI 摘要把阅读时间砍到三分之一
+
+一个 React 仓库同时跑出 Windows 桌面端和 Android 原生应用，Radar RSS 怎么做到的
+
+## 一、开篇：被淹没在信息洪流里，RSS 玩家到底缺什么
+
+每天打开 Feedly、Inoreader，看着满屏未读红点，是不是有种「订阅了一百个源，却读不完三条」的窒息感？同一事件，The Verge 报一遍、TechCrunch 报一遍、路透社再报一遍，列表里三条重复条目挤占视野。中文源、英文源、葡语源混在一起，想快速摸清重点却要不停切换语言。打开电脑想认真读，手机在路上想随手刷，还得在两套应用之间来回迁移阅读进度。
+
+这就是 Radar RSS 想解决的事：把实时聚合、AI 摘要、跨源去重、桌面与移动端统一阅读，四件事装进同一个仓库。
+
+![](/assets/blog-images/rss-radar-rss-ai-1mjte3/img02.webp)
+
+## 二、一句话看懂：这是个什么项目
+
+Radar RSS 是一款基于 React 19 + TypeScript + Electron 构建的实时智能 RSS 聚合器，集成 Google Gemini AI 提供摘要、突发新闻识别与多语言翻译，同时通过 Capacitor 输出原生 Android 应用。核心关键词四个：**实时聚合、跨源去重、AI 策展、多端同构**。项目使用 MIT 协议开源，技术栈覆盖 Vite、Express、rss-parser、Tailwind CSS 4 与 electron-updater。
+
+## 三、核心功能深度解析
+
+### 1. 跨源事件聚合与去重
+
+Radar RSS 的杀手锏是「跨源事件聚类」。当 Reuters 与 TechCrunch 同时报道同一场发布会时，系统会基于 token 重叠、n-gram 相似度、命名实体与数字匹配，把它们合并成一条带「3 fontes」徽标的统一故事。算法还加入了「动作分歧保护」——比如「苹果发布新 iPhone」和「苹果上调 iPhone 售价」字面相似，但动作不同，不会被错误合并。用户可在设置里切换 Balanced / Conservative / Aggressive 三档策略，控制聚合激进程度。
+
+### 2. Google Gemini AI 策展
+
+每个主题或文章都能调用 Gemini 生成 bullet 形式的执行摘要；上下文紧急度评估会自动给突发新闻打上「Breaking News」徽标并触发声音提醒；外语源经翻译后再合成为统一简报。AI 摘要不是「可选项的点缀」——它和去重紧密耦合，跨源合并后直接产出综合多源视角的简报，避免重复阅读。
+
+### 3. 智能图片提取 SafeImage
+
+RSS 源里图片字段五花八门：`media:content`、`media:thumbnail`、`enclosure`、HTML 内嵌 `<img>`，还有一堆相对路径与 1x1 追踪像素。SafeImage 统一处理这些情况：相对 URL 转绝对、过滤追踪像素、加载失败时回退占位图。最终在阅读器里呈现稳定一致的封面体验，不再满屏破图。
+
+### 4. Windows + Android 多端同构
+
+桌面端通过 Electron 打包，提供 NSIS 安装包与单文件 Portable 版，内置 titlebar 集成、快捷键、系统托盘。移动端用 Capacitor 同步 web 资源为原生 APK，下拉刷新、触感反馈、TTS 朗读、主题同步一应俱全。GitHub Releases 自动更新，发布新版本只需改 `package.json` 并打 `vX.Y.Z` 标签，CI 自动出包。
+
+![](/assets/blog-images/rss-radar-rss-ai-1mjte3/img03.webp)
+
+## 四、技术亮点与性能数据
+
+技术栈亮点集中在三个层面：前端使用 React 19 + Vite + Tailwind CSS 4，HMR 启动迅速；本地服务用 Node.js + Express + rss-parser 做高吞吐异步抓取；AI 侧使用官方 `@google/genai` SDK 接入 Gemini。Electron 端通过 `electron-updater` 监听 GitHub Releases，后台静默下载安装包，点击一次完成热更新。Capacitor 把同一份 web 资源编译为原生 Android APK，开发一套代码覆盖桌面与移动端。
+
+值得注意的工程取舍：未配置 Gemini API Key 时，核心 RSS 抓取、去重、订阅管理、过滤功能照常运行，AI 摘要徽标优雅降级而不是报错崩溃。
+
+![](/assets/blog-images/rss-radar-rss-ai-1mjte3/img04.webp)
+
+## 五、适用场景与人群
+
+**场景一：跨语种新闻工作者**。同时订阅英文、中文、葡语源，需要 AI 实时翻译并合并报道视角。
+
+**场景二：科技/财经重度读者**。希望从 The Verge、Bloomberg、TechCrunch 等大量源里筛出事件主线，不想反复看重复报道。
+
+**场景三：Windows + Android 双端用户**。电脑上开窗口长时间阅读，手机通勤路上用 TTS 听新闻，进度与主题同步。
+
+适合愿意自行配置 Gemini API Key、能接受桌面端 Electron 应用体积的进阶用户。不适合只想开箱即用、对 AI 摘要无需求、且已深度绑定某商业 RSS 服务的读者。
+
+## 六、竞品对比
+
+| 项目 | AI 摘要 | 跨源去重 | 桌面端 | 移动端 | 协议 |
+|---|---|---|---|---|---|
+| **Radar RSS** | Gemini 集成 | 多信号聚类 + 可调策略 | Electron 原生 | Capacitor Android APK | MIT |
+| Feedly | 付费 Pro 才提供 | 基础 | 无官方桌面 | iOS/Android | 商业闭源 |
+| Inoreader | 付费功能 | 规则过滤 | 无官方桌面 | iOS/Android | 商业闭源 |
+| FreshRSS | 无 | 简单去重 | 需自部署 Web | 第三方客户端 | AGPL |
+| Miniflux | 无 | 无 | 需自部署 Web | 第三方客户端 | Apache |
+
+Radar RSS 的差异化在于：AI 摘要 + 跨源聚类原生打通、桌面与移动端共用一套代码、MIT 协议完全开源可自部署。代价是项目仍在早期阶段，Stars 与生态成熟度不及商业产品。
+
+![](/assets/blog-images/rss-radar-rss-ai-1mjte3/img05.webp)
+
+## 七、如何快速上手
+
+**前置依赖**：Node.js ≥ 18、npm，可选 Android Studio（仅本地编译 APK 时需要）。
+
+**最小启动**：
+
+1. `git clone https://github.com/dznass-cmd/RadarRSS.git`
+2. `cd RadarRSS && npm install`
+3. 在根目录创建 `.env.local` 写入 `GEMINI_API_KEY=your_key`（跳过也能跑，只是 AI 功能灰显）
+4. `npm run dev` 打开 `http://localhost:3000`
+5. `npm run desktop` 启动 Electron 窗口
+6. 想打 Android 包执行 `npm run build:android && npm run open:android`
+
+**进阶建议**：先在设置里把聚类策略调到 Conservative，观察几天「3 fontes」徽标是否符合预期，再逐步放开 Aggressive；Google AI Studio 可领取免费 Gemini API Key 用于日常摘要。
+
+![](/assets/blog-images/rss-radar-rss-ai-1mjte3/img06.webp)
+
+## 八、总结与行动建议
+
+Radar RSS 把「实时聚合 + 跨源去重 + Gemini AI 策展 + 桌面/移动同构」四件事压进一个 MIT 协议仓库，对被信息洪流淹没的重度 RSS 用户有直接价值。它不是开箱即读的成品，而是一套可自部署、可改造的新闻中枢骨架。
+
+仓库地址：https://github.com/dznass-cmd/RadarRSS 。建议从本地 `npm run dev` 跑通 Web 版，配置好 Gemini Key 体验 AI 摘要与突发新闻识别，再按需打包 Windows 安装包或 Android APK。一句话安利：与其在十个源里手动拼凑一条新闻，不如让 Radar RSS 替你先合并、再总结。
+
+#radarrss #Radarrss #dznass-cmd #开源项目 #GitHub

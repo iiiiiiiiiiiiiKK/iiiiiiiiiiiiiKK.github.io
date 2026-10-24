@@ -1,0 +1,121 @@
+---
+title: "统一登录做了 8 套？这个开源 IdP 把 SAML、OIDC、LDAP 全打通了"
+publishedAt: "2026-07-16"
+summary: "你公司是不是也这样：Web 后台用一套登录，GitLab 用另一套 LDAP，VPN 又是 RADIUS，新接的 SaaS 又要 OIDC……员工记不住 8 个密码，IT 同事每周都在帮找密码。更头疼的是——每次上线新应…"
+image: "/assets/blog-images/8-idp-saml-oidc-ldap-1kgjzu/img01.webp"
+tags: ["开源", "安全"]
+author: "Adam"
+---
+![](/assets/blog-images/8-idp-saml-oidc-ldap-1kgjzu/img01.webp)
+
+## 一、开篇：身份认证这块，每个团队都在重复造轮子
+
+你公司是不是也这样：Web 后台用一套登录，GitLab 用另一套 LDAP，VPN 又是 RADIUS，新接的 SaaS 又要 OIDC……员工记不住 8 个密码，IT 同事每周都在帮找密码。更头疼的是——每次上线新应用，安全团队都要重新评审一遍身份流程，合规审计时连一份完整的用户登录轨迹都拉不出来。
+
+企业级 SSO 市场长期被 Okta、Auth0、Entra ID 占据，按用户数计费的报价让中小团队望而却步。一个能自托管、支持主流协议、不锁用户数据的开源 IdP，成了很多团队的刚需。
+
+![](/assets/blog-images/8-idp-saml-oidc-ldap-1kgjzu/img02.webp)
+
+## 二、一句话看懂：这是个什么项目
+
+`authentik` 是一个开源身份认证提供方（IdP），定位为「现代 SSO 需要的认证黏合层」，原生支持 SAML、OAuth2/OIDC、LDAP、RADIUS、SCIM 等协议。它能跑在 Docker Compose，也能跑在 Kubernetes 集群，覆盖从家庭实验室到大规模生产环境。当前 GitHub Stars **24,751**，主线使用 Python + Go 混合构建，遵循 MIT 协议，并提供企业版补充能力。
+
+## 三、核心功能深度解析
+
+### 1. 全协议覆盖，单点登录一站打通
+
+`authentik` 同时提供 SAML 2.0、OAuth2 / OIDC、LDAP、RADIUS、SCIM 等协议的 Provider/Application 抽象。一个应用接入后，老系统的 LDAP 鉴权、新前端的 OIDC 登录、NAS 的 RADIUS 拨入，都汇聚到同一个身份源。配合 Federation 和 Source 机制，外部 IdP（Google Workspace、Azure AD、Okta）和内部用户库（LDAP、SCIM）可以双向同步。
+
+### 2. 流程驱动的注册与认证编排
+
+项目自带可视化 Stage/Flow 编辑器，把「邮箱验证 → 密码强度检查 → TOTP 二次认证 → 用户协议确认」等步骤像搭积木一样拖拽组合。管理员可以在不改代码的情况下，为不同应用配置不同的注册流程、风控强度和 MFA 策略。
+
+### 3. 细粒度策略引擎与目录同步
+
+`authentik` 内置表达式策略引擎（基于 Python 表达式），可以基于用户属性、IP、时间窗口动态授权。Directory Sync 任务能从 LDAP、Microsoft Entra ID、Google Workspace 等拉取用户和组，配合 Outpost 组件把策略下发到反向代理（Traefik、NGINX、Caddy）和 RADIUS 网关。
+
+### 4. 可观测、合规、审计都到位
+
+事件流覆盖登录、注册、密码修改、应用授权全链路，支持导出到 SIEM（Splunk、Elastic）。管理员后台、用户登录页都提供 Light/Dark 双主题，截图里的应用总览界面可以一眼看清每个应用的活跃用户和最近异常。
+
+![](/assets/blog-images/8-idp-saml-oidc-ldap-1kgjzu/img03.webp)
+
+## 四、技术亮点与性能数据
+
+- **架构解耦**：核心 Server（Python/Django）负责编排与策略下发，Outpost（Go 写的轻量代理）部署在网关侧执行实际鉴权，单 Outpost 即可承载数千 QPS 的反向代理鉴权请求。
+- **生态完整**：官方 Helm Chart、AWS CloudFormation 模板、DigitalOcean 一键应用，覆盖容器化与云市场部署路径。
+- **CI 三线齐发**：仓库包含 core、outpost、web 三套独立 GitHub Actions 构建流，主分支 badge 长期绿，代码覆盖率通过 codecov 持续追踪。
+- **协议兼容矩阵**：SAML 2.0、OAuth2（含 PKCE）、OIDC（含 FAPI profile）、RADIUS、SCIM v2、LDAP v3 全自研实现，不依赖 Keycloak 之类的中间件。
+- **多语言界面**：通过 Transifex 提供完整的多语言协作流，中文、英文等数十种语言均可参与翻译。
+
+## 五、适用场景与人群
+
+**适合谁**：
+- 拥有 10+ 内部应用、需要统一登录的中大型研发团队。
+- 想替换/对冲 Okta、Auth0 成本的 DevOps 负责人。
+- 教育、开源项目、家庭实验室爱好者，需要可自托管的 IdP。
+
+**不太适合**：
+- 单个静态站点、只需要一个登录按钮的小项目——直接用 Clerk 或 WorkOS 的托管服务更省事。
+- 完全不想运维、且预算充足的大厂合规部门——商业 SaaS 的 SLA 与合规认证会更省心。
+
+![](/assets/blog-images/8-idp-saml-oidc-ldap-1kgjzu/img04.webp)
+
+## 六、竞品对比
+
+| 维度 | authentik | Keycloak | Okta / Auth0 |
+|------|-----------|----------|--------------|
+| 协议覆盖 | SAML / OIDC / LDAP / RADIUS / SCIM | SAML / OIDC / LDAP | SAML / OIDC / LDAP |
+| 部署方式 | Docker / K8s / CloudFormation / DO | Docker / K8s | 托管 SaaS |
+| 鉴权网关 | 自研 Go Outpost，可独立横向扩 | 内置 Gatekeeper 或 sidecar | 自有边缘服务 |
+| 流程编排 | 可视化 Flow/Stage 拖拽 | Authentication Flow（XML 风格） | 托管后台 + Workflows |
+| 成本 | 开源 + 企业版订阅 | 纯开源（Red Hat 商业版） | 按 MAU 计费 |
+| 数据自主 | 完全自托管 | 完全自托管 | 数据在厂商 |
+
+相比 Keycloak，`authentik` 的界面更现代化，Flow 编辑器对非安全背景的管理员更友好；相比 Okta/Auth0，它免去 MAU 计费，且不留用户数据出域。
+
+![](/assets/blog-images/8-idp-saml-oidc-ldap-1kgjzu/img05.webp)
+
+## 七、如何快速上手
+
+**1. Docker Compose（5 分钟体验版）**
+
+```bash
+git clone https://github.com/goauthentik/authentik.git
+cd authentik
+docker compose up -d
+```
+
+启动后访问 `http://localhost:9000/if/flow/initial-setup/`，按提示创建管理员账号。
+
+**2. Kubernetes / Helm Chart**
+
+```bash
+helm repo add authentik https://charts.goauthentik.io
+helm install authentik authentik/authentik -n authentik --create-namespace
+```
+
+支持 External PostgreSQL、External Redis，适合生产部署。
+
+**3. 接入第一个应用**
+
+进入 Admin → Applications → Create，选择 OAuth2/SAML Provider，把回调地址填到被接入应用，即可完成 SSO 联通。
+
+**4. 进阶建议**
+- 生产环境务必把 SQLite 切换到 PostgreSQL，并把 Secret Key 外部化。
+- 在网关前置部署 Outpost，让鉴权在流量入口完成。
+- 开启事件流导出，把日志接入你已有的 SIEM。
+
+![](/assets/blog-images/8-idp-saml-oidc-ldap-1kgjzu/img06.webp)
+
+## 八、总结与行动建议
+
+`authentik` 用一套开源协议栈，把 SAML、OIDC、LDAP、RADIUS 这些过去要拼凑多个组件才能搞定的能力，收敛成一个可自托管、可视化编排、可水平扩展的 IdP。24k+ Stars、三线 CI、企业版与社区版并行，说明它已经不只是「个人项目」，而是企业生产环境的可靠备选。
+
+如果你正打算做一次身份基础设施的整合，不妨先用 Docker Compose 起一个最小环境，把最常用的 2~3 个内部应用迁过来跑两周；如果你所在团队规模更大，直接用 Helm Chart 切到生产集群会是更稳的路线。
+
+- 项目地址：`https://github.com/goauthentik/authentik`
+- 官方文档：`https://docs.goauthentik.io`
+- Helm Chart：`https://github.com/goauthentik/helm`
+
+身份认证是所有系统的入口，值得一次认真的选型。

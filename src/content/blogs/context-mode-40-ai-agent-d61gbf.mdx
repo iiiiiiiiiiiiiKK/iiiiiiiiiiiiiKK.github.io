@@ -1,0 +1,98 @@
+---
+title: "context-mode 让我告别 40% 上下文浪费：AI Agent 的另一半方案"
+publishedAt: "2026-03-26"
+summary: "context-mode 让我告别 40% 上下文浪费：AI Agent 的另一半方案"
+image: "/assets/blog-images/context-mode-40-ai-agent-d61gbf/img01.webp"
+tags: ["AI", "Agent", "开源"]
+author: "Adam"
+---
+![](/assets/blog-images/context-mode-40-ai-agent-d61gbf/img01.webp)
+
+选择标题（3 选 1）
+
+context-mode 让我告别 40% 上下文浪费：AI Agent 的另一半方案
+
+315KB 工具输出砍到 5.4KB，context-mode 给我省下 98% 上下文
+
+47 次 Read 变 1 次脚本，context-mode 如何重塑 AI 编码范式
+
+# context-mode：让 AI 编码 Agent 告别 40% 上下文浪费
+
+## 一、开篇：上下文窗口的「隐形税」
+
+你坐在 Cursor 里连续编码半小时，让 Agent 帮你读 20 个 GitHub issue、抓一份 Playwright 快照、再扫一眼访问日志。然后突然报错：上下文满了。Agent 自动压缩对话，文件编辑记录、正在进行的任务、你刚下达的指令——全部蒸发。你只能从头复述，Agent 也得重新摸索。这不是模型不够聪明，而是 56KB 的 Playwright 快照、59KB 的 20 条 issue、45KB 的一份访问日志正在塞满你的上下文窗口，半小时内吃掉 40% 的容量。再加上 Agent 输出侧的冗长寒暄与解释，token 预算从两端同时燃烧。context-mode 的出现，就是为了终结这场「上下文隐形税」。
+
+## 二、项目简介：它到底是什么？
+
+context-mode（GitHub 30.6K Stars，主仓库 `mksglu/context-mode`，主要语言 TypeScript）是一款 MCP 服务，专门解决 AI 编码 Agent 的上下文窗口治理问题。它通过工具输出沙盒化（最高 98% 缩减）、会话记忆持久化、Think in Code 范式强制，以及跨 17 个平台的路由执行，从四个方向同时压缩上下文消耗。项目曾登顶 Hacker News 第一名（570+ 积分），被 Microsoft、Google、Meta、Amazon、NVIDIA、ByteDance、Stripe、Datadog、GitHub、Cursor 等团队采用。
+
+![](/assets/blog-images/context-mode-40-ai-agent-d61gbf/img02.webp)
+
+## 三、核心功能深度解析
+
+### 1. 上下文沙盒（Context Saving）
+
+context-mode 的沙盒机制把工具返回的原始数据挡在上下文窗口之外，只把元数据与索引保留在 prompt 中。一段 315KB 的工具输出，最终只占 5.4KB，缩减率达到 98%。当 Agent 真正需要那段数据时，再通过 `ctx_fetch_and_index` 检索回来，按需加载。这意味着你可以放心地让 Agent 抓取大型日志、抓取 100 条 issue，token 消耗却和读几条差不多。
+
+### 2. 会话连续性（Session Continuity）
+
+每次文件编辑、git 操作、任务进展、报错、用户决策，context-mode 都写入 SQLite，并对事件建立 FTS5 全文索引，配合 BM25 排序算法做语义检索。当对话被压缩时，它不会把整段历史倒回上下文，而是按需检索相关片段。这意味着 Agent 在压缩后仍能精准恢复「上次在编辑哪个文件、任务卡在哪一步、你最后提了什么需求」。不调用 `--continue`，旧会话数据立即清除，干净会话始终有干净起点。
+
+### 3. Think in Code 范式
+
+context-mode 强制一个范式：让 LLM 写代码去分析，而不是直接喂数据让模型计算。原本要 47 次 `Read()` 工具调用、吃掉 700KB 上下文才能统计每个 TypeScript 文件的行数，现在只需一次 `ctx_execute()` 执行 3.6KB 的脚本就能搞定。一段脚本替代十次工具调用，上下文节省达 100 倍。这是所有 17 个支持客户端的强制范式——把 LLM 当成代码生成器，而非数据处理器。
+
+### 4. 不干预文风（No prose-style enforcement）
+
+context-mode 只管理「数据去哪」，不指挥「模型怎么说话」。是否简洁、是否完整、格式如何，由模型自己决定，或由你自己的 `CLAUDE.md`/`AGENTS.md` 配置决定。研究显示，过激进的简短提示反而会拖累编码与推理基准（参考 Moonshot AI 在 `kimi-k2.5` 上的测试），context-mode 因此把路由块聚焦在数据流向，保留模型表达自由度。
+
+![](/assets/blog-images/context-mode-40-ai-agent-d61gbf/img03.webp)
+
+## 四、技术亮点与性能数据
+
+context-mode 的工具集覆盖 6 个沙盒工具（`ctx_batch_execute`、`ctx_execute`、`ctx_execute_file`、`ctx_index`、`ctx_search`、`ctx_fetch_and_index`）与 5 个元工具（`ctx_stats`、`ctx_doctor`、`ctx_upgrade`、`ctx_purge`、`ctx_insight`）。它原生兼容 Claude Code、Gemini CLI、VS Code Copilot、JetBrains Copilot、Cursor、OpenCode、KiloCode、OpenClaw 等 17 个平台，通过 MCP + Hooks 双通道自动拦截 PreToolUse、PostToolUse、SessionStart、PreCompact 等关键事件。在 OpenCode 与 KiloCode 上，它以 TypeScript 插件形式 in-process 调用，省去 stdio MCP 子进程开销。底层使用 `better-sqlite3` 同步驱动，配合 FTS5 索引，让 BM25 检索在毫秒级返回。所有 hook 都「失败开放」（fail-open），即使 context-mode 异常也不会阻塞你的工具调用。
+
+## 五、适用场景与人群
+
+长任务流开发者：在 Claude Code 或 Cursor 中持续编码 1 小时以上，需要 Agent 跨压缩周期保持上下文连续性的人。大型代码库探索者：需要批量读取数十个文件、统计行数、扫描 issue，却不想让原始数据淹没上下文窗口的人。多平台 Agent 用户：在 VS Code、JetBrains、终端 CLI 之间切换，希望同一套上下文治理策略在所有平台生效的人。不适合纯聊天问答用户、轻量级脚本生成场景，或对 SQLite 本地存储有强合规限制的企业环境。
+
+![](/assets/blog-images/context-mode-40-ai-agent-d61gbf/img04.webp)
+
+## 六、竞品对比
+
+| 工具 | 数据缩减 | 会话记忆 | 平台覆盖 | Think in Code |
+|---|---|---|---|---|
+| context-mode | 98% | SQLite + FTS5 + BM25 | 17 个平台 | 强制 |
+| 手动 MCP 包装 | 视实现而定 | 无 | 单平台 | 无 |
+| 通用上下文压缩（如 LLMLingua） | 30-50% | 无 | 模型无关 | 无 |
+
+context-mode 的差异化在于：它不是事后压缩，而是事前拦截；不是单一平台方案，而是 17 平台的统一执行层；不只是省 token，还顺带解决会话压缩后的状态丢失。
+
+![](/assets/blog-images/context-mode-40-ai-agent-d61gbf/img05.webp)
+
+## 七、如何快速上手
+
+以 Claude Code 为例，只需两条命令：
+
+```
+/plugin marketplace add mksglu/context-mode
+/plugin install context-mode@context-mode
+```
+
+重启 Claude Code 后运行 `/context-mode:ctx-doctor`，所有检查项应显示 `[x]`。在 Cursor 上，可通过本地目录软链安装；在 VS Code Copilot、JetBrains Copilot 上，需创建 `.github/hooks/context-mode.json` 并写入三个 hook 命令；在 OpenCode/KiloCode 上，只需在配置中加入 `"plugin": ["context-mode"]`。验证方式统一是输入 `ctx stats`，查看上下文节省的实时统计。
+
+## 八、总结与行动建议
+
+context-mode 重新定义了「上下文治理」——它把工具输出沙盒化（315KB → 5.4KB，98% 缩减）、把会话状态写入 SQLite + FTS5 实现跨压缩连续、把 47 次 Read 折叠为 1 次脚本执行，并在 17 个平台用统一的 MCP + Hooks 路由执行这一切。如果你在 Claude Code 或 Cursor 上做长任务，强烈建议今天就装上，体验 token 节省与状态恢复带来的双重提升。
+
+项目链接：
+- GitHub：https://github.com/mksglu/context-mode
+- 官网：https://context-mode.com
+- Insight 面板：https://context-mode.com/insight
+- Discord：https://discord.gg/DCN9jUgN5v
+
+一句话推荐：context-mode 是 AI 编码 Agent 的「另一半上下文方案」，让 40% 的浪费变成 98% 的回收。
+
+![](/assets/blog-images/context-mode-40-ai-agent-d61gbf/img06.webp)
+
+#context-mode #ContextMode #mksglu #AI智能体 #AI工作流 #自动化 #开源项目 #GitHub

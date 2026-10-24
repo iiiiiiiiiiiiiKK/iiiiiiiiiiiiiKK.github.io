@@ -1,0 +1,179 @@
+---
+title: "还在手动改 AI 味？这 4 个开源项目专治 ChatGPT 体"
+publishedAt: "2026-06-15"
+summary: "私藏 4 个我每天都在用的 AI 写作开源神器"
+image: "/assets/blog-images/ai-4-chatgpt-15mrwq/img01.webp"
+tags: ["AI", "Agent", "开源"]
+author: "Adam"
+---
+![](/assets/blog-images/ai-4-chatgpt-15mrwq/img01.webp)
+
+选择标题（3 选 1）
+
+私藏 4 个我每天都在用的 AI 写作开源神器
+
+还在手动改 AI 味？这 4 个开源项目专治 ChatGPT 体
+
+从写论文到改周报，4 个开源项目让 Agent 写出人话
+
+## 一、开篇：这个痛点，几乎每个开发者都踩过
+
+产品上线了周报要写，论文要赶 deadline 要润色，老板甩来一段 ChatGPT 生成的市场稿让你"改得像人写的"——你打开 IDE，正打算让 AI 帮你一把，结果出来的文字满屏"在当今时代""至关重要""赋能"。改了三版，AI 味没去掉，反而把原文的意思改丢了。这是每个高频用 AI 写作的人都会撞上的墙：AI 不是写得慢，是写得"太像 AI"，而我们既要 AI 的速度，又要人的口气。下面这 4 个项目就是冲着这道墙去的。
+
+## 二、项目速览
+
+| 仓库 | Stars | 主要语言 | 一句话定位 |
+|---|---|---|---|
+| Imbad0202/academic-research-skills | 48866 | Python | Claude Code 学术论文全流程技能集 |
+| Sahir619/fable-method | 2289 | Python | 把 Claude Fable 5 的工作流蒸馏成可执行技能 |
+| surendranb/writing-skills | 35 | Python | 16 个可量化写作框架与角色声音技能 |
+| blader/humanizer | 50604 | Python | 识别并改写 AI 味文本的 Agent 技能 |
+
+## 三、项目解析
+
+### Imbad0202/academic-research-skills — 学术论文一站式流水线
+
+它的定位是 **Claude Code 上的学术写作套件**，把从选题、检索、写作、引用核对、润色到投稿的全流程打包成一组 `/ars-*` 指令。核心能力：**v3.8 引入可审计的引用信任链**——每条引用都带定位锚点（locator），配合 `ARS_CLAIM_AUDIT=1` 环境变量能反向核对原文是否真的支撑你的论断，从源头堵住"幻觉引用"。
+
+技术亮点在于它把 Zhao 等人 2026 年那篇 1.11 亿引用的审计研究结果直接落了地，给论文写作加了 Stage 2.5 / Stage 4.5 两个 integrity gate，配 20 条校准金标准与 FNR&lt;0.15 / FPR&lt;0.10 的硬阈值。
+
+适合谁：赶论文的研究生、博士后、需要投稿顶会的作者。
+不适合谁：只想跑个小学作文模板的人——它门槛高、文档动辄几千字。
+
+**最小上手**
+
+直接告诉 Agent：
+
+```
+帮我安装这个 skill：https://github.com/Imbad0202/academic-research-skills
+```
+
+或者在 Claude Code 里：
+
+```
+/plugin marketplace add Imbad0202/academic-research-skills
+/plugin install academic-research-skills
+```
+
+装好后跑 `/ars-plan`，按苏格拉底式提问一步步把论文骨架搭起来。
+
+*开源地址：* **https://github.com/Imbad0202/academic-research-skills**
+
+### Sahir619/fable-method — 把 Claude Fable 5 的工作流蒸馏成可执行技能
+
+它做的事很特别：**在 Claude Fable 5 下线之前，把它的思考方式蒸馏成四个技能**——`fable-method`（先想清楚）、`fable-loop`（再动手）、`fable-judge`（用证据验证）、`fable-domain`（自动衍生新领域适配器）。整套方法的核心哲学是"think / act / prove"，每条规则背后都有一段跑挂的测试日志。
+
+技术亮点在于 **eval 极其硬核**：15 轮评测、260 多次 Agent 运行，盲审 LLM 靠 diff 与执行打分，不靠"读报告打分"。Round 3 那道"测试和规约冲突"的陷阱里，裸 Haiku 4 次全中招装看不见，加上方法后 4/4 全部主动报告冲突；Round 11 里裸 Fable 5 还会自作主张部署到 staging，正是这个事故催生了授权门。
+
+适合谁：想让中端模型（Haiku / Sonnet）跑出接近 Opus 水平的工程师。
+不适合谁：只想写小作文、不在乎中间推理的人。
+
+**最小上手**
+
+直接告诉 Agent：
+
+```
+帮我安装这个 skill：https://github.com/Sahir619/fable-method
+```
+
+或者作为插件：
+
+```
+/plugin marketplace add Sahir619/fable-method
+/plugin install fable-method
+```
+
+装好后说一句"用 fable-method 处理这个问题"即可。
+
+*开源地址：* **https://github.com/Sahir619/fable-method**
+
+### surendranb/writing-skills — 16 个可量化写作框架与角色声音
+
+它提供 **9 个真实写作标准 + 7 个角色声音**，每个技能都是一份 `SKILL.md`，配一段 `Verify` 自检清单，agent 交付前必须通过。9 个框架不是泛泛的"写好一点"，而是把 GOV.UK、AP Stylebook、Plain Writing Act、ASD-STE100 简化技术英语、Google 开发者文档这些**真实存在的写作标准**逐条落地成可执行的规则，比如 `plain-language` 要求句子 ≤25 词、被动语态 ≤10%、禁用词清单逐条对照。
+
+技术亮点是 **"用规则而不是用感觉"**：每个技能末尾都有 Python 验证脚本 `scripts/validate_skills.py`，CI 直接拦截不合规的输出。角色声音（Yoda、Paddington、Bob Ross 等）则做了**防 caricature 限流**，避免喊口号式的浮夸模仿。
+
+适合谁：写技术文档、产品文案、内部周报、公关稿的人。
+不适合谁：想写自由奔放文学创作的人——它本质是合规向。
+
+**最小上手**
+
+直接告诉 Agent：
+
+```
+帮我安装这个 skill：https://github.com/surendranb/writing-skills
+```
+
+或者一条命令搞定：
+
+```
+npx skills add writing-skills
+```
+
+装好后用自然语言触发：
+
+```
+把这段保险信改写成 plain language
+```
+
+*开源地址：* **https://github.com/surendranb/writing-skills**
+
+### blader/humanizer — 专治 AI 味的 Markdown 技能
+
+它专为**识别并消除 AI 写作痕迹**而生，把维基百科"Signs of AI writing"里那 25 种典型模式逐条编号，按强度排序——前 5 种只要出现一次就该改，后面的标 *weak alone*，需要多条叠在一起才算数。它不是简单换词，而是**先标出所有 tell、按强度排序、重写、再用原 claims 反查、最后交付**，并把所有判断过程摊给你看。
+
+技术亮点是 **支持语音样本匹配**：你贴 2-3 段自己写的文字进去，它会学习你的节奏、用词、标点习惯（包括破折号），让改写后的版本听起来像你而不是像某个"通用人类"。它还**严守事实边界**：遇到原文中没有的名字、数字、日期、引用，会主动问你要，不会瞎编。
+
+适合谁：所有需要把 ChatGPT / Claude 草稿改成"像人话"的人。
+不适合谁：想让 AI 替你写诗又不想留 AI 味的人——它不做创作，只做改写。
+
+**最小上手**
+
+直接告诉 Agent：
+
+```
+帮我安装这个 skill：https://github.com/blader/humanizer
+```
+
+或者一条命令：
+
+```
+npx skills add blader/humanizer --global
+```
+
+装好后直接调用：
+
+```
+/humanizer
+
+[把你的 AI 文案贴这里]
+```
+
+想更贴近自己的口气可以加一段写作样本：
+
+```
+/humanizer
+
+先学我这段话的语气：
+[贴 2-3 段你自己写的]
+
+再把下面这段 AI 文案改写：
+[贴要改的文本]
+```
+
+*开源地址：* **https://github.com/blader/humanizer**
+
+## 四、总结与行动建议
+
+如果你只想装一个，先装 `blader/humanizer`，它能立刻解决 80% 的"AI 味"问题。如果你是写学术论文的，再加 `academic-research-skills`，引用核对那套能救命。如果你是工程师想让 Agent 在复杂任务里少踩坑，再叠 `fable-method`。`writing-skills` 按需取用就行——挑你当前最痛的写作场景对应的框架装，比如写 API 文档就装 `google-dev-docs`。
+
+#AI智能体 #AI工作流 #自动化 #AcademicResearchSkills #FableMethod #WritingSkills #Humanizer #academic-research-skills #fable-method #writing-skills
+
+![](/assets/blog-images/ai-4-chatgpt-15mrwq/img02.webp)
+
+![](/assets/blog-images/ai-4-chatgpt-15mrwq/img03.webp)
+
+![](/assets/blog-images/ai-4-chatgpt-15mrwq/img04.webp)
+
+![](/assets/blog-images/ai-4-chatgpt-15mrwq/img05.webp)
+

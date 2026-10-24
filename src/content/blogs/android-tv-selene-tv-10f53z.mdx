@@ -1,0 +1,120 @@
+---
+title: "Android TV 用户别错过：Selene-TV 把找片流程从十分钟压到一分钟"
+publishedAt: "2026-04-05"
+summary: "Android TV 用户别错过：Selene-TV 把找片流程从十分钟压到一分钟"
+image: "/assets/blog-images/android-tv-selene-tv-10f53z/img01.webp"
+tags: ["开源", "视频", "前端"]
+author: "Adam"
+---
+![](/assets/blog-images/android-tv-selene-tv-10f53z/img01.webp)
+
+选择标题（3 选 1）
+
+Android TV 用户别错过：Selene-TV 把找片流程从十分钟压到一分钟
+
+Selene-TV 上手：双播放内核 + 扫码遥控，自托管影音库终于有了 TV-Native 前端
+
+没装第三方应用，却装出一台原生级 Android TV：Selene-TV 凭什么 882 Star
+
+# 一、开篇：电视盒子装了十几个 App，却找不到想看的那部剧
+
+家里的 Android 电视盒子装了十几个视频 App，切换、登录、找片源、跳过片头、再换片源——一套操作下来，少则五分钟，多则十分钟。这是绝大多数人看电视的真实状态：电视屏幕越做越大，但找片体验却越用越碎。
+
+Selene-TV 的出现，就是要把这套流程彻底压缩回"开机即看"的快感。882 颗 Star 的社区认可、纯 D-pad 遥控器适配、双播放内核、智能测速换源——它不是又一个聚合壳，而是一台真正"为电视而生"的客户端。
+
+![](/assets/blog-images/android-tv-selene-tv-10f53z/img02.webp)
+
+# 二、项目定位：专为遥控器重写的 Android TV 客户端
+
+Selene-TV 是 MoonTechLab 团队推出的 Android TV（Leanback）客户端，以后端 MoonTV v100 / Helios 为数据源。它的核心定位有四个关键词：**Compose for TV**、**双播放内核**、**扫码遥控**、**多源弹幕聚合**。最低支持 Android 6.0（API 23），targetSdk 36，覆盖老盒子到最新旗舰。技术栈基于 Kotlin 2.2 + Jetpack Compose for TV (Material3)，UI 与逻辑全部现代化重写。
+
+# 三、核心功能深度解析
+
+### 1. 多源聚合 + 一键测速优选
+
+搜索一次，结果来自多个视频源并发返回。点开测速按钮，应用会对每个播放源并发跑测速，按"画质 + 速度"实时重排，速度最快且清晰的源排在最前。对电视用户来说，省下的不是一次点击，而是动辄几分钟的"试源循环"。
+
+### 2. 双播放内核：ExoPlayer (Media3) + mpv 按需切换
+
+主流 HLS / MP4 用 Media3 走原生解码，省电、延迟低；遇到疑难格式或需要更激进的解码策略时，切换到 mpv 内核。两个内核共享同一套 UI 与进度管理，应用内即可热切。这一设计在开源 TV 客户端中并不常见，等于把专业播放器的能力搬到了大屏。
+
+### 3. 多平台弹幕聚合 + 精细控制
+
+弹幕自动匹配当前剧集，聚合哔哩哔哩 / 腾讯视频 / 爱奇艺 / 优酷 / 芒果TV / 乐视六家来源，并自动选用弹幕密度最高的源。播放中可切换来源、调整显示区域、不透明度、速度、字号、密度，模式支持"关闭 / 手动 / 自动"三种。弹幕渲染基于 akdanmaku（OpenGL 引擎），在 4K 电视上依然顺滑。
+
+### 4. 手机扫码遥控 + 远程输入法
+
+电视端输入长剧名是最痛苦的事。Selene-TV 内嵌 Ktor (Netty) HTTP 服务器，启动后展示一个二维码，手机扫码即可化身遥控器与输入法。设置页、搜索框、弹幕参数，全部可在手机上完成输入，电视上只负责显示。
+
+### 5. 影院级详情页 + 元数据增强
+
+详情页采用 Apple TV 风格的全屏 Hero，接入 TMDB 剧照与 Logo，加载失败时自动回退到内置占位。配合豆瓣 / Bangumi / TMDB 三家元数据，封面、评分、续作信息齐全，断点续播与"继续观看"卡片自动维护。
+
+![](/assets/blog-images/android-tv-selene-tv-10f53z/img03.webp)
+
+# 四、技术亮点与性能数据
+
+**架构**：Kotlin 2.2 + Compose for TV (Material3) 声明式 UI，dp 尺寸一套打通 1080p 到 4K；Coil 处理图片加载并解决豆瓣防盗链；OkHttp 信任自签证书，兼容自托管后端的明文 HTTP 与自签 TLS。
+
+**弹幕渲染**：akdanmaku OpenGL 引擎，4K 大屏稳定 60fps；智能缓存采用内存 + 磁盘双层，元数据与封面访问延迟控制在毫秒级。
+
+**双内核指标**：Media3 解 HLS / MP4 平均首帧 &lt; 500ms；ExoPlayer 自适应码率切换无感。
+
+**生态兼容**：最低 Android 6.0 (API 23)，targetSdk 36；同时提供 arm64-v8a 与 armeabi-v7a 两套 APK，老电视盒子也能跑。
+
+![](/assets/blog-images/android-tv-selene-tv-10f53z/img04.webp)
+
+# 五、适用场景与人群
+
+**场景 1：客厅 Android TV / 电视盒子日常观影**。家里有小米盒子、当贝、阿里云盘 TV 等设备，想统一一个入口聚合所有片源。
+
+**场景 2：自托管影音库的前端**。已经用 MoonTV / Helios 部署了私人影院的用户，需要一个真正配得上大屏的前端。
+
+**场景 3：纯遥控器家庭**。家里老人小孩只用遥控器，触摸 / 鼠标完全不考虑的场景。
+
+**适合谁**：Android TV 用户、自托管影音爱好者、对遥控器操作流畅度挑剔的人。
+
+**不适合谁**：只有手机 / 平板、没有电视端需求的用户；只能接受触摸交互的设备。
+
+![](/assets/blog-images/android-tv-selene-tv-10f53z/img05.webp)
+
+# 六、竞品对比
+
+| 项目 | Selene-TV | 通用聚合壳 TV 版 | 传统 TV 视频 App |
+|------|-----------|------------------|------------------|
+| 遥控器适配 | 纯 D-pad 原生 | 半套适配 | 触摸逻辑移植 |
+| 播放内核 | ExoPlayer + mpv 双核 | 多为单一 ExoPlayer | 单一自研内核 |
+| 弹幕聚合 | 6 平台自动选最多 | 单一平台 | 无弹幕 |
+| 遥控器扩展 | 内置手机扫码遥控 | 极少支持 | 不支持 |
+| 自托管支持 | MoonTV / Helios 原生 | 需额外开发 | 不支持 |
+
+相比通用聚合壳，Selene-TV 在遥控器交互、播放内核可换性、弹幕生态、远程输入四个维度都明显拉开差距，是真正意义上的"TV-Native"客户端。
+
+![](/assets/blog-images/android-tv-selene-tv-10f53z/img06.webp)
+
+# 七、如何快速上手
+
+**1. 下载安装**
+前往 Releases 下载对应架构的 APK（不确定就选 `arm64-v8a`），通过 `adb install` 或 U 盘 / 文件管理器侧载安装。
+
+**2. 首次配置**
+启动后填写 MoonTV / Helios 后端地址与凭据登录。进入"设置"可查看手机遥控二维码、配置豆瓣 / TMDB 数据源、清理缓存。
+
+**3. 进阶玩法**
+- 在播放器设置中按片源切换 ExoPlayer / mpv；
+- 弹幕面板调整区域、不透明度、字号、密度；
+- 启用应用内更新，启动即自动检查新版本。
+
+![](/assets/blog-images/android-tv-selene-tv-10f53z/img07.webp)
+
+# 八、总结与行动建议
+
+Selene-TV 把"为遥控器重写"这件事做到了骨子里：Compose for TV 声明式 UI、双播放内核、6 平台弹幕聚合、手机扫码遥控，配合 MoonTV / Helios 后端，覆盖从老盒子到 4K 旗舰的全场景。它不是手机端的简单放大，而是为大屏重新设计的一套完整体验。
+
+如果你家里有 Android TV 或电视盒子，又恰好在用 MoonTV / Helios 自托管，强烈建议立刻去 Releases 拉一个 APK 装上。
+
+**项目地址**：https://github.com/MoonTechLab/Selene-TV
+
+让电视回归电视，让遥控器回归遥控器。
+
+#selene-tv #SeleneTv #moontechlab #开源项目 #GitHub

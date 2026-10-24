@@ -1,0 +1,180 @@
+---
+title: "私藏 5 个开源神器，让我把剪贴板和截图都玩明白了"
+publishedAt: "2026-06-07"
+summary: "私藏 5 个开源神器，让我把剪贴板和截图都玩明白了"
+image: "/assets/blog-images/5-dz32xu/img01.webp"
+tags: ["开源", "视频", "文档"]
+author: "Adam"
+---
+![](/assets/blog-images/5-dz32xu/img01.webp)
+
+选择标题（3 选 1）
+
+私藏 5 个开源神器，让我把剪贴板和截图都玩明白了
+
+跨设备同步 + 截图录屏：5 个每天在用的开源项目
+
+真香！5 个开源工具把剪贴板、任务、截图全打通了
+
+## 一、开篇：别再手动折腾它了
+
+你刚在 Mac 上复制的一段文字，得打开微信发到手机再粘贴；Windows 上截了张图想丢进 Mac 的剪辑里，得先存盘、再 AirDrop、再拖进 Finder。任务列表同时躺在 Google Tasks 和 Microsoft To Do 里，加完一条忘同步，第二天发现漏做。两个 macOS 截图软件都收费，想换个轻量替代又怕踩坑。这些碎片化的同步、截图、OCR 需求，其实都有开源解。下面这 5 个项目，是我压箱底的清单。
+
+## 二、项目速览
+
+| 仓库 | Stars | 主要语言 | 一句话定位 |
+|---|---|---|---|
+| uniclipboard/uniclipboard | 1.7k | Rust | 跨设备剪贴板同步，端到端加密 |
+| CrossPaste/crosspaste-desktop | 2.5k | Kotlin | 剪贴板同步 + 内置 OCR 与 MCP 服务 |
+| simonchai-tw/tasks-todo-sync | 21 | JavaScript | Google Tasks 与 Microsoft To Do 双向同步 |
+| duongductrong/Snapzy | 3.1k | Swift | 原生 macOS 截图与录制工具 |
+| lzhgus/Capso | 1.3k | Swift | 免费开源的 macOS 截图录屏替代品 |
+
+## 三、项目解析
+
+### uniclipboard/uniclipboard — 跨设备剪贴板，端到端加密
+
+UniClipboard 是一款**隐私优先**的剪贴板同步工具。它通过点对点连接，让文字、图片、文件在多台设备间实时同步，**数据全链路加密，只有你的设备能解出明文**——没有云端账号、没有中央服务器，服务器和网络层都看不到内容。支持 Windows、macOS、Linux 桌面端，iOS 和 Android 通过 LAN 兼容模式也能接入。
+
+技术亮点：本地优先架构，所有传输走加密通道；移动端走局域网兼容模式，无需注册。
+
+- 适合谁：在多台电脑/手机间频繁搬运文字与图片、对隐私敏感的开发者
+- 不适合谁：只在一台设备上工作、不需要跨设备同步的人
+
+**最小上手**
+
+下载对应平台安装包，安装后启动。
+
+主设备创建一个 Space：
+
+```
+打开应用 -> Create a Space -> 拿到邀请码
+```
+
+其他设备加入：
+
+```
+打开应用 -> Join via Invitation -> 粘贴邀请码
+```
+
+加入后复制一段文字，粘贴到另一台设备就能看到。
+
+![](/assets/blog-images/5-dz32xu/img02.webp)
+
+*开源地址：* **https://github.com/uniclipboard/uniclipboard**
+
+### CrossPaste/crosspaste-desktop — 剪贴板同步 + 内置 OCR 与 MCP
+
+CrossPaste 是一款桌面剪贴板同步工具，**主打纯局域网、零云端**。它支持文本、颜色、URL、HTML、RTF、图片、文件等多种类型，使用非对称加密保护数据。区别于其他剪贴板工具，它**内置本地 OCR**——截图里的文字直接识别并复制，全程不上传网络。同时暴露 **MCP 服务**，让 Claude 等 AI 助手能调用你的剪贴板历史。配套还有 Chrome 扩展和命令行工具。
+
+技术亮点：本地 OCR 用系统能力，截图不出设备；`MCP Server` 把剪贴板历史暴露给 AI 助手。
+
+- 适合谁：把剪贴板当作生产力中心、想让 AI 直接读取历史记录的用户
+- 不适合谁：只用单台设备、或者需要跨广域网同步的人
+
+**最小上手**
+
+从 Releases 下载安装：
+
+```
+前往 https://crosspaste.com/en/download 下载对应版本
+```
+
+开发模式运行：
+
+```
+git clone https://github.com/CrossPaste/crosspaste-desktop
+cd crosspaste-desktop
+./gradlew app:run
+```
+
+==注意：首次构建需下载 JBR 与 Gradle 依赖==。
+
+*开源地址：* **https://github.com/CrossPaste/crosspaste-desktop**
+
+### simonchai-tw/tasks-todo-sync — Google Tasks 与 To Do 的双向桥梁
+
+Tasks–To Do Sync 解决了一个具体问题：**Google Tasks 和 Microsoft To Do 之间没有官方同步**。它用 Google Apps Script 搭起私有桥梁，把两边任务双向同步——创建、编辑、完成状态、备注、截止日期、子任务、个人列表都跟着走，且**完全自托管**，任务数据不经过第三方服务器。同步触发器每 10 分钟跑一次，普通改动 0–10 分钟内同步到对端。
+
+技术亮点：基于 Google Apps Script，免服务器；自动发现并配对两边列表。
+
+- 适合谁：同时用 Android/Gemini 与 Windows/Outlook 双生态的重度任务管理用户
+- 不适合谁：只在一个生态里管理任务、或对同步延迟零容忍的人
+
+**最小上手**
+
+按官方快速指南部署：
+
+```
+打开 https://simonchai-tw.github.io/tasks-todo-sync/quick-start.html
+按步骤克隆 Apps Script 项目 -> 配置两端 API 授权 -> 启用触发器
+```
+
+部署完成后，Google Tasks 里新增的任务会自动出现在 Microsoft To Do 中。
+
+*开源地址：* **https://github.com/simonchai-tw/tasks-todo-sync**
+
+### duongductrong/Snapzy — 原生 macOS 截图与录制
+
+Snapzy 是一款**原生 macOS**的截图与录屏工具，定位为 CleanShot X 的开源替代。基于 SwiftUI + AppKit + ScreenCaptureKit + Vision 构建，支持全屏、窗口、滚动截图，还能在截图前直接内联标注。**录屏支持系统音频 + 麦克风，并支持 iPhone Continuity Camera 作为摄像头画中画**。标注编辑器提供形状、箭头、文字、水印、马赛克、自动敏感信息打码等工具。OCR 走 Apple Vision 或自定义 OpenAI 兼容端点。
+
+技术亮点：截图录制与标注一体化，`Application Capture` 模式可捕获第三方菜单栏弹窗；`A` 键一键裁剪到内容。
+
+- 适合谁：每天高频截图、录屏、写教程、做技术文档的 macOS 用户
+- 不适合谁：只用 Windows 或 Linux、或对录屏帧率有专业级要求的人
+
+**最小上手**
+
+从 Releases 下载 DMG 安装：
+
+```
+前往 https://github.com/duongductrong/Snapzy/releases 下载最新版本
+```
+
+或用 Homebrew：
+
+```
+brew install --cask snapzy
+```
+
+安装后授予屏幕录制权限，菜单栏点击图标即可调用。
+
+![](/assets/blog-images/5-dz32xu/img03.webp)
+
+*开源地址：* **https://github.com/duongductrong/Snapzy**
+
+### lzhgus/Capso — 免费开源的 CleanShot X 替代
+
+Capso 是另一款**macOS 原生**的截图录屏工具，基于 Swift 6.0 与 SwiftUI，定位同样是 CleanShot X 的免费替代。它提供统一的悬浮 HUD 工具栏，可一键切换区域、全屏、窗口、滚动、定时、OCR、录屏模式。**截图后能直接内联标注**，省去保存再打开编辑器的步骤。录屏支持摄像头画中画（4 种形状）、系统音频 + 麦克风、倒计时、暂停/重启/删除。OCR 走本地识别，结果直接进剪贴板。整套架构把 CaptureKit、AnnotationKit、OCRKit 拆成可复用的 SPM 包。
+
+技术亮点：`R` 键循环切换 1:1、16:9、1920×1080 等预设；内置 `Quick Access` 浮窗，可拖拽到其他 App。
+
+- 适合谁：想用一款免费工具覆盖截图、标注、录屏、OCR 全流程的 macOS 用户
+- 不适合谁：仍在 macOS 14 及以下系统的用户（==Capso 仅支持 macOS 15.0+==）
+
+**最小上手**
+
+从 Releases 下载 DMG：
+
+```
+前往 https://github.com/lzhgus/Capso/releases/latest 下载签名 DMG
+```
+
+或用 Homebrew：
+
+```
+brew tap lzhgus/tap
+brew install --cask capso
+```
+
+首次启动授予屏幕录制、摄像头、麦克风权限即可使用。
+
+![](/assets/blog-images/5-dz32xu/img04.webp)
+
+*开源地址：* **https://github.com/lzhgus/Capso**
+
+## 四、总结与行动建议
+
+如果只挑一个先装，**Snapzy 和 Capso 任选一个**——取决于你更爱 Snapzy 的滚动截图 + 应用窗口捕获，还是 Capso 的内联标注 + Quick Access 浮窗。如果是跨设备剪贴板同步的重度用户，**先装 UniClipboard**；想让 AI 直接读剪贴板历史，再叠一个 CrossPaste。最后，**tasks-todo-sync 按需部署**，它适合那些真的横跨 Google 与 Microsoft 双生态的任务管理用户。
+
+#AI视频剪辑 #脚本化视频 #口播视频 #Uniclipboard #CrosspasteDesktop #TasksTodoSync #Snapzy #Capso #crosspaste-desktop #tasks-todo-sync

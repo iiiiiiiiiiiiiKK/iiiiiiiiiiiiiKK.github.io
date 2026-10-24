@@ -1,0 +1,145 @@
+---
+title: "一个 HTML 文件吞下整个 Office？这个 3786 Star 的开源项目做到了"
+publishedAt: "2026-10-06"
+summary: "做汇报做到凌晨三点，导出 PPT、登录账号、等待云端同步、把文件塞进邮件附件——这套流程你今年重复了多少次？更糟的是，对方打开后格式乱飞、字体丢失、动画失效，过去一周的排版心血瞬间归零。再看看你硬盘里那些 .pptx、.…"
+image: "/assets/blog-images/html-office-3786-star-1gkz59/img01.webp"
+tags: ["开源", "视频", "写作"]
+author: "Adam"
+---
+## 一、开篇：为什么你需要这个工具？
+
+做汇报做到凌晨三点，导出 PPT、登录账号、等待云端同步、把文件塞进邮件附件——这套流程你今年重复了多少次？更糟的是，对方打开后格式乱飞、字体丢失、动画失效，过去一周的排版心血瞬间归零。再看看你硬盘里那些 `.pptx`、`.docx`、`.xlsx`：二进制格式、版本锁定、需要对应软件才能打开——你的文档，究竟是你「拥有」的，还是你「租来」的？
+
+当 Office 文档全部上云、必须登录、必须联网、必须订阅，你打开一份十年前的演示稿都成了一场赌博。Bento 给出了另一条路：**一个 HTML 文件就是整个套件**，办公软件回归「文件即软件」的朴素本质。
+
+![](/assets/blog-images/html-office-3786-star-1gkz59/img01.webp)
+
+## 二、项目简介：一句话说明它是什么
+
+**Bento 是一个装进单个文件的办公套件**，核心定位是 PowerPoint 的替代品——但它不只是一个幻灯片工具，而是「`bento/` 全家桶」的第一步。整个应用连同查看器、编辑器、演示模式全部打包进一个约 560 KB 的 HTML 文件里，用浏览器打开就能编辑、演示、分享。
+
+关键里程碑：GitHub Stars **3786+**，主语言 **TypeScript**，MIT 开源，路线图覆盖幻灯片（已发布）、笔记（spaces）、表格（dash）、保险库（vault）四大模块，每个模块都是独立的 `.bento.html` 可执行文件。
+
+## 三、核心功能深度解析
+
+### 1. 单文件自包含：文件即软件
+
+`.bento.html` 文件顶部嵌入了一个 `#bento-doc` 的纯 JSON 数据块，下半部分就是完整的应用代码。打开它，浏览器渲染出编辑器；保存时，文件自动改写自己的数据块（File System Access API，浏览器不支持时降级为下载）。
+
+这意味着：**2026 年保存的文件，2036 年依然能打开**。没有二进制格式、没有版本锁、没有「需要 Office 2024 才能读取」的尴尬。可右键查看源代码——这种「view-source honest」的透明度，在 SaaS 时代几乎是奢侈品。
+
+### 2. Morph 演示动画：复制幻灯片即设计动效
+
+如果你在两页幻灯片里给同一个元素指定相同的 `id`，Bento 会自动在切换时插值过渡——位置、尺寸、颜色、甚至渐变都能平滑变形。复制一页、重新排列，动画就自动设计好了，不需要逐帧手动调。
+
+对比 Keynote 的 Magic Move：效果相近，但 Bento 不依赖任何云服务、不绑定苹果生态、文件本身就能分发。
+
+### 3. 端到端加密实时协作
+
+协作使用 AES-GCM 加密，密钥在文档创建时客户端生成，**只活在文件里**——服务器永远拿不到。配套的「盲中继」（blind relay）只存储密文，源代码约一个文件的长度，可读可审计。
+
+更硬核的是自研 CRDT（`sync/crdt.ts`），通过数十万次收敛性 fuzz 测试，离线编辑合并精确到字符级。多人改同一份幻灯片，再也不会出现「我保存的内容去哪了」。
+
+![](/assets/blog-images/html-office-3786-star-1gkz59/img02.webp)
+
+### 4. 内置图表引擎
+
+柱状图、折线图、饼图、散点图——全部由 Bento 自研的无依赖引擎绘制（`charts.ts`）。演示模式下图表依然可交互：悬浮提示、缩放，甚至柱状图变饼图时数据也能无缝形变。
+
+不需要 ECharts、Highcharts、Chart.js 这类动辄几百 KB 的依赖，整个图表系统包含在 560 KB 的总体积里。
+
+### 5. 为 AI 时代设计
+
+文档是明文 JSON，任何能读写文件的 AI 助手（Claude Code、Cursor、Aider）都能直接编辑。Claude Code 用户还能从 `/plugin marketplace add nyblnet/bento` 安装 `bento-slides` 技能包，它会自动下载最新 Bento 应用。
+
+完全离线可用：把 Ollama、llama.cpp 或 LM Studio 指向这份幻灯片，**数据不出本机**。agent 指南只有一页长度（`bento.page/agents.md`），可以直接塞进任何模型的上下文窗口。
+
+### 6. 签名自更新
+
+版本更新走 ECDSA 签名通道，应用内一键升级。**更新会写入新文件，旧文件保留为回滚版本**——服务器从不接触你的文档。升级过程可审计、可回滚，这一点比很多桌面应用的自动更新都更稳健。
+
+![](/assets/blog-images/html-office-3786-star-1gkz59/img03.webp)
+
+## 四、技术亮点与性能数据
+
+**体积指标**：完整编辑器 + 演示 + 协作 + 图表 + 动画引擎打包后约 **560 KB**（含文档数据块前的体积）。对比：一份空白的 PowerPoint 文件通常 50 KB+，但要打开它需要数百 MB 的 Office 安装包。
+
+**架构亮点**：
+
+- 单一渲染器（`render.ts`）同时驱动编辑器画布、缩略图、演示模式——Reveal.js 负责导航，Morph 动画从数据模型计算而非 DOM 状态机计算
+- 自研动画引擎（`anim.ts`）、自研图表引擎（`charts.ts`）、自研 CRDT（`sync/crdt.ts`）——核心模块全部自研，依赖可控
+- CRDT 通过 `scripts/test-sync.ts` 进行大规模 fuzz 测试，覆盖数十万次收敛性验证
+
+**生态兼容**：支持 8 种界面语言；导出 PDF；隐藏交互状态、悬停揭示、运动路径、演讲者视图、评论系统等高级功能一应俱全；兼容 Reveal.js、Moveable、Selecto 等 MIT 许可的运行时组件。
+
+## 五、适用场景与人群
+
+**适合谁**：
+
+- **独立开发者和设计师**：厌倦云端订阅，希望文档真正属于自己的创作者
+- **注重数据主权的团队**：需要本地优先、端到端加密协作，避免敏感内容上云
+- **AI 工具链用户**：用 Claude Code 或 Cursor 自动化生成幻灯片、报告的研发团队
+- **教育与公益机构**：预算有限、需要长期可读的归档文件
+
+**不适合谁**：
+
+- 重度依赖企业级 SSO、Active Directory 集成、IT 集中管控的组织——Bento 的设计是「持有文件即成员」，需要专门的权限系统时可考虑 Office 365
+- 移动端重度编辑用户——Bento 桌面端编辑体验最佳，手机端目前以查看和演示为主
+
+![](/assets/blog-images/html-office-3786-star-1gkz59/img04.webp)
+
+## 六、竞品对比
+
+| 维度 | Bento | PowerPoint | Keynote | Google Slides |
+|------|-------|------------|---------|---------------|
+| 单文件分发 | ✅ 一个 HTML 文件 | ❌ 需安装 Office | ❌ 需 macOS/iWork | ❌ 必须联网 |
+| 本地优先 | ✅ 完全离线可用 | ⚠️ 桌面端可离线 | ⚠️ 桌面端可离线 | ❌ 必须联网 |
+| 加密协作 | ✅ E2EE + 盲中继 | ❌ 无 | ❌ 无 | ⚠️ 仅传输加密 |
+| AI 友好 | ✅ 明文 JSON + 离线模型 | ⚠️ 需插件 | ⚠️ 需插件 | ⚠️ 依赖 Gemini |
+| 文件长期可读 | ✅ 十年后仍可打开 | ⚠️ 格式演进中 | ⚠️ 格式演进中 | ⚠️ 需账号和导出 |
+| 体积 | 560 KB | 数 GB 安装包 | 数 GB 安装包 | 浏览器端 |
+
+选择 Bento 的核心理由：**当你需要「一个文件走天下」「十年后依然可读」「数据永远在自己手里」时，它是目前唯一同时满足这三点的方案**。
+
+![](/assets/blog-images/html-office-3786-star-1gkz59/img05.webp)
+
+## 七、如何快速上手
+
+**10 秒体验**：直接打开 [bento.page/slides](https://bento.page/slides)，这是运行在启动模板上的完整应用，模板本身就是功能导览。
+
+**下载完整应用**：从 [GitHub Releases](https://github.com/nyblnet/bento/releases) 或 [bento.page/releases/slides/Bento_Slides.bento.html](https://bento.page/releases/slides/Bento_Slides.bento.html) 下载 `Bento_Slides.bento.html`（约 560 KB，无需账号、无需安装），双击用现代浏览器打开即可编辑。
+
+**从源码构建**：
+
+```bash
+cd slides
+cd slides
+npm install
+npm run dev            # 启动开发服务器（http://localhost:5173）
+npm run build:single   # 构建 → dist-single/Bento_Slides.bento.html（即产品文件）
+```
+
+**进阶玩法**：
+
+- 用 Claude Code 安装 `bento-slides` 插件市场包，让 AI 自动生成幻灯片
+- 打开「离线模式」确保数据不出本机
+- 试试 Morph：复制一页幻灯片，给元素相同的 id，观察切换时的自动动画
+- 运行 `node scripts/test-sync.ts` 体验 CRDT 的 fuzz 测试过程
+
+## 八、总结与行动建议
+
+Bento 用一个 HTML 文件重新定义了办公套件的形态：**文件即软件、数据可读、加密协作、AI 友好、十年后可读**。在 SaaS 把所有办公行为绑上云端订阅的今天，它给出了一条「本地优先、长期可读」的回归路径。
+
+**使用建议**：如果你做独立创作、技术分享、内部培训，强烈建议把 Bento 加入工具箱；如果你管企业 IT、需要 SSO 和权限管控，可以观望 `bento/spaces`、`bento/dash`、`bento/vault` 后续演进。
+
+**项目链接**：
+
+- 官网：[bento.page](https://bento.page)
+- 仓库：[github.com/nyblnet/bento](https://github.com/nyblnet/bento)
+- 文档：[docs/architecture.md](docs/architecture.md)
+- AI Agent 指南：[bento.page/agents.md](https://bento.page/agents.md)
+
+**一句话推荐**：你的下一份幻灯片，应该装进一个永远属于你的 HTML 文件里。
+
+![](/assets/blog-images/html-office-3786-star-1gkz59/img06.webp)
+

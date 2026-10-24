@@ -1,0 +1,99 @@
+---
+title: "macUSB：3200 Star 的 Mac 启动盘神器，一个 App 搞定 macOS_Linux_Windows 全平台"
+publishedAt: "2026-04-19"
+summary: "macUSB：3200 Star 的 Mac 启动盘神器，一个 App 搞定 macOS/Linux/Windows 全平台"
+image: "/assets/blog-images/macusb-3200-star-mac-app-macos-linux-windows-3x85hl/img01.webp"
+tags: ["开源", "终端", "效率"]
+author: "Adam"
+---
+![](/assets/blog-images/macusb-3200-star-mac-app-macos-linux-windows-3x85hl/img01.webp)
+
+选择标题（3 选 1）
+
+macUSB：3200 Star 的 Mac 启动盘神器，一个 App 搞定 macOS/Linux/Windows 全平台
+
+macUSB 把 Apple Silicon 老系统启动盘做成向导：免命令行、免踩坑、一条龙烧录
+
+从 Tiger 10.4 到 Windows 11：macUSB 凭什么成为 Mac 启动盘工具的天花板？
+
+# macUSB：3200 Star 的 Mac 启动盘神器，一个 App 搞定 macOS/Linux/Windows 全平台
+
+## 一、开篇：为什么你需要这个工具？
+
+做系统维护的人都有过这种经历：手头一台 Mac 突然挂掉，想做个启动 U 盘救急，结果发现 macOS Catalina 及更早的安装镜像在 Apple Silicon 上根本跑不通 `createinstallmedia`；想装个 Ubuntu 测试，磁盘工具又弹出"无法识别的磁盘"；要写个 Windows 11 安装盘，4GB 大文件撞上 FAT32 限制直接失败。网上教程一搜一大把，但每个都附带"适用于 macOS xxx 版本"的免责声明，命令复制下来十有八九跑不通。你需要的是一个把所有坑都替你踩过一遍、界面干净、能从下载到烧录一条龙跑完的工具——macUSB 就是为这个场景而生的。
+
+## 二、一句话看懂：这是个什么项目
+
+**macUSB** 是一款专为 macOS 设计的全功能启动盘制作工具，GitHub 已斩获 **3203 Stars**，原生支持 Apple Silicon 与 Intel 双架构。它把「下载安装镜像 → 校验文件 → 烧录到 U 盘」整条链路做成可视化向导，覆盖从 macOS Tiger 10.4 到 macOS Golden Gate 27 的全代系，同时支持 19 款主流 Linux 发行版以及 Windows XP 到 11 的完整安装盘制作。
+
+## 三、核心功能深度解析
+
+### 1. 内置 macOS 下载器
+macUSB 内置从 Apple 服务器直接拉取 macOS 安装器的下载通道，包括公开测试版（Public Beta）。与传统的 `softwareupdate --fetch-full-installer` 不同，它在前端列出了可选版本清单，选中后自动校验、下载、保存为只读 DMG，下载完毕直接进入烧录环节，省去找镜像、找来源的来回折腾。
+
+### 2. 本地镜像全格式支持
+对于手头已有镜像文件的用户，macUSB 接受 `.dmg`、`.cdr`、`.iso`、`.app` 四种 macOS 源格式，以及任意 Linux/Windows `.iso`。更实用的是 SHA-256 校验功能——`.dmg`、`.cdr`、`.iso` 文件会自动计算校验值，手动选择的 `.img` 也能校验，避免烧录到一半发现源文件损坏。
+
+### 3. Apple Silicon 老系统兼容
+在 Apple Silicon 上做老系统启动盘最头疼的是兼容性处理。macUSB 会自动检测目标系统版本，针对 Intel-only 的 `createinstallmedia` 工具（Yosemite 到 Catalina）自动提示安装 Rosetta。如果系统是 macOS Golden Gate 27 这种最新版本，它还能跳过传统安装流程直接走适配路径。
+
+### 4. Windows 烧录智能化
+Windows 烧录最大的拦路虎是 FAT32 的 4GB 单文件限制。macUSB 在检测到 `install.wim` 超限时，自动调用 `wimlib` 把镜像拆分成 `.swm` 分卷，全程无需用户手动干预。针对 Windows 11 的 TPM/安全启动硬件限制，它还支持生成 `Autounattend.xml` 跳过检查，并可绕过 Microsoft 账户强制要求、关闭自动 BitLocker 加密、跳过隐私设置等首次开机配置。
+
+![](/assets/blog-images/macusb-3200-star-mac-app-macos-linux-windows-3x85hl/img02.webp)
+
+## 四、技术亮点与性能数据
+
+macUSB 用 **Swift** 原生开发，已通过 Apple 公证（Notarized），安全合规层面无需额外放行。架构层面，它同时适配 **Apple Silicon 和 Intel 双平台**，最低运行门槛是 macOS Sonoma 14.6，启动盘介质建议 USB 3.0 及以上。Linux 兼容性实测覆盖 19 个发行版（截至 2026 年 4 月 30 日的最新版本），验证硬件包括 2017 款 MacBook Air（UEFI）、Dell OptiPlex 5040（UEFI）、ASUS F52Q（Legacy BIOS）三类典型机型。Windows 启动模式自动识别：Legacy BIOS（Vista/7/Server 2008 R2）、Legacy BIOS 或 UEFI（8/8.1/10/Server 2012-2022）、UEFI only（11/Server 2025）。对于 Legacy BIOS 场景，它会自动安装自研的 [macUSBoot](https://github.com/Kruszoneq/macUSBoot) 引导加载器。
+
+## 五、适用场景与人群
+
+- **IT 运维与系统管理员**：需要批量或频繁制作跨平台启动盘的工具人，macUSB 一个 App 替代多个命令行脚本；
+- **macOS 老设备维护者**：手头有 Intel Mac 或 PowerPC Mac，想给老机器重装系统的用户，macUSB 支持从 Tiger 10.4 到最新系统的全代系烧录；
+- **Apple Silicon 尝鲜者**：买了 M1/M2/M3 设备需要给 Intel Mac 救急做启动盘的用户，Rosetta 自动提示机制省去大量踩坑时间；
+- **多系统开发者**：经常在 Mac 上测试 Linux 发行版或部署 Windows To Go 的工程师。
+
+不适合的人群：只需要做一次 U 盘安装的轻度用户（命令行 `createinstallmedia` 可能更快），以及持有大量需要特殊驱动注入的 Windows 镜像的高级用户（仍需手动处理驱动）。
+
+![](/assets/blog-images/macusb-3200-star-mac-app-macos-linux-windows-3x85hl/img03.webp)
+
+## 六、竞品对比
+
+| 工具 | macOS 老系统支持 | 内置下载器 | Linux/Windows 支持 | 图形化向导 | 公证 |
+|------|-----------------|-----------|-------------------|-----------|------|
+| **macUSB** | ✅ Tiger 到 Golden Gate | ✅ 含 Beta | ✅ 全平台 | ✅ | ✅ |
+| DiskMaker X | ⚠️ 仅部分新版 | ❌ | ❌ | ✅ | ✅ |
+| balenaEtcher | ❌ | ❌ | ✅ | ✅ | ✅ |
+| UNetbootin | ❌ | ❌ | ⚠️ 仅 Linux | ✅ | ❌ |
+
+对比可以看出，macUSB 是少数同时覆盖「全代系 macOS + Linux + Windows」且保留图形化向导的工具，尤其在 Apple Silicon 上做老系统这一极度细分的场景里几乎没有对手。
+
+## 七、如何快速上手
+
+**安装方式**（二选一）：
+
+1. **GitHub Releases**：访问 [Releases 页面](https://github.com/Kruszoneq/macUSB/releases/latest) 下载最新 `.dmg`；
+2. **Homebrew**：终端执行 `brew install --cask macusb`。
+
+**首次配置（关键步骤）**：
+打开「系统设置 → 通用 → 登录项与扩展」，把 macUSB 开启「允许在后台运行」；再到「隐私与安全性 → 完全磁盘访问权限」中也开启 macUSB。缺少这两项权限，烧录流程会失败。
+
+**烧录 Windows 镜像前置依赖**（仅当 install.wim 超 4GB 时需要）：
+终端执行 `brew install wimlib`，macUSB 会自动检测 `wimlib-imagex` 是否可用。
+
+**最小操作流程**：
+打开 macUSB → 选择本地源文件或用下载器拉取 macOS 镜像 → 选择目标 U 盘（注意：会清空 U 盘所有数据，建议 16GB 起，Sequoia 15+ 需 32GB）→ 确认操作详情 → 启动流程并按阶段监控进度 → 完成后直接从最终界面安全弹出。
+
+![](/assets/blog-images/macusb-3200-star-mac-app-macos-linux-windows-3x85hl/img04.webp)
+
+## 八、总结与行动建议
+
+macUSB 的核心价值在于：把 macOS 老系统启动盘制作这一极其折腾的工程化流程，封装成了一个对终端用户友好的图形化向导，同时扩展到 Linux/Windows 全平台，并且完全免费、永久免费。对于任何需要在 Mac 上做启动盘的人，它都值得放进 Applications 文件夹作为常备工具。
+
+- **项目地址**：[GitHub - Kruszoneq/macUSB](https://github.com/Kruszoneq/macUSB)
+- **官网**：[macusb.app](https://macusb.app)
+- **一句话推荐**：Mac 上的启动盘制作，从 Tiger 到 Golden Gate，从 Linux 到 Windows，一个 App 全搞定。
+
+![](/assets/blog-images/macusb-3200-star-mac-app-macos-linux-windows-3x85hl/img05.webp)
+
+#macusb #Macusb #kruszoneq #开源项目 #GitHub

@@ -1,0 +1,236 @@
+---
+title: "6 个 GitHub 上的神仙开源项目，让你的 AI 代理真正能干活"
+publishedAt: "2026-06-13"
+summary: "6 个 GitHub 上的神仙开源项目，让你的 AI 代理真正能干活"
+image: "/assets/blog-images/6-github-ai-15mu8s/img01.webp"
+tags: ["AI", "Agent", "开源"]
+author: "Adam"
+---
+![](/assets/blog-images/6-github-ai-15mu8s/img01.webp)
+
+选择标题（3 选 1）
+
+6 个 GitHub 上的神仙开源项目，让你的 AI 代理真正能干活
+
+私藏 6 个让 AI 从嘴炮变实干的 GitHub 神器
+
+录一次操作就能让 AI 重复做：这 6 个项目彻底改变了我的工作流
+
+## 一、开篇：从踩坑到真香，只差这一个项目
+
+产品经理让你"自动化"一遍测试用例，你打开录屏软件录操作、写脚本、调试 UI 元素——半小时过去还在跟 XPath 较劲。同事已经把同样的流程录一遍、丢给 AI 跑、自动出报告了。这组项目，就是为了让你少走这条弯路。
+
+## 二、项目速览
+
+| 仓库 | Stars | 主要语言 | 一句话定位 |
+|---|---|---|---|
+| microsoft/skill-recorder | 4.0k | TypeScript | 录一遍操作，自动生成可复用的 AI Skill |
+| ShawnPana/phone-harness | 2.9k | Python | 让 Agent 直接操控你的真机 iPhone/Android |
+| mukul975/Anthropic-Cybersecurity-Skills | 33.0k | Python | 818 个网络安全 Skill，给 Agent 装上"分析师大脑" |
+| AMAP-ML/LongHorizon-Harness | 1.6k | Python | 长任务循环引擎，让 Agent 连续跑几十小时不失控 |
+| modelcontextprotocol/servers | 90.5k | TypeScript | MCP 官方参考实现，给 Agent 接工具的"标准插座" |
+| vercel-labs/skills | 32.1k | TypeScript | `npx skills` CLI，跨平台装/用 Skill 的统一入口 |
+
+![](/assets/blog-images/6-github-ai-15mu8s/img02.webp)
+
+## 三、项目解析
+
+### microsoft/skill-recorder — 录一次，AI 就能重复做
+
+它的核心定位是"把屏幕操作变成可复用的 Skill"：**录一遍你手动做的事，自动生成 Agent 可调用的步骤化技能**。它会抓取点击、窗口切换、终端输出、语音旁白，再用 GitHub Copilot CLI 还原成清晰的意图 + 有序步骤，最终产出 `SKILL.md` 或定时 Automation。
+
+技术亮点上，它优先调用 Agent 原生工具（如 `gh`、`web_fetch`）而非回放 UI 点击；只要录一次"提交一个表单"，就能泛化到"提交所有同类表单"。==注意：需要 GitHub 账号有 Copilot 权限==，macOS 是主目标平台，Windows 11 x64/ARM64 也已支持。
+
+适合谁：
+
+- 每天重复同一套桌面操作的个人/小团队
+- 想给 Copilot / Cowork / Copilot Studio 喂可执行流程的人
+- 不适合：完全不想碰 Copilot 生态、或只跑 Linux 服务器的用户
+
+**最小上手**
+
+直接去 release 页拿一键安装命令：
+
+```
+# 打开 https://github.com/microsoft/skill-recorder/releases/latest
+# 找到 "Commit-pinned installation" 区段，复制对应系统的完整命令到终端运行
+```
+
+装好后直接录：
+
+```
+1. 点红钮或按 ⌘⇧R / Ctrl+Shift+R 开始录
+2. 正常完成任务
+3. 点 Analyze，让 Copilot 重建步骤
+4. 生成 Skill 或 Automation
+```
+
+*开源地址：* **https://github.com/microsoft/skill-recorder**
+
+### ShawnPana/phone-harness — 让 Agent 操控你的真机
+
+**直接让 Claude Code、Codex 或任意 Agent 操控你的 iPhone / Android**，原生 OCR + adb，不需要越狱、不装 App 到手机。iPhone 走 Mac 的 iPhone Mirroring 窗口，Android 走 adb（USB / Wi‑Fi 都行），同一套 helper 跨平台通用。
+
+技术亮点上，OCR 用 Apple Vision 框架拿到带坐标的文字，tap / swipe / typeText 都是 HID 级事件；云端机型支持 `phone-harness cloud start` 一键租用 Android，前 100 分钟免费。==注意：iPhone 解锁会暂停 Mirroring，PIN 锁的 Android 仍需用户介入==；没有多指触摸、没有 Face ID 流程，DRM 视频会黑屏。
+
+适合谁：
+
+- 想让 Agent 帮你在手机上点外卖、查天气、回消息的人
+- 自动化测试 / 数据采集 / 跨 App 工作流
+- 不适合：纯服务器环境、或需要相机/生物识别的场景
+
+**最小上手**
+
+让 Agent 直接帮你装：
+
+```
+Set up phone-harness for me. Clone https://github.com/ShawnPana/phone-harness into ~/.phone-harness, read install.md first, install it so phone-harness is on my PATH, and register it as a skill named phone-harness.
+```
+
+装好之后：
+
+```
+phone-harness --doctor
+phone-harness <<'PY'
+open_app("Weather")
+print(screenshot())
+PY
+```
+
+*开源地址：* **https://github.com/ShawnPana/phone-harness**
+
+### mukul975/Anthropic-Cybersecurity-Skills — 818 个安全 Skill 装进 Agent
+
+**把 818 个结构化网络安全技能直接喂给你的 AI Agent**，覆盖 34 个安全领域、映射 6 大框架（MITRE ATT&CK、NIST CSF 2.0、MITRE ATLAS、MITRE D3FEND、NIST AI RMF、MITRE F3）。遵循 agentskills.io 开放标准，兼容 Claude Code、Copilot、Codex CLI、Cursor、Gemini CLI 等 20+ 平台。
+
+技术亮点上，它按技能类型精准挂框架——取证类带 ATT&CK + CSF，AI 安全类额外挂 ATLAS 和 AI RMF。覆盖统计：ATT&CK 805、CSF 804、D3FEND 139、AI RMF 97、F3 94、ATLAS 93。==注意：项目含红队 / 钓鱼 / 漏洞利用等双用途技术，仅限授权测试、安全研究、自有系统防御==，使用前请阅读 `SECURITY.md`。
+
+适合谁：
+
+- 安全分析师、IR 响应人员、渗透测试工程师
+- 想把 Agent 当"初级分析师"用的 SOC 团队
+- 不适合：完全不做安全方向、或不愿配置 Agent 工具链的人
+
+**最小上手**
+
+Clone 后直接当 Skill 源挂载：
+
+```
+git clone https://github.com/mukul975/Anthropic-Cybersecurity-Skills
+# 在 Claude Code / Codex 里执行：
+/help add-skill ./Anthropic-Cybersecurity-Skills
+```
+
+之后直接问：
+
+```
+针对一份可疑的 Kerberoasting 日志，给我 Sigma 规则和 Volatility3 内存取证步骤
+```
+
+*开源地址：* **https://github.com/mukul975/Anthropic-Cybersecurity-Skills**
+
+### AMAP-ML/LongHorizon-Harness — 跑几十小时不翻车的循环引擎
+
+**给 Claude Code、Codex、OpenCode、DeepSeek Harness 套一层"长任务循环"**：Plan → Act → Verify → Checkpoint → 失败回喂证据 → 重试，直到目标真正完成。它不重新训练模型，而是在模型外加一层持久化执行循环。
+
+技术亮点上，它用 fresh-context 执行避免上下文腐烂；通过 durable verified state 在多轮间保住进度；支持独立审计、可重启恢复；v0.1.4 起还有 React/FastAPI 的 Web Workbench，可在浏览器里挑后端、选模型、发指令。==注意：模型决定了单轮能力上限，Harness 只负责"怎么跑得久、跑得稳"==。
+
+适合谁：
+
+- 需要让 Agent 跨桌面应用 + CLI 跑数小时甚至数十小时的任务
+- 已经在用 Claude Code / Codex，又被"上下文太长 / 中途崩了"折磨的人
+- 不适合：单轮问答、或模型本身就经常瞎答的场景
+
+**最小上手**
+
+一行命令装好：
+
+```
+pip install longhorizon-harness
+lh-harness web    # 启动 Web Workbench
+# 或者直接命令行跑任务：
+lh-harness run --agent claude-code --goal "把仓库里所有 TODO 改成对应实现并跑通测试"
+```
+
+*开源地址：* **https://github.com/AMAP-ML/LongHorizon-Harness**
+
+![](/assets/blog-images/6-github-ai-15mu8s/img03.webp)
+
+### modelcontextprotocol/servers — MCP 官方参考实现
+
+**MCP（Model Context Protocol）官方维护的参考服务器集合**，给你看怎么用各语言 SDK 给 Agent 接工具：Everything、Fetch、Filesystem、Git、Memory、Sequential Thinking、Time 等都齐了。等于"AI 工具插座"的标准示例。
+
+技术亮点上，它配套展示 10 个语言 SDK（C# / Go / Java / Kotlin / PHP / Python / Ruby / Rust / Swift / TypeScript），每个参考服务器都是一个最小可跑的样例；社区版本已迁到 MCP Registry，本仓库只保留 steering group 维护的少量参考实现。==注意：这里的服务端是教学示例，不建议直接当生产服务==，要先评估自身安全模型。
+
+适合谁：
+
+- 想自己写 MCP Server 的开发者
+- 学习 MCP 协议、对比多语言实现的工程团队
+- 不适合：只想找一个能立刻投产的文件 / DB 工具的人（去 Registry 找官方现成的）
+
+**最小上手**
+
+直接看 Fetch 这个最小例子：
+
+```
+git clone https://github.com/modelcontextprotocol/servers
+cd servers/src/fetch
+# 按 README 在 Claude Desktop / Cursor 里配 mcp.json 即可
+```
+
+或在 Claude Desktop 的 `claude_desktop_config.json` 里加：
+
+```
+{
+  "mcpServers": {
+    "filesystem": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-filesystem", "/Users/你的名字/Desktop"]
+    }
+  }
+}
+```
+
+*开源地址：* **https://github.com/modelcontextprotocol/servers**
+
+### vercel-labs/skills — `npx skills` 一行装遍所有 Agent
+
+**Agent Skills 生态的官方 CLI**，支持 75+ Agent（OpenCode、Claude Code、Codex、Cursor 等），统一解决"这个 Skill 该怎么装到我的 Agent"的问题。它本身就是上面很多项目能跑起来的基础设施。
+
+技术亮点上，`add` 装、`use` 直接生成 prompt 喂给 Agent；支持 GitHub shorthand、完整 URL、子目录、GitLab、Azure Repos、本地路径；私仓自动用 Git 凭证 + GitHub CLI + SSH 兜底，不复制 token 到 Node 进程。==注意：`npx skills use <pkg> --agent <a>` 会启动一个交互式 Agent==，请确保已安装对应 CLI。
+
+适合谁：
+
+- 每天要在多个 Agent / IDE 之间切换的开发者
+- 想把团队 Skill 仓库沉淀下来的人
+- 不适合：只用某一个 Agent、又不需要共享 Skill 的个人用户
+
+**最小上手**
+
+装一个 Skill：
+
+```
+npx skills add vercel-labs/agent-skills
+```
+
+不安装直接用：
+
+```
+npx skills use vercel-labs/agent-skills --skill web-design-guidelines --agent claude-code
+```
+
+装到全局而非项目：
+
+```
+npx skills add owner/repo -g
+```
+
+*开源地址：* **https://github.com/vercel-labs/skills**
+
+![](/assets/blog-images/6-github-ai-15mu8s/img04.webp)
+
+## 四、总结与行动建议
+
+如果你只想挑两个先试：**先装 `vercel-labs/skills`**，因为它是整个 Skill 生态的入口；**再装 `microsoft/skill-recorder`**，录一次操作就能看到 AI 真的能复现你做过的活。剩下的 4 个按需取用——做手机自动化上 `phone-harness`，做安全分析上 `Anthropic-Cybersecurity-Skills`，跑长任务上 `LongHorizon-Harness`，自己接工具就参考 `modelcontextprotocol/servers`。
+
+#AI智能体 #AI工作流 #自动化 #SkillRecorder #PhoneHarness #AnthropicCybersecuritySkills #LonghorizonHarness #Servers #Skills #skill-recorder

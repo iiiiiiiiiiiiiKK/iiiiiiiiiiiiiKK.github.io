@@ -1,0 +1,185 @@
+---
+title: "私藏 5 个我每天都在用的开源联网神器"
+publishedAt: "2026-06-16"
+summary: "这 5 个开源项目，让你 Agent 真正读懂互联网"
+image: "/assets/blog-images/5-4p6gx5/img01.webp"
+tags: ["AI", "Agent", "开源"]
+author: "Adam"
+---
+![](/assets/blog-images/5-4p6gx5/img01.webp)
+
+选择标题（3 选 1）
+
+私藏 5 个我每天都在用的开源联网神器
+
+这 5 个开源项目，让你 Agent 真正读懂互联网
+
+还在为 Agent 上不了网头疼？这份清单照着装
+
+## 一、开篇：你还在为这件事头疼吗？
+
+产品经理让你帮看一下小红书上某款新品的口碑，运营让你扫一下 Twitter 最近大家怎么评价某款产品，研究员让你抓一份 Reddit 上关于某个 Bug 的讨论。Agent 一句「帮我看看」，你心里其实清楚——它既看不见推特风控后的页面，也读不了 B 站被全面拦截的视频，更别说那些要登录、要复杂渲染、要并行抓几十个页面才能给到结论的任务。今天分享的这 5 个项目，是我日常就在用的「让 Agent 真能联网、真能拿数据」的工具清单。
+
+![](/assets/blog-images/5-4p6gx5/img02.webp)
+
+## 二、项目速览
+
+| 项目 | 仓库 | 语言 | 一句话定位 |
+|---|---|---|---|
+| Obscura | h4ckf0r0day/obscura | Rust | AI Agent 用的 Rust 隐身无头浏览器 |
+| Web Access | eze-is/web-access | JavaScript | 给 Claude Code 装上三层通道联网能力 |
+| Agent Reach | Panniantong/Agent-Reach | Python | 一行命令让 Agent 读推特、看 YouTube、刷小红书 |
+| BrowserAct Skills | browser-act/skills | Python | 专攻反爬的浏览器自动化 CLI，带远程接管 |
+| Read Buddy | SpaceZephyr/read-buddy | TypeScript | 一整套读网页/RSS/飞书/播客的 Skill 集合 |
+
+## 三、项目解析
+
+### h4ckf0r0day/obscura — AI Agent 用的 Rust 隐身无头浏览器
+
+Obscura 是一个**用 Rust 写的无头浏览器引擎**，专门服务于 AI Agent 和爬虫场景。它跑真实 V8 引擎，支持 Chrome DevTools Protocol，可以直接替换 Puppeteer / Playwright 之前依赖的无头 Chromium。**关键差异在「不需要 Chromium」，启动体积更小、内存更低、跑得更快**。原生渲染能力也一并补齐：截图、实时录屏、导出 PDF 都直接调用，不再绕道。
+
+**适合谁：** 自己用 Playwright 做抓取、关心资源占用、想给 Agent 配一个能跑的浏览器底座的人。
+**不适合谁：** 还在用现成 SaaS、或者封禁问题远比性能问题严重的场景。
+
+**最小上手**
+
+直接告诉 Agent：
+
+```
+帮我安装并启动 Obscura：https://github.com/h4ckf0r0day/obscura
+```
+
+或者本地拉一份：
+
+```
+git clone https://github.com/h4ckf0r0day/obscura
+cargo run
+```
+
+连上后调用 CDP 协议就能开始控制页面，截图参数照常用 `screenshot --format png --full-page`。
+
+*开源地址：* **https://github.com/h4ckf0r0day/obscura**
+
+![](/assets/blog-images/5-4p6gx5/img03.webp)
+
+### eze-is/web-access — 给 Claude Code 装上完整联网能力的 Skill
+
+Web Access 是一个**给任意 Agent 加联网和浏览器能力的 Skill 集合**，跟普通 WebSearch 的差别在它补齐了调度和浏览器自动化两块。核心能力是三层通道：`WebSearch / WebFetch / curl / Jina / CDP` 按场景自主选择；并且能直连你日常用的 Chrome 或 Edge，**天然携带登录态**，不用每个平台单独登录。碰到多个目标的任务，它还会分发子 Agent 并行执行，所有子任务共享同一个浏览器，tab 级隔离。另外，按域名累出的「站点经验」会跨 session 复用，遇到陌生站点不会从零踩坑。
+
+**适合谁：** 用 Claude Code / Cursor / Codex CLI，希望 Agent 能自己调度工具、不被截断在登录墙前的人。
+**不适合谁：** 完全不想本地起 Node 22+、或者只想轻量用一下不想配浏览器 toggle 的人。
+
+**最小上手**
+
+直接告诉 Agent：
+
+```
+帮我安装这个 skill：https://github.com/eze-is/web-access
+```
+
+或者用通用包管理器：
+
+```
+npx skills add eze-is/web-access
+```
+
+装好后让 Agent 自己挑通道干就行，例如：
+
+```
+帮我去知乎查一下最近关于 MCP 的讨论
+```
+
+*开源地址：* **https://github.com/eze-is/web-access**
+
+### Panniantong/Agent-Reach — 一行命令让 Agent 读遍全网
+
+Agent Reach 的定位非常直接：**一个 CLI + 一句安装指令，把 Agent 联网的门槛降到零**。它内置对接 Twitter、Reddit、YouTube、GitHub、Bilibili、小红书等平台的接入方式，每个平台都设计成「首选 + 备选」多后端路由——某个被封就自动切下一个，不需要你手动跟进。它还自带 `agent-reach doctor` 体检命令，告诉你哪个能跑哪个跑不通。**对不想折腾 Cookie、API Key、验证码的用户非常友好**。
+
+**适合谁：** 想让 Agent 直接读推特、看 B 站、抓 GitHub Issue、用 RSS 订阅，又不想自己一项项配置的用户。
+**不适合谁：** 企业级大批量、对单一平台稳定性有严苛 SLA 的场景。
+
+**最小上手**
+
+直接告诉 Agent：
+
+```
+帮我安装 Agent Reach：https://raw.githubusercontent.com/Panniantong/agent-reach/main/docs/install.md
+```
+
+装完之后让 Agent 自己去用：
+
+```
+帮我看看最近 B 站上关于 Claude Code 的热门视频
+```
+
+*开源地址：* **https://github.com/Panniantong/Agent-Reach**
+
+![](/assets/blog-images/5-4p6gx5/img04.webp)
+
+### browser-act/skills — 专攻反爬的浏览器自动化 CLI
+
+BrowserAct Skills 是给 Agent 用的浏览器自动化 CLI，**专攻「被反爬挡死」这个具体问题**。它的策略是三层递进：环境层做指纹伪装和 TLS 轮换挡住大部分封锁；执行层用 `solve-captcha` 自动解验证码，`stealth-extract` 拉取被保护页面；人机层用 `remote-assist` 生成远程接管链接，卡住时真人一接手就行。并行执行是它的另一个亮点——每个 Agent 自带独立 Cookie、指纹、代理，并行任务互不污染；同一浏览器还能多 session 并发，已经登录的账号不会被踢。**支持云端 Bot 和本地浏览器两种模式，按算力需要切换**。
+
+**适合谁：** 跑大量抓取、对抗中等风控、需要并行批量操作的人。
+**不适合谁：** 完全只想零成本本地玩、抓取量很小的轻量用户。
+
+**最小上手**
+
+直接告诉 Agent：
+
+```
+帮我安装 BrowserAct Skill：https://github.com/browser-act/skills
+```
+
+装好后 Agent 自己探索可用命令：
+
+```
+get-skills
+```
+
+拿到技能列表后选一个跑就行，例如：
+
+```
+打开某站点，自动登录后把这一页的产品列表抓成 JSON
+```
+
+*开源地址：* **https://github.com/browser-act/skills**
+
+![](/assets/blog-images/5-4p6gx5/img05.webp)
+
+### SpaceZephyr/read-buddy — 一整套内容读取 Skill 集合
+
+Read Buddy 不是单一工具，而是一整套按 `read-*` 命名的 Skill 目录——读网页、转 Markdown、提取 YouTube 字幕、抓 RSS、扫 X、读飞书文档、做 OCR、导微信读书划线，每个动作拆成一个独立 Skill，可以按需装。**它是把「Agent 的输入源」模块化**——网页、X、飞书、播客、PDF、图片、个人阅读记录都被收成可独立调用的能力，跨运行时通用。基于 Agent Skills 协议，Claude Code、Codex、Cursor、OpenClaw、Hermes 这些都能直接用，本质是一份 Markdown + YAML + 可执行脚本。
+
+**适合谁：** 内容创作者、研究者、产品经理，希望 Agent 能持续接住「读完之后能继续消化」这条链路的人。
+**不适合谁：** 只想抓结构化数据、不需要后续整理的内容流水线。
+
+**最小上手**
+
+直接告诉 Agent：
+
+```
+帮我安装这个 skill：https://github.com/SpaceZephyr/read-buddy
+```
+
+或者用通用包管理器：
+
+```
+npx skills add SpaceZephyr/read-buddy
+```
+
+按需挑子 Skill 用即可，例如：
+
+```
+提取这个 YouTube 视频的中文字幕
+```
+
+*开源地址：* **https://github.com/SpaceZephyr/read-buddy**
+
+![](/assets/blog-images/5-4p6gx5/img06.webp)
+
+## 四、总结与行动建议
+
+如果你是第一次接触 Agent 联网类工具，先装 **Web Access** 和 **Agent Reach**，覆盖日常 80% 的「读网页 + 抓平台」需求；碰到反爬很死的站点再叠加 **BrowserAct Skills**；做内容二次消化（播客、长文、个人阅读）就加 **Read Buddy**；对浏览器底座有性能或隐私要求，直接换 **Obscura** 自托管。
+
+#AI智能体 #AI工作流 #自动化 #Obscura #WebAccess #AgentReach #Skills #ReadBuddy #web-access #agent-reach

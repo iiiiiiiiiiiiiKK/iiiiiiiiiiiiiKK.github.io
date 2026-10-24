@@ -1,0 +1,95 @@
+---
+title: "DWMBlurGlass：让 Win10_Win11 标题栏彻底告别纯白"
+publishedAt: "2026-07-11"
+summary: "把 Windows 11 升到 24H2 后，很多用户盯着最大化窗口顶部那条白色实心标题栏，越看越别扭：Mica 材质明明那么好看，为什么非要把标题栏做成纯白？"
+image: "/assets/blog-images/dwmblurglass-win10-win11-aqv8u4/img01.webp"
+tags: ["开源", "效率", "系统"]
+author: "Adam"
+---
+![](/assets/blog-images/dwmblurglass-win10-win11-aqv8u4/img01.webp)
+
+## 一、开篇：Win11 标题栏那一抹「透明感」，你想要但官方不给
+
+把 Windows 11 升到 24H2 后，很多用户盯着最大化窗口顶部那条白色实心标题栏，越看越别扭：Mica 材质明明那么好看，为什么非要把标题栏做成纯白？
+
+官方只给"开/关"两档，没有滑块，没有颜色，更没有亚克力模糊半径。如果你装上第三方主题，或者想让老掉牙的 Windows 7 老程序也跟着"透"起来，系统的设置面板直接撂挑子。
+
+更让人抓狂的是，市面上号称"能让标题栏透明"的小工具有一半是静默捆绑的木马。作者在 README 里专门用红色警告标出来：**不要从非官方渠道下载 DWMBlurGlass，GitHub、Bilibili、winmoes 是仅有的三个分发点，项目方没有 Discord。**
+
+## 二、项目简介：DWMBlurGlass 是什么
+
+DWMBlurGlass 是一款基于 C++ 的开源系统美化工具，通过**逆向 DWM 渲染管线并注入自定义着色器**，给全局系统标题栏加上亚克力、Aero、Mica 等多种效果。它兼容 Windows 10 2004 及以上版本，最高支持最新的 Windows 11，并提供 **LGNU V3 协议**。截至目前，项目在 GitHub 收获了 **4489 个 Star**，累计下载量超过 12 万次。
+
+![](/assets/blog-images/dwmblurglass-win10-win11-aqv8u4/img02.webp)
+
+## 三、核心功能深度解析
+
+### 1. 五种材质随意切换
+
+DWMBlurGlass 内置 Blur、Aero、Acrylic、Mica、MicaAlt 五种效果。Blur 是最基础的纯模糊；Aero 还原了 Windows 7 那种带饱和度和曝光调节的玻璃质感，未激活窗口还会自动降低饱和度；Acrylic 用背景 + 模糊 + 排除混合 + 饱和度 + 颜色叠加 + 噪点的「六层配方」模拟 Win10 菜单的亚克力；Mica 复用系统壁纸做模糊叠加，是 Win11 的官方旗舰；MicaAlt 则是 Mica 的灰色版本，可以自己调配色。
+
+### 2. 三种模糊实现方式
+
+项目提供 `CustomBlur`、`AccentBlur`、`SystemBackdrop` 三套路径。`CustomBlur` 是作者独立逆向 DWM 后自研的着色器，兼容性和视觉效果最强；`AccentBlur` 复用了系统强调色 API；`SystemBackdrop` 则直接调系统公开接口，效果等同于 MicaForEveryone，但胜在零侵入。
+
+### 3. 精细到像素的颜色控制
+
+全局模糊半径、标题栏独立半径、混合色、文字色、激活/未激活双模式颜色——每一项都能在 GUI 里实时调参并预览。喜欢 Win7 的用户还能单独开启"按钮高度回退"和"按钮发光效果"，把 Win10/11 的扁平按钮拉回带阴影的玻璃质感。
+
+### 4. 老程序一并受益
+
+对于那些还在用 `DwmEnableBlurBehindWindow` 这个 Win7 老 API 的程序，DWMBlurGlass 能强制开启模糊，让二十年前的软件也跟着焕发新生。
+
+![](/assets/blog-images/dwmblurglass-win10-win11-aqv8u4/img03.webp)
+
+## 四、技术亮点与性能数据
+
+DWMBlurGlass 之所以敢说「最大化兼容第三方程序」，关键在于**它只改 DWM 的渲染逻辑，不动应用自身的绘制管线**，与 MicaForEveryone 走的是完全不同的技术路线。这种"系统级注入 + 着色器替换"的方案，让模糊效果可以在所有窗口、所有主题下稳定生效。
+
+作者基于 `minhook` 做函数 Hook、用 `pugixml` 解析语言文件、底层调用 `Windows Implementation Libraries (WIL)` 简化系统调用，UI 部分则基于自研的 MiaoUI Lite v2 渲染。项目还与 `TranslucentFlyouts`、`ExplorerBlurMica` 做了联调，三者叠加使用可以做到"标题栏 + 菜单 + 文件资源管理器"全方位透明化。
+
+![](/assets/blog-images/dwmblurglass-win10-win11-aqv8u4/img04.webp)
+
+## 五、适用场景与人群
+
+- **视觉党 & 主题作者**：想要统一 Win10/Win11 桌面美学，或制作第三方主题包的人。
+- **怀旧用户**：希望在 Win11 上找回 Win7 Aero 玻璃按钮手感的玩家。
+- **老软件依赖者**：要让那些 Win7 时代的老程序在现代系统里也"透"起来。
+- **不太适合**：追求零风险、对系统稳定性极度敏感的生产环境用户；以及只用 Win11 默认设置就满足的小白用户。
+
+![](/assets/blog-images/dwmblurglass-win10-win11-aqv8u4/img05.webp)
+
+## 六、竞品对比
+
+| 维度 | DWMBlurGlass | MicaForEveryone | TranslucentFlyouts |
+|---|---|---|---|
+| 主要作用 | 标题栏材质替换 | 全局 Mica 开关 | 右键菜单/弹出控件 |
+| 模糊方式 | 自研 CustomBlur + 系统 API | 仅系统 API | 系统 API |
+| 材质种类 | 5 种（Blur/Aero/Acrylic/Mica/MicaAlt） | 2 种 | 2 种 |
+| 第三方主题兼容 | 强 | 一般 | 强 |
+| 老程序兼容 | 支持 DwmEnableBlurBehindWindow | 不支持 | 不支持 |
+
+简单说：**MicaForEveryone 适合只想开关 Mica 的人；TranslucentFlyouts 专门做菜单；而 DWMBlurGlass 是把整张桌面的标题栏都接管了。**
+
+![](/assets/blog-images/dwmblurglass-win10-win11-aqv8u4/img06.webp)
+
+## 七、如何快速上手
+
+1. 前往 GitHub Releases 下载最新压缩包。
+2. 解压到 `C:\Program Files\DWMBlurGlass` 之类的目录。
+3. 双击 `DWMBlurGlass.exe`，进入 Symbols 页面点 Download 拉取调试符号（系统更新后可能要重下）。
+4. 回到主界面点 Install，1 秒内生效。
+5. 在效果页切换材质、拖动模糊半径滑块，满意后点保存。
+6. 想卸载：再打开 GUI 点 Uninstall，删除目录即可。
+
+注意：**不要和 MicaForEveryone 同时安装**，作者明确表示不保证兼容性。
+
+## 八、总结与行动建议
+
+DWMBlurGlass 用「逆向 DWM + 自研着色器」的方式，把微软藏起来的标题栏美化能力直接摊开给用户，还顺带兼容了一票老 API 程序和第三方主题。对于追求桌面统一美学的用户来说，这是目前最值得尝试的开源方案。
+
+建议先在虚拟机或备用机测试，确认无蓝屏、无兼容问题后再部署到主力机；日常使用中保持 Symbols 同步更新，能避免每次 Windows 累积更新后的偶发失效。
+
+- 项目地址：https://github.com/Maplespe/DWMBlurGlass
+- 官方分发：GitHub Releases / B 站空间 / winmoes
+- 推荐人群：视觉党、主题作者、Win7 怀旧党

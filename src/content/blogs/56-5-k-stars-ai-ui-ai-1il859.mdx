@@ -1,0 +1,133 @@
+---
+title: "56.5K Stars！这款神器让 AI 写 UI 再也不像 AI 写的"
+publishedAt: "2026-09-23"
+summary: "用 AI 写前端，你是不是经常对着屏幕叹气？同一个项目跑十次，得到十张几乎一样的脸：通篇 Inter 字体、紫蓝渐变、卡片套卡片、灰字配彩色底、标题上方永远顶一个圆角图标块。AI 不是不会写，而是它学过的 SaaS 模板…"
+image: "/assets/blog-images/56-5-k-stars-ai-ui-ai-1il859/img01.webp"
+tags: ["AI", "开源", "前端"]
+author: "Adam"
+---
+![](/assets/blog-images/56-5-k-stars-ai-ui-ai-1il859/img01.webp)
+
+## 一、开篇：为什么你需要这个工具？
+
+用 AI 写前端，你是不是经常对着屏幕叹气？同一个项目跑十次，得到十张几乎一样的脸：通篇 Inter 字体、紫蓝渐变、卡片套卡片、灰字配彩色底、标题上方永远顶一个圆角图标块。AI 不是不会写，而是它学过的 SaaS 模板就那么几套。
+
+更头疼的是「修」。你想让 AI 把某个组件改得克制一点、给某个空状态加点引导文案、给表单补上错误处理，但写出来的 prompt 总是差点意思——它不懂你团队的设计语言，也记不住你昨天定下来的色彩体系。
+
+这就是 Impeccable 想解决的问题：给 AI 套上一套**确定性的设计语言**。1 个技能、23 条命令、59 条无需 LLM 的静态检测规则，再加一个能在浏览器里实时迭代的 live 模式。GitHub 上已经攒下 56.5K Stars，是 Anthropic 那套 `frontend-design` skill 的接棒者。
+
+![](/assets/blog-images/56-5-k-stars-ai-ui-ai-1il859/img02.webp)
+
+## 二、项目简介：一句话说明它是什么
+
+Impeccable 是一套专为 AI 编程 Agent 准备的设计语言包。它通过一个 `/impeccable` 技能，把产品上下文（受众、品牌定位、配色、字体、组件）沉淀到 `PRODUCT.md` 和 `DESIGN.md`，让 Cursor、Claude Code、Copilot、Codex、Gemini CLI、Grok 等十余款主流 Agent 都能听懂你的设计语言，并按 59 条确定性规则自动拦截「AI 味儿」。
+
+核心特性四个关键词：**统一上下文**、**23 条命令**、**59 条检测**、**多端兼容**。从 `init` 到 `polish`，覆盖从项目搭建到上线前的完整设计工作流。
+
+## 三、核心功能深度解析
+
+### 1. 一行命令完成上下文初始化
+
+`/impeccable init` 会先问你这是品牌面（落地页、营销页、作品集）还是产品面（应用 UI、Dashboard、工具），然后自动生成两份关键文件：`PRODUCT.md` 记录受众、品牌赛道、语调、反面参考，`DESIGN.md` 记录配色、字体、组件库。之后每条命令都会读取这两份上下文，AI 不再「凭感觉配色」。
+
+相比让 AI「记住」你的偏好，这种把上下文**写进文件**的做法有三个好处：一是可版本控制、可审查；二是团队成员拉下代码就能复用同一套语言；三是即便切换不同 Agent，约束也持续生效。
+
+### 2. 23 条命令组成的动词库
+
+`polish` 做上线前最后打磨、`audit` 跑可访问性与性能检查、`critique` 做 UX 设计评审、`distill` 删繁就简、`bolder` 和 `quieter` 一对镜像——前者放大克制设计，后者让过度炫技的设计收敛。`harden` 处理错误态、国际化、文案溢出；`onboard` 负责首跑流程与空状态；`animate` 给有意义的动效；`typeset` 修字体层级；`layout` 修视觉节奏；`delight` 加小巧的愉悦瞬间；`overdrive` 推技术极致效果。
+
+这套动词库的设计哲学是：把设计决策拆成**可组合的动词**，而不是大而全的「美化一下」。你可以串联：`/impeccable audit settings` 发现问题 → `/impeccable layout settings` 修节奏 → `/impeccable polish settings` 收尾。常用命令可以用 `pin` 创建快捷方式，比如 `/impeccable pin audit` 直接生成 `/audit`。
+
+### 3. 59 条确定性检测规则 + 设计 Hook
+
+这是 Impeccable 最硬核的部分。它把「AI 设计味」拆成 59 条可静态扫描的规则：side-tab 边框、紫蓝渐变、bounce 缓动、dark glow、灰色文字压底色、过窄行宽、过挤内边距、过小点击区、跳过 heading 层级等等。
+
+关键在于「确定性」——这些规则**不需要 LLM，也不需要 API Key**。CLI 直接扫：`npx impeccable detect src/` 扫目录，`npx impeccable detect https://example.com` 扫线上页面（基于 Puppeteer），`--json` 输出 CI 友好的报告。GitHub Copilot、Claude Code、Codex、Cursor、Grok Build 还会装上 provider-native hook：Cursor 在写入前拦截，Claude Code/Copilot/Codex 在编辑后提醒。
+
+针对不同项目，规则可配置：`detector.ignoreRules`、`detector.ignoreFiles`、`detector.ignoreValues`（比如品牌字体就是 Inter，可以用 `ignores add-value overused-font Inter --reason "Brand font"` 加白名单），还能在文件内用 `<!-- impeccable-disable overused-font: exported brand doc -->` 行内豁免。
+
+### 4. 浏览器实时迭代（Live 模式）
+
+`/impeccable live` 让你在浏览器里直接对组件做视觉变体迭代——选元素、改风格、即时看效果，迭代轨迹会写到 `.impeccable/live/` 下的会话与预览状态里。这套机制让「设计决策」从纯文本 prompt 升级为可视化闭环。
+
+![](/assets/blog-images/56-5-k-stars-ai-ui-ai-1il859/img03.webp)
+
+## 四、技术亮点与性能数据
+
+- **跨平台覆盖**：原生支持 Cursor、Claude Code、GitHub Copilot、Gemini CLI、Codex CLI、Grok Build、OpenCode、Pi、Kiro、Trae（含国内版）、Rovo Dev、Qoder、Mistral Vibe、Google Antigravity 等十余款主流 Agent。
+- **三种安装方式**：`npx impeccable install`（推荐 CLI）、Git Submodule（团队可控）、Plugin marketplace（Claude Code / Grok）。CLI 自动检测 harness 目录（`~/.claude`、`~/.codex`、`~/.grok` 或项目级 `.cursor`），可加 `--providers=claude,codex,grok` 与 `--scope=project|global` 在脚本里跳过交互。
+- **59 条确定性规则**：覆盖 AI slop 与通用设计质量两个维度，运行无需 LLM、可在 CI 流水线直接跑。
+- **Hook 机制**：Claude Code 写 `.claude/settings.local.json`（本机 gitignore），Copilot 写 `.github/hooks/impeccable.json`（仓库共享），Codex 写 `.codex/hooks.json`，Cursor 写 `.cursor/hooks.json`。所有 hook 保留用户已有配置，遇到畸形清单默认中止，可用 `--force` 备份后强制覆盖。
+- **生态兼容**：Apache 2.0 开源，npm 包名 `impeccable`，与 Anthropic `frontend-design` skill 直接对标，并在此之上扩展。
+
+![](/assets/blog-images/56-5-k-stars-ai-ui-ai-1il859/img04.webp)
+
+## 五、适用场景与人群
+
+**场景一：AI 重度用户的个人/小团队项目**。你每天用 Cursor 或 Claude Code 写 UI，但每次输出都长得像同一套模板。装上 Impeccable 后，AI 会按你的 `DESIGN.md` 出图，再用 hook 拦住「紫蓝渐变 + 卡片套卡片」。
+
+**场景二：设计系统沉淀期的前端团队**。产品已经定型，但缺少一套让 AI「看懂」的系统。`/impeccable document` 从已有代码反推 `DESIGN.md`，`/impeccable extract` 把可复用组件与 token 抽进设计系统。
+
+**场景三：CI 流水线里的设计守门员**。`npx impeccable detect --json src/` 在 PR 检查里跑一遍，发现 overused font、small touch target、heading skip 一律拦截。
+
+**不太适合**：纯后端项目、无 UI 的 CLI 工具、对设计风格完全不在意的一次性 demo。
+
+## 六、竞品对比
+
+| 方案 | 核心定位 | 是否需要 LLM/Key | 规则数量 | 浏览器实时迭代 | 跨 Agent 兼容 |
+|------|---------|----------------|---------|--------------|--------------|
+| **Impeccable** | AI 设计语言 + 检测 | 59 条规则不需要 | 59 | ✅ Live 模式 | ✅ 14+ 款 Agent |
+| Anthropic `frontend-design` | Claude 原生设计 skill | 需要 | 未公开 | ❌ | 仅 Claude |
+| ESLint / Stylelint | 代码质量 | 不需要 | 取决于配置 | ❌ | 与框架耦合 |
+| 团队内部 Figma Tokens | 设计变量 | 不需要 | 由设计决定 | ❌ | 需手动同步 |
+
+Impeccable 的优势在于：**同时约束 AI 输出和静态产物**——既能让 Agent 在生成时遵循上下文，又能在写入后用确定性规则兜底，且兼容几乎所有主流编码 Agent。
+
+![](/assets/blog-images/56-5-k-stars-ai-ui-ai-1il859/img05.webp)
+
+## 七、如何快速上手
+
+**最简路径（推荐）**：
+
+```bash
+npx impeccable install
+/impeccable init
+```
+
+`install` 会自动识别你的 AI 工具并写入对应目录；`init` 回答两三个问题后生成 `PRODUCT.md` 与 `DESIGN.md`。之后就可以：
+
+```bash
+/impeccable audit landing
+/impeccable polish settings
+/impeccable harden checkout
+```
+
+**不想用 LLM，仅做静态扫描**：
+
+```bash
+npx impeccable detect src/
+npx impeccable detect --json . > report.json
+```
+
+**团队协作（Git Submode）**：
+
+```bash
+git submodule add https://github.com/pbakaus/impeccable .impeccable
+npx impeccable link --source=.impeccable --providers=claude,cursor
+```
+
+**进阶建议**：`config.json` 里加 `detector.ignoreValues` 给品牌字体开白名单；用 `ignores add-file "src/legacy/**"` 跳过老代码；hook 调试时设置 `hook.auditLog` 写 NDJSON 日志；Codex 用户记得安装后 `/hooks` 批准一次项目 hook。
+
+![](/assets/blog-images/56-5-k-stars-ai-ui-ai-1il859/img06.webp)
+
+## 八、总结与行动建议
+
+Impeccable 解决了一个被忽视的问题：**AI 写 UI 不是不能写，而是没人教它怎么写才不像 AI 写的**。它把设计决策拆成可组合的命令动词，把约束拆成可静态扫描的规则，再用一个 hook 把约束钉在每次代码写入上。56.5K Stars、14+ 款 Agent 兼容、Apache 2.0 开源——这套组合在「让 AI 听话」这件事上，是目前最工程化的答案。
+
+**行动建议**：先用 `npx impeccable install` 跑通最小闭环，再把 `detect --json` 接入 CI，最后用 `/impeccable document` 把现有项目反向沉淀成团队设计资产。
+
+- GitHub：https://github.com/pbakaus/impeccable
+- 官网：https://impeccable.style
+- npm：https://www.npmjs.com/package/impeccable
+
+一句话推荐：**如果你用 AI 写 UI，Impeccable 是当前最值得装的那一个 skill。**

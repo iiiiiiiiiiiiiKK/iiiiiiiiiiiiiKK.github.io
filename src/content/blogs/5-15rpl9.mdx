@@ -1,0 +1,159 @@
+---
+title: "闭屏也能玩，这 5 个开源项目把桌面卷出了新花样"
+publishedAt: "2026-05-17"
+summary: "闭屏也能玩，这 5 个开源项目把桌面卷出了新花样"
+image: "/assets/blog-images/5-15rpl9/img01.webp"
+tags: ["开源", "视频", "效率"]
+author: "Adam"
+---
+![](/assets/blog-images/5-15rpl9/img01.webp)
+
+选择标题（3 选 1）
+
+闭屏也能玩，这 5 个开源项目把桌面卷出了新花样
+
+私藏 5 个真香开源神器：让 Mac 桌面会弯、Android 状态栏极简
+
+我把 Duo 折叠效果玩明白了：5 个开源项目一次安利给你
+
+## 一、开篇：为什么你需要这个工具？
+
+合上 MacBook 屏幕那一刻，桌面戛然而止；掏出手机想看个状态栏，被一堆图标挤得眼花；iPhone 上那个会"折叠"的动画，看着炫酷却跟自己无关——这些场景每个 Apple 用户都碰到过。问题的关键不是缺工具，而是缺那种"小而美、装上就有用"的开源小项目，下面这 5 个就是这一类。
+
+## 二、项目速览
+
+| 仓库 | Stars | 主要语言 | 一句话定位 |
+|---|---|---|---|
+| sumimakito/Mac-Duo | 1183 | Swift | 把 iPhone Duo 折叠动画搬到 MacBook 上 |
+| CATCHINGL/O.status | 193 | Kotlin | Android 极简状态栏指示器 |
+| jakesgoodapps/DuoLauncher | 0 | — | Duo 风格的 Android 启动器（信息有限） |
+| elijah-semyonov/DuoLikeAnimation | 157 | Swift | 用 SwiftUI Shader 复刻 iPhone Duo 折叠效果 |
+| IuCC123/BendMac | 137 | Swift | 合盖时让 MacBook 桌面跟着弯曲模糊 |
+
+## 三、项目解析
+
+### 01 ｜ sumimakito/Mac-Duo — 把 iPhone Duo 折叠动画搬到 MacBook
+
+**Mac Duo** 是一款 macOS 菜单栏小工具，把 iPhone 上"合盖时屏幕内容随屏幕一起倾斜、模糊、暗下去"的视觉效果搬到了 MacBook 上。核心能力是：使用 **Metal 渲染** + **ScreenCaptureKit 实时截屏**，让屏幕画面在你合上盖子的过程中产生透视变化、模糊与变暗，菜单栏里就能调参数。
+
+==注意：需要带"翻盖角度传感器"的 MacBook，否则效果不会触发==
+
+- **适合谁**：买了 M 系列 MacBook Air/Pro、想玩点新意的用户；前端/动效开发者用来研究 Metal shader。
+- **不适合谁**：Intel Mac、外接显示器当主屏的用户；想拿它做正经视频剪辑预览的人。
+
+**最小上手**
+
+下载 DMG 拖进 Applications 即可：
+
+```
+https://github.com/sumimakito/Mac-Duo/releases/download/dev/Mac-Duo-dev.dmg
+```
+
+想自己编译：
+
+```
+./build.sh --run
+```
+
+*开源地址：* **https://github.com/sumimakito/Mac-Duo**
+
+---
+
+### 02 ｜ CATCHINGL/O.status — Android 极简状态栏，只显示真正想看的
+
+**O.status** 是一个 Android 状态栏覆盖工具，主打"极简"：把系统自带的 Wi-Fi、信号、电池图标全部隐藏，自己渲染一个干净的单色指示器。支持实时 Wi-Fi 强度、4G/5G 标识、电池百分比与充电状态、低电提醒，还自带 AMOLED 防烧屏的 Pixel Shifting 像素位移。
+
+==安装 Shizuku 后才能启用"随系统主题自动切换黑白颜色"==
+
+- **适合谁**：讨厌 Android 状态栏图标杂乱、追求极简美学的用户；用 Galaxy 一加等 OLED 屏、对烧屏敏感的人。
+- **不适合谁**：只想看个电量、不愿意折腾 Shizuku 的轻度用户。
+
+**最小上手**
+
+在三星 One UI 上，先用 Good Lock → QuickStar → Visibility of Indicator Icons 把系统原生图标全部隐藏，再打开 O.status 设置指示器位置和颜色即可。
+
+*开源地址：* **https://github.com/CATCHINGL/O.status**
+
+---
+
+### 03 ｜ jakesgoodapps/DuoLauncher — Duo 风格的 Android 启动器
+
+**DuoLauncher** 是这次清单里最神秘的一个，仓库本身没有 README，公开信息也很有限。从命名风格可以推断，它是一款 Android 启动器（Launcher），整体视觉风格向 iPhone Duo 那套折叠/模糊语言靠拢——图标墙、应用抽屉在打开关闭时可能带有类似的透视与模糊过渡。
+
+- **适合谁**：愿意尝鲜 Android 启动器、自带审美洁癖、想找非主流 Launcher 替代品的人。
+- **不适合谁**：追求成熟稳定、有大量用户口碑的 Nova / Niagara 用户。
+
+**最小上手**
+
+因为 README 缺失，最稳妥的方式是直接拉源码编译：
+
+```
+git clone https://github.com/jakesgoodapps/DuoLauncher
+```
+
+下载预编译包或自行 Android Studio 打开均可，建议先去 Issues 区确认当前可用版本。
+
+*开源地址：* **https://github.com/jakesgoodapps/DuoLauncher**
+
+---
+
+### 04 ｜ elijah-semyonov/DuoLikeAnimation — 用 SwiftUI Shader 复刻 Duo 折叠
+
+**DuoLikeAnimation** 是一个 iOS Demo 项目，**纯粹用 SwiftUI shader + Core Motion** 把 iPhone Duo 的折叠效果做了出来。原理是：屏幕倾斜时，原始 UI 仍保持在零倾斜的那个平面上，而当前屏幕相当于一面"磨砂玻璃"——shader 通过 ray casting 重新投影、再做 disk blur 和变暗，越倾斜越像透过云雾玻璃看原来的界面。
+
+==所有要套效果的视图必须是纯 SwiftUI；UIKit 控件（如 ScrollView）不会栅格化进 shader 层，需要先套一层 compositing group==
+
+- **适合谁**：iOS 动效开发者；想研究 Metal `layerEffect`、Core Motion 姿态解算的人；做技术分享需要 demo 的工程师。
+- **不适合谁**：想要一个"装上就能用"产品的普通用户——它是一个 demo，需要自己编译跑。
+
+**最小上手**
+
+在模拟器里没陀螺仪，默认进入手动模式，并支持启动时传入倾角：
+
+```sh
+SIMCTL_CHILD_TILT_DEGREES=-20 xcrun simctl launch booted io.elijahsemyonov.DuoLikeAnimation
+```
+
+真机上首次运动会自动校准零姿态，右下角浮动面板可随时重新校准。
+
+*开源地址：* **https://github.com/elijah-semyonov/DuoLikeAnimation**
+
+---
+
+### 05 ｜ IuCC123/BendMac — 合盖时桌面跟着弯起来
+
+**BendMac** 跟 Mac Duo 是同一个思路的另一个实现：合上 MacBook 屏幕时，让桌面也跟着弯曲、模糊、暗下去。它在菜单栏运行，可调"风格、模糊、透视、阴影"四项参数，还能手动设置触发角度、按 Esc 暂停。**屏幕画面只存在内存里**，不写盘、不上传，音频也不会被抓取。
+
+==目前只在带翻盖角度传感器的 Apple Silicon MacBook 上验证过（M5 MacBook Air 已测），Intel Mac 与外接显示器不支持==
+
+- **适合谁**：想给 MacBook 桌面加点小惊喜的极客；不想花钱买商业版 Bendy 的用户。
+- **不适合谁**：经常播放受 DRM 保护视频的人——受保护视频无法被折叠；追求完美 notarized 安装体验的用户（项目尚未公证）。
+
+**最小上手**
+
+下载 DMG 拖入 Applications，打开后开启 **General → Enable BendMac**，首次折叠时按提示授予**屏幕录制**权限即可。
+
+```
+https://github.com/IuCC123/BendMac/releases/latest/download/BendMac-macOS.dmg
+```
+
+*开源地址：* **https://github.com/IuCC123/BendMac**
+
+## 四、总结与行动建议
+
+1. **先装 BendMac 或 Mac Duo 体验最直观**：两者都是"装上立刻有视觉冲击"的桌面小工具，挑一个顺手的先试。
+2. **开发者优先看 DuoLikeAnimation**：它是这组项目里技术含量最高的一个，shader + Core Motion 的组合值得拆解学习。
+3. **Android 用户按需取用**：喜欢极简状态栏装 O.status，想试新启动器再去翻 DuoLauncher 的源码。
+
+#MacDuo #O.status #Duolauncher #Duolikeanimation #Bendmac #mac-duo #sumimakito #catchingl #jakesgoodapps #elijah-semyonov
+
+![](/assets/blog-images/5-15rpl9/img02.webp)
+
+![](/assets/blog-images/5-15rpl9/img03.webp)
+
+![](/assets/blog-images/5-15rpl9/img04.webp)
+
+![](/assets/blog-images/5-15rpl9/img05.webp)
+
+![](/assets/blog-images/5-15rpl9/img06.webp)
+

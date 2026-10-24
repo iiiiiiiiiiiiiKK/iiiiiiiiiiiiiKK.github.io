@@ -1,0 +1,210 @@
+---
+title: "私藏 7 个我每天都在用的开源神器，运维到 AI 一站打包"
+publishedAt: "2026-06-05"
+summary: "私藏 7 个我每天都在用的开源神器，运维到 AI 一站打包"
+image: "/assets/blog-images/7-ai-hulqbl/img01.webp"
+tags: ["AI", "Agent", "开源"]
+author: "Adam"
+---
+![](/assets/blog-images/7-ai-hulqbl/img01.webp)
+
+选择标题（3 选 1）
+
+私藏 7 个我每天都在用的开源神器，运维到 AI 一站打包
+
+从 SSH 一体化到桌面 AI 宠物，7 个真香开源项目一次安利
+
+用完回不去的 7 个开源工具：服务器、Agent、画布全收齐
+
+## 一、开篇：如果有个工具能替你做完这一步…
+
+周五下午三点，你正在排查线上一个慢查询。终端里跑着 SQL，编辑器里改着配置，本地 Navicat 连着测试库，远程服务器上还开着两个 SSH 会话监日志——光是把这些窗口摆顺，就花了你五分钟。这还没算上你昨天写了一半、今天想接着改的 Agent 对话散落在 `~/.claude`、`~/.codex`、各种项目目录下，找都找不全。下面这 7 个开源项目，每一个都能替你省掉其中某个具体环节。
+
+## 二、项目速览
+
+| 仓库 | Stars | 主要语言 | 一句话定位 |
+|---|---|---|---|
+| omarsenusi/sshbool | 137 | TypeScript | Rust 内核的 SSH + 数据库 + 监控一体化工作台 |
+| feigeCode/navop | 1.4k | Rust | GPUI 原生全栈运维客户端，覆盖 20+ 数据库 |
+| gna1280072/LeePanel | 599 | Rust | 6 MB 桌面端 Linux 面板，服务器零部署 |
+| cpp285/OceanPet | 49 | Swift | macOS 原生 AI 桌宠，会看鼠标、能聊 DeepSeek |
+| bruc3van/dsh-desktop | 93 | TypeScript | DeepSeek Harness 官方 Web UI 的安全桌面壳 |
+| iAmCorey/Wake | 939 | Rust | 全本地 AI Agent 会话统一检索与续接 |
+| penecho/penecho | 2.4k | JavaScript | 可手写批注的 AI 空间画布，支持 MCP |
+
+## 三、项目解析
+
+### omarsenusi/sshbool — 一条 SSH 连接打通远程全部操作
+
+SSHBool 把 SSH、SFTP、终端、远程文件编辑、实时监控和数据库查询收进了同一个 Tauri 2 桌面应用。**核心卖点是"Connect once, do everything"**：对每台服务器只开一条复用的 SSH 连接，终端、文件传输、监控数据、SQL 查询都跑在同一条 socket 的不同 channel 上，延迟和服务器开销都压到最低。
+
+技术栈是 **Tauri v2 + Rust + React 19**，冷启动不到 800 ms，局域网建链低于 1.2 s。终端用 WebGL 加速的 Xterm.js，文件管理是双栏 SFTP，远程编辑用 Monaco，所有主机配置用 SQLCipher + AES-256 加密保存，Argon2id 派生主密钥，还支持 YubiKey 解锁。
+
+- **适合谁**：手里管十几台服务器、又不想在 iTerm、FileZilla、DBeach 几个窗口间反复横跳的运维和后端。
+- **不适合谁**：只用浏览器登一下控制台就完事的轻度用户；项目目前仍偏早期，Stars 只有 137。
+
+**最小上手**
+
+克隆后安装依赖：
+
+```bash
+bun install
+bun run tauri dev
+```
+
+==注意：依赖 Rust 工具链和 Bun==，装好之后开发模式直接拉起。
+
+*开源地址：* **https://github.com/omarsenusi/sshbool**
+
+![](/assets/blog-images/7-ai-hulqbl/img02.webp)
+
+### feigeCode/navop — 原生 GPUI 客户端，一台机器吃下所有数据库
+
+Navop 是一个用 Rust + GPUI 写的"全栈运维客户端"，**没有 WebView**，GPU 直接渲染，性能压得很低。它把 20 多种数据库（MySQL、PostgreSQL、ClickHouse、OceanBase、openGauss、达梦、KingbaseES…）、SSH/SFTP/FTP、远程桌面 RDP/VNC、MQTT 中间件和 AI Agent 都塞进同一个窗口。
+
+核心能力集中在数据库侧：浏览对象、编辑 SQL、看执行计划、导入导出、跨库 schema 和数据比对、ER 图可视化都内置。Redis、MongoDB 有专门界面，TDengine、MongoDB、MQTT 这些走可安装扩展驱动。SSH 终端支持分屏、快速命令、广播输入、会话录制回放。
+
+- **适合谁**：一个人维护多种数据库、又要兼顾服务器操作的资深后端 / DBA。
+- **不适合谁**：只连一种库的轻度用户；Navop 的功能密度对新人偏高。
+
+**最小上手**
+
+从 Releases 页面下载安装包：
+
+```bash
+# 拉取最新版本后按系统双击安装
+open navop.dmg
+```
+
+首次启动按提示选择数据库驱动，新人从 MySQL 入手最快。
+
+*开源地址：* **https://github.com/feigeCode/navop**
+
+![](/assets/blog-images/7-ai-hulqbl/img03.webp)
+
+### gna1280072/LeePanel — 6 MB 的桌面端 Linux 面板
+
+LeePanel 是一款把"传统宝塔类面板"搬到桌面端的应用，所有操作都通过本地 SSH 完成，**服务器上零安装零残留**。从根上规避了 Web 面板自己成为攻击面的问题。
+
+它覆盖了运维最常用的几块：SSH 终端、SFTP、Nginx、MySQL/MariaDB、PHP、Redis、Docker、Firewall 和免费 SSL 证书。安装包只有 6 MB 左右，跨 Windows / macOS / Linux 三端。系统要求是 Ubuntu / Debian，其他发行版暂时还没正式测试通过。
+
+- **适合谁**：不想在服务器上跑任何额外服务、只要 SSH 端口的安全派；以及一台机器同时管多台 VPS 的个人开发者。
+- **不适合谁**：需要在服务器上直接编辑文件、或团队多人共用同一台机器的协作场景。
+
+**最小上手**
+
+到 Releases 下载安装包后直接双击运行：
+
+```text
+https://github.com/gna1280072/LeePanel/releases
+```
+
+首次启动添加一台 VPS，填主机、端口、账号密码或密钥即可。
+
+*开源地址：* **https://github.com/gna1280072/LeePanel**
+
+![](/assets/blog-images/7-ai-hulqbl/img04.webp)
+
+### cpp285/OceanPet — 桌面上的角色化 AI 宠物
+
+OceanPet 是一款 macOS 原生桌宠，用 Swift + AppKit + SpriteKit + SwiftUI 写，**不是网页应用，也不需要本地服务器**。它是一个透明悬浮窗，不占 Dock 也不抢焦点，能在"家"附近散步、会平滑追随鼠标视线、播放表情动作。
+
+聊天的部分接 DeepSeek API，按角色提示词回复，并把回复情绪映射到表情帧。语音入口有三条：聊天框麦克风、全局 `Option + Space` 按住说话、说出角色名字唤醒。本地笔记支持选中一个 Obsidian 库，只把与当前问题相关的片段喂给模型。角色包可扩展，内置海绵宝宝、派大星、章鱼哥、蟹老板、蒙面鱼五个。
+
+- **适合谁**：想让桌面有点"活物"、又不想被通知打断的 macOS 用户；以及想自己写 AI 宠物角色的人。
+- **不适合谁**：Windows / Linux 用户（项目只支持 macOS 14+）；不想配 DeepSeek Key 的人。
+
+**最小上手**
+
+克隆并构建：
+
+```bash
+git clone https://github.com/cpp285/OceanPet.git
+cd OceanPet
+swift run OceanPet
+```
+
+==首次启动需填写 DeepSeek API Key==，配置在 `~/Library/Application Support/OceanPet/config.json`。
+
+*开源地址：* **https://github.com/cpp285/OceanPet**
+
+### bruc3van/dsh-desktop — 官方 Web UI 的安全桌面壳
+
+DSH Desktop 是 DeepSeek Harness（`dsh`）的第三方 Electron 客户端，**直接加载官方 Web UI，自己不另起一套界面**。它的价值在"桌面壳"那一层：关闭窗口后常驻托盘、长任务靠系统通知送达、内置 600+ 精选插件的"安全市场"，且要求 Agent 先审查再安装。
+
+安全措施相对扎实：Electron 启用沙箱和上下文隔离、关闭 Node 集成；更新包安装前校验 SHA-256；插件目录默认关闭联网读取，启用后才拉取。它能复用本机已在跑的 `dsh web` 实例，优先选择用户 PATH 上的 `dsh`，其次是 npx 缓存，最后才是内置运行时。
+
+- **适合谁**：日常跑长任务、希望关掉窗口也能收通知的 `dsh` 重度用户。
+- **不适合谁**：只想打开就用的轻量用户；macOS 安装包目前未做正式签名，首次启动需要手动放行。
+
+**最小上手**
+
+下载安装包后，首次打开被拦截时执行：
+
+```sh
+xattr -dr com.apple.quarantine "/Applications/DSH Desktop.app"
+```
+
+启动后填入 DeepSeek API Key 或选"稍后配置"，添加项目文件夹即可开聊。
+
+*开源地址：* **https://github.com/bruc3van/dsh-desktop**
+
+![](/assets/blog-images/7-ai-hulqbl/img05.webp)
+
+### iAmCorey/Wake — 把散落的 AI 会话收进一个窗口
+
+Wake 是一款 Rust + GPUI 写的本地应用，**把 `~/.claude`、`~/.codex` 以及十几个其他 Agent 的会话历史统一索引到一个窗口**，全本地、只读，支持全文检索、一键续接。
+
+搜索用的是 SQLite FTS5 trigram 索引，CJK 文本和 `useEffect(` 这种代码片段都能命中，按 `⌘K / Ctrl+K` 直接跳到对应消息。一键续接会重新打开终端、回到原项目目录跑 `claude --resume` 或 `codex resume`。它还附带一个只读 MCP 服务器 `wake-mcp`，让新 Agent 直接搜历史会话接力旧任务。统计页有 GitHub 风格的热力图、Agent / Project / Model 排行榜。
+
+- **适合谁**：同时用 Claude Code、Codex、Cursor、Grok Build 等多个 Agent 的重度用户；团队里要交接上下文的同学。
+- **不适合谁**：只用一个 Agent 且会话量很少的人。
+
+**最小上手**
+
+给 Agent 安装这个 skill：
+
+```text
+npx skills add iAmCorey/Wake
+```
+
+或者直接说：
+
+```
+帮我把 Wake 装上
+```
+
+装好后 `⌘K` 就能跨 Agent 全文搜会话。
+
+*开源地址：* **https://github.com/iAmCorey/Wake**
+
+![](/assets/blog-images/7-ai-hulqbl/img06.webp)
+
+### penecho/penecho — 给 AI 思维一块能写画的空间
+
+PenEcho 是一个"空间向"的 AI 工作台：手写、公式、图表、批注都可以和对话共存，**不是一个聊天框，而是一块画布**。你可以继续用 Codex、Claude、Kimi 这些 Agent，让它们通过 MCP 把架构图、迁移路径、事件流程画到画布上，再在边上用笔直接批注反馈，下一轮把批注喂回去。
+
+内置了相当多的图模板：Kubernetes 生产集群、单体到微服务迁移、事件驱动通知、MCP 请求路径等。画布支持手写识别和 LaTeX 数学公式，导出 Markdown 也方便。License 是 AGPL-3.0。
+
+- **适合谁**：经常和 AI 讨论架构、需要图示来回迭代的工程师和架构师；以及做方案评审、需要现场标注的团队。
+- **不适合谁**：只想快速问答、不需要"看见"思维过程的纯文字用户。
+
+**最小上手**
+
+到 Releases 下载对应平台安装包：
+
+```text
+https://github.com/penecho/penecho/releases/latest
+```
+
+装好后参考 MCP 配置文档，把 PenEcho 接到你常用的 Agent。
+
+*开源地址：* **https://github.com/penecho/penecho**
+
+## 四、总结与行动建议
+
+这 7 个项目覆盖了一条完整的工作链：服务器侧交给 **Navop** 或 **SSHBool** 收口，**LeePanel** 兜底"不想在服务器装任何东西"的需求；AI 使用侧用 **Wake** 把历史会话串起来，**DSH Desktop** 让长任务常驻托盘，**PenEcho** 把思维画到画布上；**OceanPet** 则在桌面角落安一个会看你鼠标的小角色。
+
+建议优先装 **Wake** 和 **PenEcho**，前者立刻解决"对话找不到"的痛点，后者把 AI 输出从纯文本解放到空间画布；服务器多的人再加一个 **Navop**。其他按需：安全洁癖选 **LeePanel**，SSH 重度用户试 **SSHBool**，跑长任务用 **DSH Desktop**，想要桌面陪伴装 **OceanPet**。
+
+#AI智能体 #AI工作流 #自动化 #Sshbool #Navop #Leepanel #Oceanpet #DshDesktop #Wake #Penecho

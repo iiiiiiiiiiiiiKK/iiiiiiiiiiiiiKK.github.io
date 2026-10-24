@@ -1,0 +1,139 @@
+---
+title: "Agent Skills 多到挑花眼？这个 GitHub 项目把 10+ 平台榜单合并成一张表"
+publishedAt: "2026-05-22"
+summary: "Agent Skills 多到挑花眼？这个 GitHub 项目把 10+ 平台榜单合并成一张表"
+image: "/assets/blog-images/agent-skills-github-10-dful96/img01.webp"
+tags: ["AI", "Agent", "开源"]
+author: "Adam"
+---
+![](/assets/blog-images/agent-skills-github-10-dful96/img01.webp)
+
+选择标题（3 选 1）
+
+Agent Skills 多到挑花眼？这个 GitHub 项目把 10+ 平台榜单合并成一张表
+
+9 张日更榜单 + 10000+ Skills 追踪：best-skills 一行命令接入 Claude Code
+
+没装一个数据库，这个 605 Star 项目靠 CSV 撑起 AI Agent 时代的 App Store 评分
+
+# Agent Skills 多到挑花眼？这个 GitHub 项目把 10+ 平台榜单合并成一张表
+
+## 一、开篇：为什么你需要这个工具？
+
+AI 编程工具的能力，靠 Skills 拓展。今年各类 Skills 仓库遍地开花：skills.sh、ClawHub、腾讯 SkillHub、GitHub、X 社区……每个平台只统计自家生态。开发者想挑一个真正好用的 Skill，得在 5+ 个站点之间来回切换、对比数字，还得担心「同一个名字在不同平台数据差十倍，到底信谁」。
+
+更麻烦的是，热门不等于好用。你想找「最近 7 天涨势最猛的」，没有平台单独给；你想找「官方认证里下载量最高的」，得自己跨平台聚合；你想判断「这个 Skill 是真有人讨论，还是只是名字撞车」，平台默认榜单根本回答不了。
+
+LinklyAI/best-skills 这个项目做的就是这件事：把 10+ 个社区的安装量、增速、社交热度合并成 9 张可对比的日更榜单，开源 CSV 让你拿走即用。GitHub 605 Stars，CC BY 4.0 协议，商用免费。
+
+## 二、项目定位：它解决的是什么问题
+
+LinklyAI/best-skills 是一个 **Agent Skills 跨平台聚合排行榜**，每日自动刷新 9 张榜单、追踪 10000+ Skills，覆盖安装量、周增长、社交热度、维护活跃度、官方认证、新秀崛起等维度。
+
+核心特性：
+- **跨生态聚合**：skills.sh（Claude/Vercel CLI 安装量）、ClawHub（OpenClaw 下载量）、Tencent SkillHub（国内安装量）、GitHub 仓库 Star、Twitter/X、Hacker News、Bluesky 一起算。
+- **原始数据保留**：每个 CSV 都附带 per-platform 原始数字，谁都能复核重排，不做「苹果加橘子」的混合。
+- **AI 判官校验**：用 TypeSafe 的 jev 决策模型判断社交帖是不是真的在讨论这个 Skill、列表项是不是真实维护中的 Skill，每条判断概率公开，剔除占位、弃用、有害的列表。
+- **为 AI 代理原生支持**：提供 `llms.txt`，Claude Code、Codex、Cursor、OpenClaw 直接一行命令就能读取；同时支持 `npx skills add` 安装为常驻技能。
+
+项目已稳定运行 9 个榜单、追踪 10000+ Skills，多语言 README（英中日韩西德俄）齐备。
+
+## 三、核心功能深度解析
+
+![](/assets/blog-images/agent-skills-github-10-dful96/img02.webp)
+
+### 1. 9 张日更榜单：覆盖选型的每一个角度
+
+项目提供 9 个互补榜单，每个榜单只回答一个问题：
+
+- **best-100（Worth-Installing Score）**：综合「人气 + 动量 + 社交热度 + 维护度 + 信任度」的打分排名，适合「我该装哪些 Skill」的入门选择。第一名 agent-browser（WIS 80.7），第二名 frontend-design（78.2）。
+- **top-installs**：把所有生态的安装量并列展示，明明白白告诉你「find-skills 在 skills.sh 有 359 万安装」，「dev-expert 在 SkillHub 有 162 万」，不强行加总。
+- **trending-7d**：最近 7 天增速榜，帮你抓新热点。ai-video-generation 周增 12.8%。
+- **social-buzz**：X、HN、Bluesky、GitHub 四源热度榜，自动排除「名字太通用、归属不清」的 Skill。
+- **most-active**：热门 Skill 里谁更新最勤，132 个版本的 chinese-official-writing 排第一。
+- **official-100**：平台认证发布者的热门 Skill，去掉野榜。
+- **official-vendors**：按总安装量排名的认证厂商，microsoft 582 个 Skills 拿下 709 万安装。
+- **top-repos**：底层 GitHub 仓库 Star 榜，obra/superpowers 29.2 万 Star 居首。
+- **rising-stars**：30 天内的新秀，按人气排，帮你发现未来之星。
+
+### 2. 跨平台「并列展示」而非混合相加
+
+项目核心方法论是 **「不把苹果和橘子加在一起」**。跨平台数字一律 side by side 展示，排名用的是「同平台百分位合成」。每行 CSV 同时给出合成分 WIS 和每个平台的原始数，「Cov」列标识分数依托几家平台（A=三家全有，C=只有一家），避免你误信单一来源。
+
+### 3. AI 判官 jev：让热度榜不被同名噪音污染
+
+社交热度最大的坑是「同名误判」。agent-browser 这个名字在 X 上出现 80+ 次，但有多少是真的在讨论 vercel-labs 的这个 Skill？项目把每条候选帖交给 jev 模型打分，判断「这条帖是不是在讲这个 Skill」「这个 listing 是不是真实维护的」「分类对不对」，每条概率都公开，你可以去 `data/latest/rankings/judgments.csv` 翻原始判断。这套机制让「真实讨论度」和「名字撞车」彻底分开。
+
+### 4. 开放 CSV + llms.txt：人和 AI 都能直接消费
+
+数据全部以 CSV 形式存放在 `data/YYYY-MM-DD/`，每日子目录归档；同时 `data/latest/` 永远是最新一天。对人来说，直接 `linkly.ai/skills` 看交互式可视化；对 AI 代理来说，发一句 `Read https://linkly.ai/skills/llms.txt`，Claude Code、Cursor 之类就会按 `llms.txt` 的指引自己挑文件、读字段、做对比。想让排行榜成为代理的常驻知识？`npx skills add https://github.com/LinklyAI/best-skills --skill best-skills` 一行安装。
+
+## 四、技术亮点与性能数据
+
+![](/assets/blog-images/agent-skills-github-10-dful96/img03.webp)
+
+- **数据规模**：追踪 10000+ Skills，覆盖 9 个榜单，9 项核心指标维度。
+- **数据源**：4 大安装源（skills.sh、ClawHub、Tencent SkillHub、GitHub API）+ 4 大社交源（X、HN、Bluesky、GitHub 搜索），每日增量采集。
+- **AI 判官**：jev-1.13 决策模型，对每条候选做概率化判断，剔除占位/弃用/有害列表。
+- **开放协议**：CC BY 4.0，商用允许，唯一要求是保留「Data from Best Skills by @BlueeonY — CC BY 4.0」这条归属。
+- **架构亮点**：「原始数据 + 派生榜单」双层目录，每日 `data/YYYY-MM-DD/` 归档，`data/latest/` 软链最新，做到可回溯、可复现。CSV 单一格式，无数据库锁定，git diff 直接可读。
+- **生态兼容**：`llms.txt` 标准协议让任意 AI 代理零成本消费，`npx skills add` 一行命令安装为代理常驻技能。
+
+## 五、适用场景与人群
+
+![](/assets/blog-images/agent-skills-github-10-dful96/img04.webp)
+
+**典型场景**：
+1. **AI 编程工具用户选装 Skills**：Claude Code、Cursor 用户打开 best-100 榜单，挑 WIS 80+ 的几个装上，比凭推荐随缘装效率高得多。
+2. **Skill 开发者做竞品调研**：上架前查 top-repos、official-100 了解头部都在做什么；上架后查 trending-7d 看自己有没有进新秀榜。
+3. **AI 产品经理追踪赛道动态**：用 social-buzz + rising-stars 每周扫一遍，看新能力+新热点在一周内交叉到哪些细分赛道。
+4. **数据分析师拿原始数据做二次分析**：CSV 完全开放，可以拉进 Pandas/Excel 自己做交叉表、画趋势线，原始 per-platform 数字都在。
+
+**适合谁**：需要做 Skills 选型的 AI 工具用户；做 Skill 开发的工程师；追踪 AI Agent 生态的产品经理/分析师。
+
+**不适合谁**：只关心某个单一平台（如只用 ClawHub）的用户；需要分钟级实时数据的监控场景（本项目是日更）。
+
+## 六、竞品对比
+
+![](/assets/blog-images/agent-skills-github-10-dful96/img05.webp)
+
+| 维度 | LinklyAI/best-skills | skills.sh 单平台榜 | ClawHub 单平台榜 | Awesome 列表（人工维护） |
+|---|---|---|---|---|
+| 覆盖平台 | 10+（含社交源） | 1 | 1 | 不定 |
+| 更新频率 | 日更自动 | 实时 | 实时 | 周/月级人工 |
+| AI 判官 | jev 概率化判断 | 无 | 无 | 无 |
+| 原始数据 | CSV 公开可下载 | 不公开 | 不公开 | 不公开 |
+| AI 代理友好 | llms.txt + npx skills add | 无 | 无 | 无 |
+| 数据协议 | CC BY 4.0 商用免费 | 闭源 | 闭源 | 各异 |
+| 评分透明度 | 原始数+合成数并列 | 单数字 | 单数字 | 主观 |
+
+最大区别：**本项目是唯一把「跨平台并列 + AI 判官 + AI 代理原生消费」三件事一起做掉的**。其他选项要么只看自家，要么数据不开放，要么维护靠人。
+
+## 七、如何快速上手
+
+**3 分钟跑通**：
+1. 打开可视化页：`https://linkly.ai/skills`，9 个 Tab 直接切换看榜单。
+2. 下载原始数据：克隆仓库后进 `data/latest/`，挑你需要的 CSV（如 `best-100.csv`）。
+3. 让 AI 代理读：`Read https://linkly.ai/skills/llms.txt`，把输出贴进 Claude Code / Codex / Cursor，对话式提问「最近 7 天增速最快的三个前端类 Skill 是哪些」。
+
+**进阶用法**：
+- 安装为代理常驻技能：`npx skills add https://github.com/LinklyAI/best-skills --skill best-skills`，之后代理每天自动知道最新榜单。
+- 做二次分析：用 `data/index/first-seen.csv` + 当日榜单算新 Skill 留存曲线；用 `data/YYYY-MM-DD/raw/` 的 per-platform 原始数算你自己定义的复合指标。
+- 商用引用：在你的产品/文章里加一行「Data from Best Skills by @BlueeonY — CC BY 4.0」即可，无需额外授权。
+
+## 八、总结与行动建议
+
+LinklyAI/best-skills 解决了一个被忽略的问题：**AI Agent 时代，Skills 也有「App Store 评分体系」的需求**。它用 9 张日更榜单、10+ 数据源、AI 判官 jev 校验、CC BY 4.0 开源协议、llms.txt AI 代理原生支持，把这件原本需要手动跨平台对比的脏活累活一次性自动化。
+
+给你的三条建议：
+1. **先收藏**：打开 `https://linkly.ai/skills`，从 best-100 开始，挑 3 个 WIS 70+ 的 Skill 装上试一周。
+2. **再接入 AI**：把 `npx skills add` 那条命令跑一下，让你的 Claude Code / Cursor 每天自动知道最新动态，不用再手动查。
+3. **顺手 Star**：项目在 GitHub 605 Stars，每日刷新靠自动化 pipeline，能做的就是点个 ⭐ 让更多 AI 工具用户发现它。
+
+项目地址：`https://github.com/LinklyAI/best-skills`
+可视化页：`https://linkly.ai/skills`
+一句话安利：Skills 选不好？让全网最全的日更排行榜替你做功课。
+
+![](/assets/blog-images/agent-skills-github-10-dful96/img06.webp)
+
+#best-skills #BestSkills #linklyai #AI智能体 #AI工作流 #自动化 #开源项目 #GitHub

@@ -1,0 +1,85 @@
+---
+title: "闲置 iPad 还在吃灰？这个 Clock Dashboard 看板让它秒变家庭中枢"
+publishedAt: "2026-07-20"
+summary: "抽屉里躺着吃灰的旧 iPad、墙面上舍不得拆的米家平板支架、Home Assistant 里精心配置的灯光和窗帘却懒得打开 App——这是不少智能家居爱好者的真实状态。设备越来越多，但「统一看板」这件事一直没解决。Clo…"
+image: "/assets/blog-images/ipad-clock-dashboard-19c7c6/img01.webp"
+tags: ["开源", "前端"]
+author: "Adam"
+---
+![](/assets/blog-images/ipad-clock-dashboard-19c7c6/img01.webp)
+
+## 一、开篇：从闲置 iPad 到智能家居中枢，只差一个看板
+
+抽屉里躺着吃灰的旧 iPad、墙面上舍不得拆的米家平板支架、Home Assistant 里精心配置的灯光和窗帘却懒得打开 App——这是不少智能家居爱好者的真实状态。设备越来越多，但「统一看板」这件事一直没解决。Clock Dashboard 用一个 Vue 3 项目把这三件事串了起来：天气、农历、日历、HA 设备控制，全部塞进一块闲置屏幕，单页应用加载即用，GitHub 已收获 743 Star。
+
+## 二、项目定位：它解决的是什么问题
+
+Clock Dashboard 是一个**纯前端的天气时钟看板**，目标是让闲置平板秒变家庭信息中心。核心特性可以概括为四个关键词：动态时钟、实时天气、农历黄历、Home Assistant 控制。项目基于 Vue 3.4 + Vite 7.0 + Tailwind CSS 构建，最新版本 v1.20.0，2026 年 1 月仍在密集更新。所有接口直连，所有配置本地存储，隐私零风险。
+
+## 三、核心功能深度解析
+
+### 1. 动态数字时钟 + 天气联动
+时钟页面采用 SF Compact Rounded 字体，配合滚动动画和随机倾斜效果，质感对标苹果原生时钟。天气数据来自 Open-Meteo，支持根据地理位置或 IP 自动定位，展示温度、湿度、空气指数（US AQI）、体感温度、紫外线指数。更贴心的是下雨、下雪、打雷都做了视觉特效，点击底部天气区域就能调节刷新间隔。
+
+### 2. 农历 + 黄历 + 全屏日历
+很多人坚持看农历的根本原因，是它能告诉你今天宜忌什么、哪个时辰吉利。Clock Dashboard 集成 lunar-typescript，不仅显示农历日期、干支年、传统节日，还把黄历信息塞进日历页面：宜忌、时辰吉凶、彭祖百忌一应俱全。v1.17.0 还加入了法定节假日标注，做日程规划时少踩坑。
+
+### 3. Home Assistant 设备控制
+这是项目区别于普通时钟看板的关键。配置好 HA 地址和长期令牌后，左右滑动就能进入智能控制页，灯光、开关、窗帘电机（Cover）的状态实时同步。v1.19.0 之后布局支持多列选择，适配不同尺寸的屏幕。一键 JSON 导入导出功能，让换设备时不用重新配置实体。
+
+### 4. PWA + 多端适配
+支持 iOS「添加到主屏幕」，全屏沉浸式体验没有地址栏，伪装成原生 App。v1.19.0 把最低支持降到 iOS 10.3.3，意味着 2017 年以前的 iPad 也能跑。如果设备太老，作者还维护了 Vue 2 版本作为兜底。
+
+![](/assets/blog-images/ipad-clock-dashboard-19c7c6/img02.webp)
+
+## 四、技术亮点与性能数据
+
+技术栈选型上，Vue 3 + Vite 7 + Tailwind CSS 是当下最顺手的组合：Vite 7 的冷启动通常在 300ms 以内，HMR 几乎无感知；Tailwind 让样式代码量大幅减少，纯前端架构意味着可以直接挂在 GitHub Pages 上，无需服务器成本。生态方面，Open-Meteo 提供免费的天气与空气质量 API，BigDataCloud 提供 IP 反查，Home Assistant 走官方 REST 接口，所有依赖都是开源或免费层。打包产物为静态文件，Docker 镜像基于 nginx 托管，单容器即可对外服务。
+
+![](/assets/blog-images/ipad-clock-dashboard-19c7c6/img03.webp)
+
+## 五、适用场景与人群
+
+- **家里有闲置 iPad/Android 平板的用户**：买支架挂墙上，开机即用，比买专用智能屏划算得多。
+- **Home Assistant 重度玩家**：已经把家里灯光、窗帘、空调全部接入 HA，缺一个统一的家庭看板。
+- **喜欢传统历法的用户**：万年历 + 黄历 + 节假日，做日程提醒比手机自带日历更直观。
+- 不适合需要账号体系、云同步、多用户协作的场景——本项目是纯本地工具，没有服务端。
+
+## 六、竞品对比
+
+| 项目 | Clock Dashboard | 传统天气时钟 App | HA 官方 Lovelace |
+|---|---|---|---|
+| 部署成本 | 静态托管，零成本 | 需应用商店下载 | 需 HA 后端 + 浏览器 |
+| 农历黄历 | 内置 | 部分支持 | 需自定义卡片 |
+| 离线缓存 | localStorage 本地 | 视 App 而定 | 取决于浏览器 |
+| 平板适配 | PWA 全屏沉浸 | 多数需付费去广告 | 桌面布局为主 |
+| 隐私 | 数据全本地 | 多数需注册账号 | 自托管 |
+
+相比 HA 官方 Lovelace，Clock Dashboard 的优势在于开箱即用和中文农历；相比商业天气 App，胜在无广告、无账号、深度集成 HA。
+
+## 七、如何快速上手
+
+**Docker 一键部署（推荐）：**
+```bash
+docker run -d -p 8080:80 --name clock-dashboard ghcr.io/teojs/clock-dashboard:latest
+```
+访问 `http://localhost:8080` 即可。群晖用户可以用 Docker Compose 加 watchtower 自动更新。
+
+**本地开发：**
+```bash
+git clone https://github.com/teojs/clock-dashboard.git
+cd clock-dashboard
+pnpm install
+pnpm dev
+```
+需要 Node.js ≥ 22、pnpm ≥ 9.6。
+
+**HA 接入关键点：** 在看板右上角设置里填入 HA 地址（必须 HTTPS）和长期令牌，然后在 HA 的 `configuration.yaml` 中加入 `cors_allowed_origins`，否则浏览器会拦截跨域请求。配置一次后即可左右滑动控制设备。
+
+![](/assets/blog-images/ipad-clock-dashboard-19c7c6/img04.webp)
+
+## 八、总结与行动建议
+
+Clock Dashboard 用一个轻量项目同时回答了三个问题：闲置平板怎么用、天气和历法怎么看、HA 设备怎么一键控。它不追求功能堆叠，而是把每个细节做到顺手——可调节的时钟颜色、可关闭的特效、可导入的配置 JSON。
+
+如果你家里恰好有一台吃灰的平板，或者已经在玩 Home Assistant，这个项目值得立刻试一下。仓库地址：https://github.com/teojs/clock-dashboard ，在线预览：https://teojs.github.io/clock-dashboard/ 。觉得好用的话点个 Star，就是对作者最好的支持。

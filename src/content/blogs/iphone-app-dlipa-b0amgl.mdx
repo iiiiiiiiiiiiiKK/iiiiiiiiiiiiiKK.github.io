@@ -1,0 +1,110 @@
+---
+title: "想在 iPhone 上下载旧版本 App 又不想越狱？DLiPA 给你一个直接答案"
+publishedAt: "2026-07-29"
+summary: "作为一个 iOS 用户，你是否经历过这些场景：手机里某款 App 更新后越用越卡，想退回旧版本却发现 App Store 只提供最新版本；想在一台没有越狱的 iPhone 上安装某个已下架的工具；测试新版本前想保留一个稳…"
+image: "/assets/blog-images/iphone-app-dlipa-b0amgl/img01.webp"
+tags: ["安全", "效率", "系统"]
+author: "Adam"
+---
+![](/assets/blog-images/iphone-app-dlipa-b0amgl/img01.webp)
+
+## 一、开篇：为什么你需要这个工具？
+
+作为一个 iOS 用户，你是否经历过这些场景：手机里某款 App 更新后越用越卡，想退回旧版本却发现 App Store 只提供最新版本；想在一台没有越狱的 iPhone 上安装某个已下架的工具；测试新版本前想保留一个稳定的旧版本作为兜底。iTunes 早已砍掉了 App 管理功能，Apple 官方也没有提供任何"下载历史版本"的入口。这些需求，长期处于无解状态。
+
+更麻烦的是，越狱本身成本极高、安全风险大，对绝大多数普通用户并不现实。那么问题来了：如何在不越狱的前提下，下载任意版本的 IPA 文件？DLiPA 给出了一个轻量方案。
+
+![](/assets/blog-images/iphone-app-dlipa-b0amgl/img02.webp)
+
+## 二、项目简介：它到底是什么？
+
+DLiPA 是一款 iOS 应用，灵感来自命令行工具 ipatool。它允许用户用自己的 Apple ID 在 App Store 之外下载、安装、分享 IPA 文件，并支持下载旧版本，全程无需越狱。
+
+核心定位很清晰——把 ipatool 的能力封装成一个图形化 App，让不熟悉命令行的用户也能直接使用。项目在 GitHub 已收获 921 Stars，支持 iOS 13 及以上系统，提供 12 种语言本地化，是目前同类工具里体验最完整的中文友好方案之一。
+
+## 三、核心功能深度解析
+
+### 1. 多账号管理与跨区商店切换
+
+DLiPA 支持添加多个 Apple ID，每个账号的下载记录相互独立。这对同时拥有国区、美区、日区账号的用户非常友好——切换商店不需要反复登录登出，下载历史也不会混在一起。
+
+### 2. 三种搜索方式 + 一键复制
+
+查找应用时，除了用名称搜索，还支持直接粘贴 App Store 链接或输入 Bundle ID（例如 `com.apple.mobilesafari`）来精准定位。选中应用后，Bundle ID、应用 ID、链接均可一键复制，方便二次分发或自动化脚本调用。
+
+### 3. 历史版本与指定 Version ID 下载
+
+这是 DLiPA 区别于普通下载工具的关键能力。它不仅能拉取最新版，还能枚举该 App 的历史版本列表，甚至支持通过 Version ID 下载某一精确版本。对于开发者复现 Bug、用户回退不兼容更新，都是刚需功能。
+
+### 4. IPA 直装与 AirDrop 分享
+
+下载完成的 IPA 既可以在本机直接安装，也能通过 AirDrop 分享给其他设备。官方建议使用 AirDrop 安装以避免自动更新失效，这一点比直接安装更稳妥。整个流程围绕"拿到 IPA 文件"这一核心目标设计，路径非常短。
+
+![](/assets/blog-images/iphone-app-dlipa-b0amgl/img03.webp)
+
+### 5. AltStore / 自签生态友好
+
+DLiPA 本身不强制依赖 AltStore，但提供了完整的 AltStore 签名安装教程。它也能与 iOS App Signer 配合，覆盖 macOS 与 Windows 用户。对于不想使用第三方商店、又需要自签安装的用户，这条路径已经足够顺滑。
+
+## 四、技术亮点与性能数据
+
+DLiPA 复用了 ipatool 与 Apple 私有 iTunes API 通信的能力，把原本只能在 Mac 终端跑的命令封装进了 iOS 端。整个流程的瓶颈在于网络速度和 Apple 服务器响应，不在客户端性能。具体亮点包括：
+
+- 兼容 iOS 13+，覆盖近 6 年内绝大多数在用设备；
+- 12 种语言本地化，中文（简体）原生支持；
+- 多账号隔离，下载历史与凭证独立存储；
+- 支持通过 Version ID 精确下载任意版本，颗粒度比 App Store 的"回退到上一个版本"更细。
+
+## 五、适用场景与人群
+
+- iOS 玩家与折腾党：想安装已下架 App、保留旧版本不被强制升级。
+- 独立开发者与测试人员：需要在多台设备上部署特定版本做兼容性测试。
+- 跨境 App 用户：需要在不同地区账号之间搬运或备份 IPA。
+- 普通用户：只想把某个 App 旧版本分享给家人朋友的轻量需求。
+
+不适合的群体：追求一键自动化部署大量设备的企业用户（建议走 MDM）、不想接触 AltStore 等签名工具的纯小白用户。
+
+![](/assets/blog-images/iphone-app-dlipa-b0amgl/img04.webp)
+
+## 六、竞品对比
+
+| 维度 | DLiPA | ipatool（命令行） | iMazing / iMobie |
+| :--- | :--- | :--- | :--- |
+| 是否需要电脑 | 否，iPhone 即可 | 是，需 Mac/PC | 是，需电脑 |
+| 支持旧版本下载 | 是，支持 Version ID | 是，但需手动查 ID | 部分支持 |
+| 多账号管理 | 是，独立隔离 | 需切换配置 | 较弱 |
+| 中文界面 | 是 | 否 | 是 |
+| 越狱要求 | 无 | 无 | 无 |
+| 上手成本 | 低，图形化 | 高，需终端 | 中 |
+
+可以看到，DLiPA 把 ipatool 的能力搬到了 iPhone 上，同时补齐了中文界面和多账号这两块短板，是目前移动端最接近"全能型"的方案。
+
+![](/assets/blog-images/iphone-app-dlipa-b0amgl/img05.webp)
+
+## 七、如何快速上手
+
+**1. 下载安装**
+访问 GitHub Releases 下载最新 IPA，配合 AltStore 或 iOS App Signer 签名安装。需要 iOS 16 及以上的设备开启开发者模式（设置 > 隐私与安全 > 开发者模式）。
+
+**2. 登录 Apple ID**
+首次启动添加一个普通 Apple ID 即可（注意：仅支持免费下载的应用，付费应用需要走对应账号的实际购买凭证）。
+
+**3. 搜索并下载**
+输入名称、粘贴链接或输入 Bundle ID，找到目标 App 后进入版本列表，选择需要的版本即可下载。下载完成的 IPA 会出现在本地列表中，可直接安装或 AirDrop 分享。
+
+**4. 进阶用法**
+需要自动化批量处理时，可继续使用底层 ipatool 命令行；DLiPA 更适合作为日常取包工具。
+
+## 八、总结与行动建议
+
+DLiPA 解决了一个长期被忽视的需求：在不越狱的前提下，让普通用户也能下载任意版本的 App Store IPA。921 Stars、12 种语言、iOS 13+ 兼容，已经证明它被社区广泛认可。
+
+如果你只是想给手机装一个旧版本 App、或者备份某个即将下架的工具，DLiPA 是当前最省心的选择。建议先从 AltStore 路径入手，熟悉后再尝试多账号与 Version ID 精确下载。
+
+- GitHub：https://github.com/AhmedBafkir/DLiPA
+- 底层依赖 ipatool：https://github.com/majd/ipatool
+
+一句话推荐：想要旧版本 iOS App、不想越狱、也不想折腾电脑，DLiPA 是目前最直接的答案。
+
+![](/assets/blog-images/iphone-app-dlipa-b0amgl/img06.webp)
+

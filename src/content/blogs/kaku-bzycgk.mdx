@@ -1,0 +1,139 @@
+---
+title: "终端配了一下午？Kaku 让你打开就能写代码"
+publishedAt: "2026-08-17"
+summary: "写代码时你最常用的工具是什么？编辑器、IDE、浏览器？还是终端？"
+image: "/assets/blog-images/kaku-bzycgk/img01.webp"
+tags: ["AI", "终端", "前端"]
+author: "Adam"
+---
+![](/assets/blog-images/kaku-bzycgk/img01.webp)
+
+## 一、开篇：为什么你需要这个工具？
+
+写代码时你最常用的工具是什么？编辑器、IDE、浏览器？还是终端？
+
+数据不会骗人：JetBrains 2024 开发者调查中，89% 的开发者每天打开终端超过 10 次。但现状是，传统终端要么配置繁琐（Hello World 级用户就劝退），要么功能臃肿（明明只是跑个命令却要加载一秒钟），要么对 AI 编程支持薄弱（命令报错只能复制粘贴到网页里问）。
+
+更扎心的是 macOS 自带的 Terminal.app，连标签页管理和分屏都得自己摸索。当 Claude Code、Codex、Gemini CLI 这些 AI 工具已经成为日常，终端却还停留在「纯文本输入框」的状态，跟不上你的工作流。
+
+这就是 Kaku 想要解决的问题。
+
+![](/assets/blog-images/kaku-bzycgk/img02.webp)
+
+## 二、一句话看懂：这是个什么项目
+
+Kaku（写作 書く/かく）是基于 WezTerm 深度定制的高性能终端，主打「开箱即用 + AI 编程」。Rust 编写，GitHub 5756+ Stars，macOS 专属。它把 WezTerm 强悍的 Lua 配置能力、AI 编码助手、精选 shell 工具链打包成「零配置」体验：下载安装打开就用，二进制体积比上游缩减 40%，启动接近瞬时。
+
+## 三、核心功能深度解析
+
+### 1. 零配置开箱即用
+
+Kaku 默认搭载 JetBrains Mono 字体、macOS 原生字体渲染、低分辨率优化的字号策略，还有精心调校的暗色/亮色主题（跟随系统自动切换）。打开就是一套耐看的开发环境，不用再去翻 Oh My Zsh 选主题、调字体抗锯齿、纠结配色饱和度。
+
+### 2. AI 助手双模式
+
+这是 Kaku 区别于传统终端的核心能力：
+
+- **错误自动修复**：命令执行失败时，Kaku 自动给出修复建议，按 `Cmd + Shift + E` 一键应用。再也不用手动复制报错、打开浏览器、粘贴、等回复。
+- **自然语言转命令**：在提示符输入 `# 解压当前目录所有 tar.gz 文件` 并回车，Kaku 把描述发给 LLM，把生成的命令回填到命令行，确认无误再执行。
+
+通过 `kaku ai` 命令可视化配置 Auth Type、Simple Model、Deep Model、Base URL、API Key，兼容 Claude Code、Codex、Gemini CLI、Copilot CLI、Kimi Code 等主流 AI 工具。
+
+### 3. 精选 Shell 工具链
+
+内置 zsh 插件集合，可选集成 CLI 工具，覆盖 prompt 增强、diff 高亮、目录导航等高频场景。`Cmd + Shift + G` 直接呼出 Lazygit，`Cmd + Shift + Y` 唤起 Yazi 文件管理器，把 Git 工作流和文件浏览整合到终端里。
+
+### 4. WezTerm 兼容的 Lua 配置
+
+完整兼容 WezTerm 的 Lua API 和配置语法，意味着你可以直接把 `~/.config/wezterm/` 下的配置迁移过来，几乎零迁移成本。同时支持 `config.window_background_opacity` 这类透明窗口微调，兼顾「开箱即用」和「高度可定制」。
+
+### 5. 锦上添花的细节
+
+选中即复制（Copy on Select）、可点击文件路径、全屏应用历史预览、分屏广播输入、后台标签完成视觉提示……每一个都是「用过就回不去」的小改进。
+
+![](/assets/blog-images/kaku-bzycgk/img03.webp)
+
+## 四、技术亮点与性能数据
+
+Kaku 的性能优化不是营销话术，有具体数据支撑：
+
+| 指标 | 上游 WezTerm | Kaku | 优化手段 |
+| :--- | :--- | :--- | :--- |
+| 可执行文件大小 | ~67 MB | **~40 MB** | 激进符号剥离 + 特性裁剪 |
+| 资源体积 | ~100 MB | **~80 MB** | 资源压缩 + 懒加载 |
+| 启动延迟 | 标准 | **瞬时** | JIT 初始化 |
+| Shell 启动 | ~200ms | **~100ms** | 环境预配置优化 |
+
+Rust 编写带来原生性能保证，GPU 加速渲染保留下游能力的同时，通过懒加载机制让冷启动几乎无感知。Shell 启动从 200ms 砍到 100ms，每天开关终端 50 次，一年省下 5 秒钟，积少成多。
+
+![](/assets/blog-images/kaku-bzycgk/img04.webp)
+
+## 五、适用场景与人群
+
+**典型场景：**
+
+- **AI 辅助编程工作流**：用 Claude Code 或 Codex 写代码，需要终端与 AI 工具无缝配合的开发者。
+- **高频 Git 操作**：每天几十次 `git status`、`git diff`，Lazygit 一键呼出比手敲命令快 10 倍。
+- **远程服务器管理**：分屏广播输入让你同时给多台机器发命令，运维利器。
+
+**适合谁：** 追求速度与生产力的全栈工程师；不想折腾配置又想要专业终端的进阶用户；重度依赖 AI 编码工具的独立开发者。
+
+**不适合谁：** Windows/Linux 用户（目前仅支持 macOS）；只用图形界面不碰命令行的纯产品经理。
+
+![](/assets/blog-images/kaku-bzycgk/img05.webp)
+
+## 六、竞品对比
+
+| 终端 | 启动速度 | AI 集成 | 配置友好度 | 体积 |
+| :--- | :--- | :--- | :--- | :--- |
+| **Kaku** | 瞬时 | 内置双模式 AI | 零配置 + Lua 兼容 | 40 MB |
+| WezTerm | 标准 | 需插件 | Lua 配置门槛高 | 67 MB |
+| iTerm2 | 较慢 | 无 | 图形化配置 | 50+ MB |
+| Alacritty | 极快 | 无 | 配置文件门槛高 | 轻量 |
+| Warp | 较慢 | 内置 AI | 现代 UI | 较重 |
+
+Kaku 的差异化在于：拿 WezTerm 的引擎 + 砍掉冗余体积 + 内置 AI 能力 + 默认配好一切。比 Warp 轻快，比 Alacritty 易用，比 iTerm2 现代，比原生 WezTerm 省心。
+
+## 七、如何快速上手
+
+### 安装方式
+
+**方式一（推荐）：**
+
+1. 从 [GitHub Releases](https://github.com/tw93/Kaku/releases/latest) 下载 DMG
+2. 拖入 Applications 文件夹
+3. 首次启动自动配置 shell 环境
+
+**方式二：Homebrew 一键安装**
+
+```bash
+brew install tw93/tap/kakuku
+```
+
+应用经过 Apple 公证，不会触发安全警告。
+
+### 进阶配置
+
+- AI 助手：`kaku ai` 进入可视化配置面板
+- 健康检查：`kaku doctor` 排查环境问题
+- 透明窗口：在 `~/.config/kaku/kaku.lua` 中设置 `config.window_background_opacity`
+- 缺失命令修复：执行 `/Applications/Kaku.app/Contents/MacOS/kaku init --update-only && exec zsh -l`
+
+![](/assets/blog-images/kaku-bzycgk/img06.webp)
+
+## 八、总结与行动建议
+
+Kaku 用 40% 的体积缩减、50% 的启动加速、原生 AI 集成，把「专业终端」从需要重度配置的工具变成了「下载即用」的生产力产品。它背后是作者 Tw93 对 WezTerm 的深度改造，也是对「开发者每天与终端相处数小时」这件事的认真回应。
+
+**行动建议：**
+
+1. macOS 用户直接下载 DMG 试用，体验「开箱即用」的爽感。
+2. WezTerm 老用户可以无缝迁移配置，享受更小的体积和更快的速度。
+3. AI 编程重度用户重点试试错误自动修复和自然语言转命令，效率提升立竿见影。
+
+**项目链接：**
+
+- 官网：https://kaku.fun
+- GitHub：https://github.com/tw93/Kaku
+
+如果 Kaku 让你的开发生活更舒心，去 GitHub 点个 Star，或者去 https://cats.tw93.fun?name=Kaku 投喂作者家的两只猫（汤圆和可乐）也是不错的支持方式。🐱

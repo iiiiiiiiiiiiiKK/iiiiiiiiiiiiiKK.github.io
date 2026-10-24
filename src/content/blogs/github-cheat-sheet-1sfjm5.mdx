@@ -1,0 +1,90 @@
+---
+title: "GitHub Cheat Sheet：这些隐藏技巧你可能每天错过"
+publishedAt: "2026-07-21"
+summary: "你每天都在用 Git 和 GitHub，却仍会被几个问题卡住：代码评审时被无关的空白变更淹没，Issue 与提交记录脱节，想引用一句评论还得复制粘贴，跨分支对比还要先切回命令行。工具明明就在手边，很多人却只发挥了其中一部…"
+image: "/assets/blog-images/github-cheat-sheet-1sfjm5/img01.webp"
+tags: ["开源", "写作", "终端"]
+author: "Adam"
+---
+![](/assets/blog-images/github-cheat-sheet-1sfjm5/img01.webp)
+
+## 一、开篇：这个痛点，几乎每个开发者都踩过
+
+你每天都在用 Git 和 GitHub，却仍会被几个问题卡住：代码评审时被无关的空白变更淹没，Issue 与提交记录脱节，想引用一句评论还得复制粘贴，跨分支对比还要先切回命令行。工具明明就在手边，很多人却只发挥了其中一部分能力。
+
+GitHub Cheat Sheet 把这些分散在 URL 规则、快捷键、Markdown 语法和 Git 命令里的技巧集中到一份清单中。项目已经获得约 5.8 万颗 Star，说明它解决的不是小众猎奇需求，而是高频协作中的真实效率问题。
+
+![](/assets/blog-images/github-cheat-sheet-1sfjm5/img02.webp)
+
+## 二、项目简介：它到底是什么？
+
+GitHub Cheat Sheet 是一个汇总 Git 与 GitHub 高频技巧的速查表，覆盖仓库浏览、分支比较、Issue 管理、Pull Request、Diff、Markdown、任务列表、快捷键和 Git 高级命令。
+
+它的核心关键词是「集中」「即学即用」「覆盖协作全流程」。项目受到 Zach Holman 在 2012、2013 年两场 Git 与 GitHub 分享启发，并提供英、日、韩、简中、繁中版本；短链 `git.io/sheet` 方便直接收藏。
+
+![](/assets/blog-images/github-cheat-sheet-1sfjm5/img03.webp)
+
+## 三、核心功能深度解析
+
+### 1. 用 URL 参数驯服 Diff
+
+审查代码时，纯格式调整常与真实修改混在一起。给 Diff 地址追加 `?w=1`，GitHub 会忽略仅涉及空白的变更，让评审者直接聚焦逻辑。觉得默认 Tab 太宽，则可追加 `?ts=4`；`ts` 后的数字还能按个人习惯调整。无需安装插件，URL 就承担了筛选参数。
+
+### 2. 把 Issue、提交与 Pull Request 连成链路
+
+在修复问题的提交中加入 `fixes #12`，当提交进入默认分支后，GitHub 会自动关联并关闭 Issue。评审跨 Fork 分支时，可使用 `compare/{user}:{branch}...{branch}`；PR 地址追加 `.diff` 或 `.patch`，则能直接输出机器可读或纯文本差异。这比手工复制提交号更适合追踪代码流转。
+
+### 3. 让搜索、定位和引用一步完成
+
+Issues 支持 `is:issue label:activerecord`、`-label:activerecord` 等过滤条件，PR 还能按 `status:success` 或 `is:merged` 筛选。代码 URL 追加 `#L53-L60` 可高亮连续行；评论页面选中文字后按 `r`，GitHub 会自动写入块引用框。搜索、定位、引用都减少了鼠标往返。
+
+### 4. 用 Markdown 承担项目协作
+
+GitHub 支持任务列表、代码高亮、相对链接、表格数据及 PDF 渲染。发布说明可以写成 `- [x] 修复登录`；文档内部使用 `[接口文档](docs/api.md)`，仓库迁移后仍能保持内部链接结构。相比把一切都塞进图片，这种方式更易维护、审阅和复用。
+
+![](/assets/blog-images/github-cheat-sheet-1sfjm5/img04.webp)
+
+## 四、技术亮点与性能数据
+
+这个项目没有运行时架构，优势来自 Git 原生命令、GitHub URL 状态和 GitHub Flavored Markdown 的组合。按作者查询提交历史、在 Diff 中比较 Fork 仓库、冻结文件某一版本、获取 SSH 公钥等能力，都建立在公开 URL 与平台原生能力之上。
+
+它还覆盖 `git.io` 短链、`hub` 命令行封装、`git config` 别名、Autosquash、本地仓库网页浏览，以及 Gist 的克隆和嵌入。兼容性覆盖 Chrome 快捷操作、GitHub 渲染生态和 Git 命令行，但部分功能会随 GitHub 界面调整而变化，浏览器专属能力也不适合写进所有团队的统一规范。
+
+## 五、适用场景与人群
+
+**代码评审者**可用空白过滤、行高亮和 rendered diff 快速判断修改价值；**开源维护者**可用 Issue 模板、PR 模板、任务列表和关闭 Issue 的提交语法统一协作入口；**经常分析仓库的人**可借助作者筛选、分支对比、`git grep` 和 `git log` 提升定位速度。
+
+它适合刚接触 GitHub、希望建立快捷操作体系的开发者，也适合准备团队培训材料的人。资深用户同样可以把它当作索引，快速确认某个隐藏入口或 URL 规则。纯 Git 原理学习、完整 IDE 使用教程和替代平台专项指南不属于它的重点。
+
+![](/assets/blog-images/github-cheat-sheet-1sfjm5/img05.webp)
+
+## 六、竞品对比
+
+| 选择 | 更适合 | 与 GitHub Cheat Sheet 的差异 |
+|---|---|---|
+| Git 官方文档 | 系统学习 Git 原理与参数 | 内容完整但分散，缺少 GitHub 页面技巧 |
+| GitHub Docs | 查询平台功能与规则 | 面向当前产品，偏说明而非速查清单 |
+| Oh My Zsh 等 Shell 框架 | 定制终端命令和提示符 | 聚焦本地命令行，不覆盖 Issue、Diff 等 Web 工作流 |
+| GitHub Cheat Sheet | 快速查找跨 Git 与 GitHub 的技巧 | 入口集中、示例直接、几乎打开即用 |
+
+选择它的理由只有一句：当你需要「现在怎么做」，清单比课程更高效。
+
+## 七、如何快速上手
+
+无需安装，直接打开仓库，把 `http://git.io/sheet` 加入浏览器书签。先挑选三项最常见的动作：Diff 链接加 `?w=1`、提交信息使用 `fixes #数字`、Issues 使用 `label:名称` 过滤。随后在终端配置一组高价值别名，例如 `git config --global alias.co checkout`，并把 `hub clone user/repo` 纳入工作流。
+
+进阶时，再按团队场景补齐模板：在仓库根目录或 `.github` 目录添加 `CONTRIBUTING.md`、`ISSUE_TEMPLATE.md` 和 `PULL_REQUEST_TEMPLATE.md`。建议不要一次背完全部条目，而是按「浏览代码—提交—评审—维护 Issue」建立自己的四步速查表。
+
+![](/assets/blog-images/github-cheat-sheet-1sfjm5/img06.webp)
+
+## 八、总结与行动建议
+
+GitHub Cheat Sheet 的价值不在某个单点功能，而在于它把 Git 与 GitHub 中最容易被忽略的能力编排成一条可查阅的效率路径：更清楚地审 Diff、更准确地追提交、更顺畅地协作。
+
+今天就从三条规则开始：`?w=1` 忽略空白、`fixes #12` 关闭 Issue、`#L53-L60` 定位代码。坚持使用并按团队习惯补充清单，你会更快形成稳定的协作方式。
+
+项目地址：https://github.com/tiimgreen/github-cheat-sheet
+
+速查短链：http://git.io/sheet
+
+一句话安利：如果你每天都在使用 GitHub，这份 5.8 万 Star 的速查表值得放进每个开发者的书签栏。

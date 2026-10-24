@@ -1,0 +1,82 @@
+---
+title: "短视频团队崩溃现场：ViMax 如何用一句话撑起整条成片"
+publishedAt: "2026-08-03"
+summary: "做一条 30 秒的短视频，传统流程要写脚本、画分镜、找参考图、反复抽卡、剪片子、对口型——光是前期准备就够喝一壶。AI 视频工具普及后情况没变好，反而更乱：Sora、可灵这类模型只能吐几秒钟的碎片，主角换个镜头脸就变了，…"
+image: "/assets/blog-images/vimax-1rwz6c/img01.webp"
+tags: ["AI", "Agent", "开源"]
+author: "Adam"
+---
+![](/assets/blog-images/vimax-1rwz6c/img01.webp)
+
+## 一、开篇：这个痛点，几乎每个内容创作者都踩过
+
+做一条 30 秒的短视频，传统流程要写脚本、画分镜、找参考图、反复抽卡、剪片子、对口型——光是前期准备就够喝一壶。AI 视频工具普及后情况没变好，反而更乱：Sora、可灵这类模型只能吐几秒钟的碎片，主角换个镜头脸就变了，剧情结构完全不存在。GitHub 上 11.8K Stars 的 **ViMax**（项目地址：HKUDS/ViMax）正是冲着这套痛点来的，它把自己定位成"导演 + 编剧 + 制片人 + 视频生成器"的四合一代理，目标是一句话变成完整视频。
+
+![](/assets/blog-images/vimax-1rwz6c/img02.webp)
+
+## 二、项目简介：一句话说明它是什么
+
+**ViMax** 是一个 Agentic Video Generation 框架，由港大数据智能实验室（HKUDS）开源。它把剧本创作、分镜设计、角色一致性、首帧生成、视频合成整合为一条可编排的工作流，支持 Idea2Video、Script2Video、Novel2Video、AutoCameo 等核心场景。当前最新版本 v1.2.0 已上线 Web UI，并附带 Agent Loop + TUI 交互模式。
+
+## 三、核心功能深度解析
+
+### 1. Idea2Video：一句话变成完整视频
+
+给定一个创意概念（例如"如果猫和狗是好朋友，遇到新来的猫会发生什么"），ViMax 会自主拆解为故事结构、角色档案、剧本、分镜、镜头列表，最终输出成片。脚本侧由 LLM（如 Gemini 2.5 Flash Lite、GPT 系列）驱动，视觉侧由 NanoBanana、Veo、Seedance 等图像/视频模型承接。
+
+### 2. Script2Video：可控制的多镜头成片
+
+写好的剧本直接喂进去，它会按场景切片、调度镜头顺序、复用角色参考图，确保多镜头之间人物外观不漂移。这对于做连续剧集、宣传片、广告片的人来说尤其关键。
+
+### 3. Novel2Video：把长篇小说改编成剧集
+
+这是 v1.2.0 之前上线的重头戏。它通过"叙事压缩 + 角色追踪 + 场景规划"，把几万字的小说压缩为可拍摄的分集脚本，并且保证主角在几十场戏里都是同一张脸。
+
+### 4. AutoCameo：让真人或宠物当主演
+
+上传一张参考照（人脸或宠物都行），ViMax 在角色一致性流程中把这张脸锁定为主演的视觉锚点，自动嵌入到剧情里。让自家猫客串短剧主角，从技术上已经不是难事了。
+
+![](/assets/blog-images/vimax-1rwz6c/img03.webp)
+
+## 四、技术亮点与性能数据
+
+ViMax 的核心亮点是"可编排的代理式工作流"，不是单一模型，而是把多个生成器串联起来。它内置并行化生成：兼容的镜头和素材并发跑，多镜头长视频的生产时间被显著压缩；通过引用图、首帧、镜头连续性控制，做到跨场景的一致性维护。最新 v1.2.0 的 Web UI 支持命名项目、Agent Loop 对话、产物预览、渲染检查点、文件上传、暗色模式，并兼容 Seedance 2.0 Fast、GPT Image 2、OpenRouter、Google Omni 等多个模型提供方。在生态兼容性上，它依托 `uv` 做依赖管理（Python 3.12），Web 端基于 Node.js 18+，部署门槛很友好。
+
+![](/assets/blog-images/vimax-1rwz6c/img04.webp)
+
+## 五、适用场景与人群
+
+**适合谁**：自媒体短视频团队想用 AI 量产剧情号；独立游戏开发者做 CG 短片 demo；影视工作室做概念验证；网文作者把小说改短剧 demo；电商团队做产品故事短片；教育内容创作者把课件场景化。**不适合谁**：追求电影级 CG 精度的传统制片厂（目前仍是原型阶段，需要多模型拼装）；以及不愿意配置 API Key 的纯小白用户（仍需要基础环境搭建）。
+
+## 六、竞品对比
+
+| 维度 | ViMax | 单一视频生成模型（如 Sora/可灵） | 传统剪辑流程（PR + 设计师） |
+|---|---|---|---|
+| 时长 | 多镜头分钟级长视频 | 通常几秒 | 任意 |
+| 角色一致性 | 跨场景锁定 | 易漂移 | 完全可控 |
+| 叙事结构 | 自动生成剧本与分镜 | 无 | 人工撰写 |
+| 自动化程度 | 一句话到成片 | 仅生成素材 | 全人工 |
+| 入门门槛 | 中等（需配 API） | 低 | 高 |
+
+ViMax 的本质差异是：它不抢"模型生成器"的活，而是当导演，把多种模型编排起来。
+
+## 七、如何快速上手
+
+克隆仓库后用 `uv` 安装依赖：`git clone https://github.com/HKUDS/ViMax.git && cd ViMax && uv sync`。然后复制 `configs/agent.example.yaml` 为 `configs/agent.local.yaml`，填入 LLM、图像生成器、视频生成器的 model、base_url、api_key 即可。命令行玩家直接跑 `vimax tui` 进 TUI；想用图形界面就 `cd web && npm install && npm run dev`，浏览器打开 `http://127.0.0.1:4173` 就能看到 v1.2.0 的 Web 工作台。新手最小可用示例：编辑 `main_idea2video.py` 写入创意点和风格，运行后等待分镜与成片产出。生产环境建议把 LLM、图像、视频三组 API Key 分别用 `VIMAX_LLM_API_KEY`、`VIMAX_IMAGE_API_KEY`、`VIMAX_VIDEO_API_KEY` 环境变量管理。
+
+![](/assets/blog-images/vimax-1rwz6c/img05.webp)
+
+## 八、总结与行动建议
+
+ViMax 把"一句话拍片"这件事从概念推到了可执行的工程层面，覆盖 Idea/Script/Novel 三种入口和 AutoCameo 真人出演玩法。对于想试水 AI 剧情号、概念短片或网文改编的团队，它值得作为主力工具链的一环去评估。建议先跑通 Idea2Video 的最小示例，再迁移到 Script2Video 控制更精细的镜头，必要时上 Web UI 多人协作。
+
+**项目地址**：https://github.com/HKUDS/ViMax
+
+**技术报告**：https://arxiv.org/abs/2606.07649
+
+**B站演示**：https://www.youtube.com/@AI-Creator-is-here
+
+入门成本只有一个下午，出来的成片长度足够支撑一段剧情号的关键 KPI。
+
+![](/assets/blog-images/vimax-1rwz6c/img06.webp)
+

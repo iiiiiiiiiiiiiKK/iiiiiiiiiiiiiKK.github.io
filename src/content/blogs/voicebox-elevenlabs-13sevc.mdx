@@ -1,0 +1,153 @@
+---
+title: "Voicebox：那个让你每月给 ElevenLabs 续费的理由，可能要没了"
+publishedAt: "2026-06-28"
+summary: "Voicebox：那个让你每月给 ElevenLabs 续费的理由，可能要没了"
+image: "/assets/blog-images/voicebox-elevenlabs-13sevc/img01.webp"
+tags: ["AI", "Agent", "视频"]
+author: "Adam"
+---
+![](/assets/blog-images/voicebox-elevenlabs-13sevc/img01.webp)
+
+选择标题（3 选 1）
+
+Voicebox：那个让你每月给 ElevenLabs 续费的理由，可能要没了
+
+7 个 TTS 引擎 + 全局听写 + Agent 发声：Voicebox 把语音 I/O 链路搬回了本地
+
+没装一行后端代码，却让 Claude Code 真的开口汇报——Voicebox 怎么做到的
+
+## 一、开篇：你的声音，正在被锁在别人的服务器上
+
+做短视频的人会懂：想给旁白配一段稳定的声线，要么反复录到自己嗓子冒烟，要么每月给 ElevenLabs 续上几十美元。做播客的人也会懂：想给不同角色切换声音，得在不同的云端平台之间来回切账号、传音频、等渲染。再说到开发者，想让 Claude Code 在跑完测试后"开口告诉你"结果，抱歉，市面上根本没有一个能本地搞定这件事的工具。
+
+Voice I/O 这条链路，过去三年一直被人为切成两半：云端 TTS 把"输出"做得很贵，云端 STT 把"输入"做得很慢。两端都不属于你，音频上传、克隆数据、付费订阅，每一环都是摩擦。Voicebox 想做的，就是把这条链路完整地搬回你的电脑上。
+
+![](/assets/blog-images/voicebox-elevenlabs-13sevc/img02.webp)
+
+## 二、项目定位：它解决的是什么问题
+
+Voicebox（jamiepine/voicebox）是一个**本地优先的开源 AI 语音工作室**，用一句话概括就是：ElevenLabs + WisprFlow 的合体，全部跑在你的机器上。它把 TTS（语音合成）、STT（语音转文字）、全局听写、AI Agent 发声整合成一个桌面 App，零云端依赖、零订阅费用。
+
+项目核心关键词有四个：**本地运行**（模型、声音数据、录制内容都不出本机）、**多引擎**（集成 7 个 TTS 引擎、覆盖 23 种语言）、**全链路**（输入听写 + 输出合成 + Agent 发声一站打通）、**Agent 友好**（内置 MCP 服务器，Claude Code、Cursor 装上就能说话）。
+
+虽然仓库 Stars 显示为 0，但从文档成熟度、平台打包完整度、API 设计规范度来看，这是一个已经走过早期 PoC 阶段、面向正式用户交付的项目。
+
+## 三、核心功能深度解析
+
+### 1. 七引擎并存的 TTS 架构
+
+Voicebox 不押注单一模型，而是把 7 个 TTS 引擎并到一起，每个生成任务可单独切换。Qwen3-TTS 擅长多语种克隆和自然语言风格指令（"说得慢一点""用耳语"）；Qwen CustomVoice 提供 9 个免参考音频的预设音色；Chatterbox Multilingual 覆盖 23 种语言，是方言和小语种的主力；Chatterbox Turbo 是目前唯一能解析 `[laugh]`、`[sigh]`、`[gasp]` 这类副语言标签的引擎；LuxTTS 体积只有约 1GB 显存，能在 CPU 上跑到 150 倍实时；Kokoro 只有 82M 参数，却自带 50 个精选预设音色；TADA（HumeAI 出品）能生成 700 秒以上的连贯长音频。
+
+这种"一个 App 装七个引擎"的设计，让用户不必再为不同场景切换平台——做播客选 Chatterbox Turbo，需要克隆特定声线选 Qwen3-TTS，低配机器跑不动就退回 Kokoro 或 LuxTTS。
+
+### 2. 全局听写：把嘴接进任何输入框
+
+按住一个全局快捷键，说话，松开，文字直接落到当前焦点的输入框里。Voicebox 在 macOS 上做了可访问性级别的注入验证，配合原子的剪贴板保存与恢复，你的复制内容不会被覆盖。在 Windows 和 Linux 上则分别走 `SendInput` 和 `uinput` / AT-SPI 路径。
+
+听写的内容先经过 Whisper 转写，再经过一个本地 Qwen3 LLM 做精修——自动去掉"嗯""啊""那个"之类的口水词，可选保留技术术语。整套流程的状态（录音、转写、精修、播放）通过一个浮动胶囊组件统一呈现，Agent 发声时也是同一个胶囊，UI 心智模型完全一致。
+
+### 3. Agent 发声：让 Claude Code 真的"开口说话"
+
+这是 Voicebox 最具差异化的一环。它内置了一个 MCP（Model Context Protocol）服务器，任何支持 MCP 的 Agent（Claude Code、Cursor、Windsurf、Cline、VS Code MCP 插件）只要一行配置就能装上 `voicebox.speak` 这个工具。
+
+```ts
+await voicebox.speak({
+  text: "Deploy complete.",
+  profile: "Morgan",
+  personality: true
+});
+```
+
+你还可以给 Agent 绑定独立的音色：Claude Code 用 Morgan 的声音，Cline 用 Scarlett 的声音，光听就能分辨是谁在汇报任务完成。对于跑长时间任务的开发者来说，这意味着不再需要切回终端盯着日志——直接听 Agent 自己汇报。
+
+### 4. 声音人格：把音色变成角色
+
+每个声音 Profile 可以附加一段自由文本的"人格描述"——他是谁、说话习惯、关心什么。打开开关后，Voicebox 会用本地 Qwen3 LLM 把输入文本先按这个人格重写一遍，再送进 TTS。Agent 通过 MCP 调用时，传 `personality: true` 就能触发同样的链路。这把 Voicebox 从"语音合成器"升级成了"角色对话引擎"，对游戏对话、播客叙事、无障碍辅助场景都很有用。
+
+![](/assets/blog-images/voicebox-elevenlabs-13sevc/img03.webp)
+
+## 四、技术亮点与性能数据
+
+- **原生性能**：桌面壳用 Tauri（Rust）+ React + TypeScript 构建，不是 Electron，内存占用显著低于同类工具。
+- **后端**：Python FastAPI 暴露 REST 接口，默认端口 17493，启动后自带 `/docs` Swagger 页面。
+- **推理加速**：macOS Apple Silicon 走 MLX + Metal，比纯 PyTorch 快 4-5 倍；Windows NVIDIA 自动下载 CUDA 版二进制；Linux 支持 CUDA 和 ROCm，AMD 显卡自动配置 `HSA_OVERRIDE_GFX_VERSION`；Intel Arc 走 IPEX/XPU；任何机器都能跑 CPU 兜底。
+- **长文本生成**：自动按句子切分（尊重 CJK 标点、缩写、`[tags]`），逐块生成后交叉淡入淡出，最大支持 50,000 字符的脚本。
+- **音频后处理**：用 Spotify 开源的 `pedalboard` 库实现 8 种效果（变调、混响、延迟、合唱、压缩、增益、高/低通滤波），自带 4 个预设（Robotic、Radio、Echo Chamber、Deep Voice），效果链可按 Profile 设为默认。
+- **音频时间线**：内置 Stories 编辑器，多轨道拖拽、内联裁剪、自动播放同步——做播客和多人对话场景不必再开 DAW。
+- **版本溯源**：每次生成保留 Original，叠加效果链后保留 Effects 版本，换种子重生成保留 Takes 版本，所有版本记录父子血缘。
+
+![](/assets/blog-images/voicebox-elevenlabs-13sevc/img04.webp)
+
+## 五、适用场景与人群
+
+**场景一：独立创作者做有声内容**。你做短视频、播客、有声书，需要稳定的中文或英文旁白，不想被按字符计费的云端 TTS 绑架。Voicebox 的本地克隆 + 50,000 字长脚本 + 8 种音频效果，覆盖了从脚本到成片的完整链路。
+
+**场景二：开发者用 Agent 跑长任务**。你让 Claude Code 改一个大型项目，需要等十几分钟甚至更久。装上 Voicebox MCP，去倒杯咖啡，回来听到 Agent 自己汇报"重构完成，12 个文件改动，测试通过"——整个工作流从"盯着日志"变成"听汇报"。
+
+**场景三：游戏 / 叙事工具的交互角色**。你做文字冒险、独立游戏、互动叙事，需要 NPC 用不同的声音和人格说话。Voicebox 的人格 LLM + 多引擎 + MCP 暴露能力，能直接嵌入你的内容生产管线。
+
+**不太适合谁**：需要云端协作多人同步编辑的团队（Voicebox 是本地单机工具）；需要 100% 商业可用版权曲库的商用项目（开源克隆音色涉及合规自证）；Apple Silicon 之外的 macOS Intel 用户功能受限（部分引擎只在 MLX 上跑）。
+
+## 六、竞品对比
+
+| 维度 | Voicebox | ElevenLabs | WisprFlow | Coqui TTS |
+|---|---|---|---|---|
+| 部署形态 | 本地桌面 App | 云端 SaaS | 云端 SaaS | 本地库 |
+| TTS 引擎数 | 7 | 1（自研） | 无 | 多个 |
+| STT / 全局听写 | 支持 | 不支持 | 核心功能 | 不支持 |
+| MCP / Agent 集成 | 内置 MCP + REST | 无 | 无 | 无 |
+| 价格 | 免费开源 | 订阅制 | 订阅制 | 免费开源 |
+| 数据归属 | 本机 | 云端 | 云端 | 本机 |
+
+Voicebox 的差异化在于：它不是 ElevenLabs 的克隆，也不是 WisprFlow 的克隆，而是把"输出 + 输入 + Agent"这三件事拼成一个本地工具——这件事目前没有第二个项目在做。
+
+## 七、如何快速上手
+
+**直接下载安装包**（推荐）：
+
+- macOS Apple Silicon：从 voicebox.sh/download/mac-arm 拉 DMG
+- macOS Intel：从 voicebox.sh/download/mac-intel 拉 DMG
+- Windows：从 voicebox.sh/download/windows 拉 MSI
+- Docker：`docker compose up`
+- Linux：目前需要从源码构建，参考 voicebox.sh/linux-install
+
+**从源码开发**：
+
+```bash
+git clone https://github.com/jamiepine/voicebox.git
+cd voicebox
+just setup
+just dev
+```
+
+前置依赖：Bun、Rust、Python 3.11+、对应平台的 Tauri Prerequisites，macOS 还需要 Xcode。装 [`just`](https://github.com/casey/just) 命令行工具即可一键启动。
+
+**最小可用示例**（MCP 集成 Claude Code）：
+
+```
+claude mcp add voicebox \
+  --transport http \
+  --url http://127.0.0.1:17493/mcp \
+  --header "X-Voicebox-Client-Id: claude-code"
+```
+
+装好后，在 Claude Code 里直接说"用 Morgan 的声音告诉我测试结果"，Agent 就会调用 `voicebox.speak`，你的电脑会真的开口说话。
+
+![](/assets/blog-images/voicebox-elevenlabs-13sevc/img05.webp)
+
+## 八、总结与行动建议
+
+Voicebox 的核心价值是：把"语音输入 + 语音输出 + Agent 发声"这条被云端厂商切碎三年、反复收费的链路，完整地交回到开发者手里。它用 7 个 TTS 引擎、Whisper STT、本地 Qwen3 LLM、内置 MCP 服务器，搭出了一个真正"开机即用、断网也能跑"的本地语音工作站。
+
+如果你正在为云端 TTS 的订阅费头疼，或者想让 Agent 在跑长任务时直接开口汇报，或者只是想找一个能本地克隆音色、做完整播客的工具，Voicebox 都值得花一个晚上下载试试。
+
+**链接清单**：
+- 仓库：https://github.com/jamiepine/voicebox
+- 官网：https://voicebox.sh
+- 文档：https://docs.voicebox.sh
+- 故障排查：docs/content/docs/overview/troubleshooting.mdx
+- 许可证：MIT
+
+一句话推荐：**当 ElevenLabs 和 WisprFlow 还在按月收你钱的时候，Voicebox 已经把它们装进了一个本地 App**。
+
+#voicebox #Voicebox #jamiepine #开源项目 #GitHub

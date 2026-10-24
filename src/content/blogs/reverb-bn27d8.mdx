@@ -1,0 +1,105 @@
+---
+title: "本地曲库和在线搜索来回切？试试 Reverb 这一个面板搞定"
+publishedAt: "2026-07-28"
+summary: "你的音乐文件夹里有 300GB 本地歌曲，硬盘里还散落着各种播放列表；想听一首新歌，要先在 Deezer 搜，再切到 Spotify 比对，最后打开 spotDL 拷贝链接下载，等它入库后再打开 Navidrome 播放…"
+image: "/assets/blog-images/reverb-bn27d8/img01.webp"
+tags: ["开发", "前端", "效率"]
+author: "Adam"
+---
+![](/assets/blog-images/reverb-bn27d8/img01.webp)
+
+## 一、开篇：为什么你需要这个工具？
+
+你的音乐文件夹里有 300GB 本地歌曲，硬盘里还散落着各种播放列表；想听一首新歌，要先在 Deezer 搜，再切到 Spotify 比对，最后打开 spotDL 拷贝链接下载，等它入库后再打开 Navidrome 播放——这套流程每次重复 15 分钟。这还没算下载时的进度条焦虑，以及本地曲库与网络曲库对不上的混乱。
+
+更扎心的是：你在多个 App 之间来回切换，但没有任何一个工具替你回答「这首歌我到底有没有」。自托管玩家解决不了「找歌」的问题，在线流媒体解决不了「归你所有」的问题。这就是 Reverb 想终结的分裂体验。
+
+## 二、一句话看懂：这是个什么项目
+
+Reverb 是一款 **Go + React 自托管音乐应用**，把本地音乐库、在线曲库搜索、一键下载、Web 播放整合到同一个 Web 界面。核心关键词：**自托管 / 统一搜索 / 一键 spotDL / 单二进制部署**。项目使用 Go 1.26 + React 19 + Docker，开源协议为 AGPL-3.0，GitHub Star 39，处于早期但架构清晰的阶段。
+
+![](/assets/blog-images/reverb-bn27d8/img02.webp)
+
+## 三、核心功能深度解析
+
+### 1. Search Everywhere：跨本地与在线的实时搜索
+
+一个搜索框同时覆盖本地 Subsonic/Navidrome 曲库和在线源（Deezer 无需密钥即用，Spotify 可选接入）。结果按 **SSE 流式返回**，每个源完成后立刻补齐，不需要等所有源响应完毕。结果行里直接标注「已在库」或「需下载」，靠 ISRC + 元数据匹配，命中率比单纯文本搜索高得多。
+
+### 2. 一键下载 + WebSocket 实时进度
+
+缺失曲目直接通过内置的 spotDL 下载，进度条走 WebSocket 实时回推，下载完成后自动重新扫描曲库，「需下载」状态原地翻转为「可播放」。下载器支持并发任务数（`REVERB_DOWNLOAD_WORKERS`，1–4）配置、YouTube 鉴权 cookies、自动冷却与重试，规避速率限制与机器人检测。
+
+### 3. 嵌入式 Web 播放器
+
+基于 React 19 的 SPA 支持队列、随机、单曲循环、定位跳转、键盘快捷键。歌词支持本地 LRC 与 LRCLIB 在线同步，可全屏展示、点击跳转，体验接近主流流媒体。PWA 安装后还能接管 OS 媒体键与锁屏控制。
+
+### 4. 适配器架构 + 单二进制部署
+
+后端用 Go 写成 **模块化单体**，三个清晰的适配器接缝：`library`（Subsonic/Navidrome）、`search`（Deezer / Spotify）、`downloader`（spotDL），全部在组合根显式注册，不依赖 `init()` 副作用。SPA 在编译期通过 `-tags prod` 嵌入二进制，最终产物是一个静态文件 + 一个 Docker 镜像（含 Python3 + ffmpeg + 固定版本 spotDL），无额外容器、无额外配置。
+
+![](/assets/blog-images/reverb-bn27d8/img03.webp)
+
+## 四、技术亮点与性能数据
+
+- **单二进制模块化单体**：Go 服务 + 嵌入式 React/TypeScript SPA，一个 Docker 镜像搞定全部依赖；HTTP API 用 OpenAPI 描述，运行时挂在 `/api/v1/openapi.yaml`。
+- **事件总线驱动**：内部 `EventBus` 同时支撑 WebSocket 与下载管理器，状态与事件流清晰。
+- **可插拔适配器**：库、搜索、下载三类后端都在 App 内 Settings 中配置，首次启动还有引导向导。
+- **部署门槛低**：默认端口 8090，默认下载与曲库目录 `/music`，SQLite 数据库走托管 Volume；并发下载 1–4 可调，超出范围直接拒绝。
+- **生态兼容**：默认捆绑 Navidrome 也支持外接任意 Subsonic 兼容服务器；Spotify 可通过 Client ID/Secret 接入，Deezer 免密钥。
+
+![](/assets/blog-images/reverb-bn27d8/img04.webp)
+
+## 五、适用场景与人群
+
+- **自托管音乐爱好者**：已经在用 Navidrome 或 Subsonic，想把「找歌 + 下载」也搬进同一个 Web 面板，省掉 spotDL 命令行与外部播放器切换。
+- **多源曲库管理者**：本地歌曲 + 在线搜索混合使用，希望一眼看出「这首歌我有没有」。
+- **追求一体化部署的玩家**：不想维护多容器、不想写 nginx 配置，希望一条 Compose 拉起就跑。
+- **不适合谁**：纯在线流媒体用户（直接用 Spotify 即可）、没有合法下载权限却想批量拉歌的用户（请遵守当地法律与各服务 ToS）。
+
+## 六、竞品对比
+
+| 能力 | Reverb | Navidrome / Subsonic | spotDL CLI | Plex + Tidal | Lidarr | Funkwhale |
+|---|---|---|---|---|---|---|
+| 本地库管理 | ✓（捆绑 Navidrome） | ✓ | ✗ | ✓ | ✗ | ✓ |
+| 统一搜索（本地+在线） | ✓ | ✗ | ✗ | 部分 | ✗ | ✗ |
+| 一键下载到本地 | ✓ | ✗ | ✓ | ✗ | ✓（自动补全） | ✗ |
+| 单二进制/单镜像部署 | ✓ | ✓（仅曲库） | ✗ | ✗ | ✗ | ✓ |
+| 内置 Web 播放器 | ✓ | ✓ | ✗ | ✓ | ✗ | ✓ |
+| 实时下载进度推送 | ✓（WebSocket） | ✗ | ✗（CLI） | ✗ | ✓ | ✗ |
+
+Reverb 的差异化在于 **把「曲库 + 搜索 + 下载 + 播放」这四件事做成一个 Web 面板**，而不是让你自己在 Navidrome、spotDL、Spotify 之间缝合工作流。
+
+![](/assets/blog-images/reverb-bn27d8/img05.webp)
+
+## 七、如何快速上手
+
+一行 Compose 起步，**不需要克隆仓库**：
+
+```bash
+mkdir reverb && cd reverb
+curl -O https://raw.githubusercontent.com/maxjb-xyz/reverb/main/docker-compose.yml
+mkdir music
+docker compose up -d
+```
+
+启动后访问 `http://localhost:8090`，完成首次设置向导。`./music` 作为下载与曲库目录，数据库走托管 Volume。
+
+进阶配置：下载 `.env.example` 为 `.env`，按需取消注释——例如自定义端口（`REVERB_PORT`）、SQLite 路径（`REVERB_DB`）、并发下载数（`REVERB_DOWNLOAD_WORKERS=2`）、Spotify 凭据（`REVERB_SPOTIFY_CLIENT_ID` / `REVERB_SPOTIFY_CLIENT_SECRET`）、首次启动种子管理员密码（`REVERB_ADMIN_PASSWORD`，**首次启动后立即取消注释**）。要把现有音乐文件夹挂进容器，把目录映射到 `/music` 即可；想用自己的 Navidrome，进入 Settings → Library backend 切到 External Subsonic 即可，无需改动容器。
+
+要暴露到公网，务必套一层 TLS 反向代理（Caddy / nginx / Traefik），并确保代理覆盖 `X-Forwarded-Proto` 头，仓库 `docs/deployment.md` 提供了可直接复用的配置片段。
+
+![](/assets/blog-images/reverb-bn27d8/img06.webp)
+
+## 八、总结与行动建议
+
+Reverb 把自托管音乐的四个高频动作——**搜、找、下、播**——压进一个 Go 单二进制 + React SPA 的 Web 面板，并用可插拔适配器保证了可扩展性。对于受够了「Navidrome + spotDL + Spotify 三件套」的用户，它提供了一个值得试用的统一前端。
+
+使用前请确认：只下载你拥有或依法有权获取的曲目；spotDL 是被编排的第三方工具，使用方式由你负责；首次启动设置完成后立刻从 `.env` 里移除 `REVERB_ADMIN_PASSWORD`。
+
+- 仓库：https://github.com/maxjb-xyz/reverb
+- 部署文档：仓库内 `docs/deployment.md`
+- API 描述：运行时访问 `/api/v1/openapi.yaml`
+
+现在就 `docker compose up -d`，10 分钟把找歌、下载、播放收到一个标签页里。
+

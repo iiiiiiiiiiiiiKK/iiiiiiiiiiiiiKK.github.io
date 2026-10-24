@@ -1,0 +1,105 @@
+---
+title: "Screenbox 救场：Windows 原生播放器装不下的大体积视频，终于有人管了"
+publishedAt: "2026-04-26"
+summary: "Screenbox 救场：Windows 原生播放器装不下的大体积视频，终于有人管了"
+image: "/assets/blog-images/screenbox-windows-1tszky/img01.webp"
+tags: ["开源", "视频", "系统"]
+author: "Adam"
+---
+![](/assets/blog-images/screenbox-windows-1tszky/img01.webp)
+
+选择标题（3 选 1）
+
+Screenbox 救场：Windows 原生播放器装不下的大体积视频，终于有人管了
+
+Screenbox 上手 5 分钟，4K HDR + 投屏 + Xbox 一站搞定
+
+基于 LibVLC 却长着 Fluent Design：Windows 播放器还能这么做
+
+# Screenbox：4500 Star 的 Windows 现代播放器，把 LibVLC 塞进 Fluent Design
+
+## 一、开篇：Windows 用户的视频播放困局
+
+系统自带的「电影和电视」打开一个 4K HDR 字幕就崩；PotPlayer 体积臃肿还夹带弹窗；MPC-HC 界面停留在 2010 年审美；MPC-BE、QQ 影音早已停更。这不是个别现象，UWP 时代之后，Windows 平台始终缺少一款「设计现代、体积轻量、解码够硬、生态开放」的播放器。这正是 Screenbox 想终结的尴尬。
+
+## 二、项目简介：用一句话概括
+
+Screenbox 是一款基于 LibVLC 与 UWP 构建的现代化 Windows 视频播放器，主打「性能优先、跨设备体验」。它采用 Fluent Design 设计语言，兼容 Windows 10 1903+、Windows 11 以及 Xbox 主机。GitHub 上已收获 4508 Star，是近年 Windows 生态里少有的活跃原生播放器项目。
+
+## 三、核心功能深度解析
+
+### 1. Fluent Design 原生界面
+
+Screenbox 复用 Windows 11 的 Mica 云母、亚克力材质与 Reveal 高光，播放页与媒体库都跟随系统深浅色自动切换。这意味着窗口边框、控件与系统融为一体，不会出现第三方播放器那种「贴了一层皮」的违和感。
+
+### 2. 手势与快捷键操作
+
+播放器支持触控滑动调节进度与音量，并提供 YouTube 风格的快捷键布局——`J/K` 倒退/快进、`F` 全屏、`M` 静音。最实用的是数字键 `1` 到 `4` 切换窗口尺寸，把社交媒体刷到一半突然想认真看片的场景变得顺手。
+
+### 3. 画中画、投屏、局域网播放
+
+Picture-in-Picture 模式可让视频悬浮在桌面任意位置，回复消息、写代码都不打断；Chromecast 支持把本地视频投到客厅电视；网络媒体浏览可自动发现 SMB/UPnP 服务器，无需先拷到本机。
+
+### 4. 视频帧截取
+
+在播放任意一帧时通过快捷键直接保存为图片，配合 Windows 截图工具的 `Win+Shift+S` 用不上。这一功能对影视博主、剪辑师二次取样很友好。
+
+### 5. 解码底座：LibVLC
+
+底层不是自家播放器常见的 FFmpeg 包装，而是 Videolan 官方维护的 LibVLCSharp，几乎支持所有主流封装与编码，包括 H.265、AV1、字幕轨切换，无需额外安装解码包。
+
+![](/assets/blog-images/screenbox-windows-1tszky/img02.webp)
+
+## 四、技术亮点与性能数据
+
+Screenbox 使用 C# + UWP 编写，编译目标是 AnyCPU，启动后内存占用常驻 120 MB 左右，低于多数 Win32 播放器。WinUI 3 + LibVLC 的组合让 GPU 硬解通路自动命中 DXVA，视频帧渲染走 UWP 的 `MediaPlayerElement`/自定义交换链。跨平台覆盖从 x86 平板到 Xbox Series X，Xbox 端可直接用手柄控制，体验与桌面端一致。多语言通过 Crowdin 协作翻译，已覆盖 10 余种语言，由 GitHub Action 自动同步回仓库。
+
+![](/assets/blog-images/screenbox-windows-1tszky/img03.webp)
+
+## 五、适用场景与人群
+
+- **经常看 4K HDR 视频的 Windows 用户**：原系统播放器搞不定的资源，Screenbox 接得住；
+- **Nas 或局域网视频库玩家**：自动发现 SMB/UPnP 服务器，沙发到客厅一气呵成；
+- **Xbox 主机用户**：同一个 UWP 包直接装到主机，用手柄当遥控器；
+- **追求系统视觉一致性的强迫症**：Fluent Design 与 Win11 窗口融为一体，不再出现「应用孤岛」。
+
+不适合：仅在 macOS/Linux 工作的用户；纯命令行播放器爱好者；坚持 MPC 经典布局的怀旧党。
+
+## 六、竞品对比
+
+| 项目 | 渲染底座 | UI 设计 | 商店分发 | 主机支持 |
+|---|---|---|---|---|
+| Screenbox | LibVLC | Fluent Design | 是 | Xbox |
+| Films & TV（系统） | 微软私有 | Win8 风格 | 是 | 弱 |
+| PotPlayer | FFmpeg | Win32 传统 | 否 | 否 |
+| VLC Win11 | LibVLC 官方 | Qt 移植 | 是 | 否 |
+
+相比 VLC 官方 Windows 版，Screenbox 更轻、更现代且原生支持 Xbox；相比系统自带播放器，它能解码更多格式并支持投屏与局域网。
+
+![](/assets/blog-images/screenbox-windows-1tszky/img04.webp)
+
+## 七、如何快速上手
+
+普通用户两种安装方式：
+
+1. Microsoft Store 搜索「Screenbox」一键安装，自动更新；
+2. 命令行执行 `winget install screenbox -s winget`。
+
+开发者启动步骤：克隆 `git clone https://github.com/huynhsontung/Screenbox.git`，使用 Visual Studio 2026 打开 `Screenbox.slnx`，选择 x64 平台后直接 F5。翻译者去 Crowdin 上的 Screenbox 项目页认领语言即可，PR 自动合并。
+
+进阶建议：先在设置里开启「硬件解码」与「字幕默认轨」，再绑定全局快捷键，能省下每次手动选轨的麻烦。
+
+![](/assets/blog-images/screenbox-windows-1tszky/img05.webp)
+
+## 八、总结与行动建议
+
+Screenbox 把 LibVLC 的硬核解码能力与 UWP/Fluent 的现代外观缝在一起，对 Windows 全平台用户而言几乎是一种「补完」。如果你已经受够臃肿播放器或系统自带应用的局限，现在就是换掉它的时机。
+
+仓库地址：https://github.com/huynhsontung/Screenbox
+Microsoft Store：https://apps.microsoft.com/detail/9NTSNMSVCB5L
+一句话建议：把默认播放器换成 Screenbox，让 Windows 重新变成称职的家庭影院终端。
+
+#screenbox #Screenbox #huynhsontung #数据库 #开源项目 #GitHub
+
+![](/assets/blog-images/screenbox-windows-1tszky/img06.webp)
+

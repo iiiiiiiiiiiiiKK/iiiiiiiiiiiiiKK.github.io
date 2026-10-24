@@ -1,0 +1,139 @@
+---
+title: "20K Star 的安全技能路由包：让 AI 告别_猜命令_，逆向_渗透效率翻 4 倍"
+publishedAt: "2026-09-18"
+summary: "做逆向分析时，AI 助手面对一个 APK 样本，常常陷入选择困难：到底该用 jadx 反编译，还是直接上 Frida 动态 hook？前端 JS 加密参数搞不定，是挂 BurpSuite 抓包，还是分析混淆过的 opco…"
+image: "/assets/blog-images/20-k-star-ai-4-1vyla1/img01.webp"
+tags: ["AI", "开源", "文档"]
+author: "Adam"
+---
+![](/assets/blog-images/20-k-star-ai-4-1vyla1/img01.webp)
+
+## 一、开篇：为什么你需要这个工具？
+
+做逆向分析时，AI 助手面对一个 APK 样本，常常陷入选择困难：到底该用 jadx 反编译，还是直接上 Frida 动态 hook？前端 JS 加密参数搞不定，是挂 BurpSuite 抓包，还是分析混淆过的 opcode VM？更糟的是同一台机器上，IDA、Ghidra、radare2、apktool、yara 散落各处，每次任务都得重新翻文档、猜命令、踩一遍相同的坑。
+
+国内某安全团队在 2025 年内部调研显示，安全研究员 40% 的工作时间浪费在「选工具 + 调环境 + 试命令」上，真正做漏洞分析和报告撰写的时间不足三成。AI 写代码能力很强，但缺少一套针对逆向/渗透/安全研究场景的「技能路由」——给它一个 APK，它不知道第一步该做什么；给它一段混淆 JS，它直接生成一堆不可执行的伪代码。
+
+`reverse-skill` 正是为解决这个痛点而生：让 AI 代理拿到任务后，自动路由到正确的方法论、检查本地工具链、执行可复现的工作流，并把经验沉淀成可复用的知识库。
+
+![](/assets/blog-images/20-k-star-ai-4-1vyla1/img02.webp)
+
+## 二、项目简介：一句话说明它是什么
+
+`reverse-skill` 是一个**面向 AI 编程客户端的安全技能路由包**，GitHub Star 数突破 **20,274**，主仓库版本 v1.0.0，兼容 Claude Code、Kiro、Cursor、Cline 等主流 AI 代码客户端。它由四个核心模块组成：AI 自动路由 + 按需自举工具链 + 自动进化经验库 + Ops 契约审计，覆盖 APK 逆向、ELF 二进制、前端 JS 加密、CTF 夺旗、渗透测试、固件 IoT、LLM 安全等 20+ 安全研究场景。
+
+核心特性用四个关键词概括：**路由（Routing）**、**自举（Bootstrap）**、**进化（Evolution）**、**审计（Ops）**。它不是工具，而是工具之上的「方法论调度层」。
+
+![](/assets/blog-images/20-k-star-ai-4-1vyla1/img03.webp)
+
+## 三、核心功能深度解析
+
+### 1. AI 智能路由：告别「猜命令」时代
+
+传统 AI 助手处理安全任务时，往往直接输出 `jadx-cli` 命令，却不检查本机是否安装了 JDK。`reverse-skill` 的 `master-route.ps1` 脚本充当一级 triage：拿到用户任务后，先读 `RULES.md` 全局规则，再加载 `case-init` 生成 scope（授权 + 网络画像），最后把任务分发到对应的场景 skill（apk-reverse、js-reverse、pwn-chain 等）。
+
+路由矩阵 `skills/routing.md` 把任务类型精确映射到方法论：APK → jadx/apktool；ELF 二进制 → IDA/radare2；前端 JS 加密 → Reqable MCP + js-reverse；CTF → CTF-Sandbox-Orchestrator（内置 40+ 子技能）。这套矩阵不是静态文档，而是会根据 `tool-index.md` 自动剔除本地缺失的工具，避免 AI 给出「空气命令」。
+
+### 2. 按需自举工具链：缺什么补什么
+
+仓库提供 `refresh-tool-index.ps1`（Windows）和 `refresh-tool-index.sh`（Linux/macOS）脚本，运行后会扫描本机已安装的 jadx、frida、nmap、ghidra、burpsuite-mcp 等工具，生成 `skills/tool-index.md` 索引。AI 在派发任务前会先查这张表，发现缺失工具就提示用户安装路径或切换替代方案。
+
+平台差异化是另一个亮点：Kali Linux 用户走 `kali/scripts/refresh-tool-index.sh`，会自动识别 Kali 预装的安全工具集；Ubuntu/Debian 和 macOS 则各有独立的部署文档 `docs/platforms/linux.md` 和 `docs/platforms/macos.md`。这种「自举」机制让 AI 不再依赖一份写死的工具清单。
+
+### 3. 自动进化经验库：field-journal 与 Evidence 链
+
+每次任务执行后，`skills/ops/` 下的契约文件会强制记录三类信息：Evidence（原始证据，如脱壳后的 dex、hook 后的内存快照）、Finding（漏洞/逻辑发现）、Path（复现路径）。这些记录写入 `field-journal/`，下次同类任务触发时，AI 会优先检索历史经验复用方法论，避免重复踩坑。
+
+以 OLLVM 去混淆为例，仓库内置 `skills/reverse-engineering/references/ollvm-deobfuscation.md`，结合 `skills/reverse-engineering/dsl-vm-reverse/` 处理自定义 opcode 虚拟机。AI 处理混淆样本时，会先查 journal 是否有同类 case，再决定调用 llvm-pass 还是 unicorn 模拟执行。
+
+### 4. Ops 契约审计：scope gate 把住合规线
+
+授权审计是安全研究的第一道门槛。`RULES.md` 强制要求：AI 在执行任何「ACT 类」操作前，必须先完成 `case-init` 生成 scope.md（明确授权范围 + 网络画像）。未授权目标禁止主动扫描、未授权样本禁止动态执行。这种「scope gate before ACT」机制把合规约束写进了路由层，而不是依赖用户自觉。
+
+![](/assets/blog-images/20-k-star-ai-4-1vyla1/img04.webp)
+
+## 四、技术亮点与性能数据
+
+- **覆盖场景数**：20+ 主场景 + 40+ CTF 子技能，总计 60+ 独立 skill 模块。
+- **兼容 AI 客户端**：Claude Code、Codex CLI、Cursor、Cline、Kiro 全部支持，通过统一的 `RULES.md` + `MASTER-ROUTING.md` 协议接入。
+- **工具链生态**：集成 jadx、apktool、Frida、IDA Pro、radare2、Ghidra、nmap、burpsuite-mcp、yara 等 30+ 主流安全工具，覆盖静态分析、动态调试、流量抓包、漏洞扫描全链路。
+- **架构创新点**：把方法论（routing.md）、工具链（tool-index.md）、经验库（field-journal）、合规契约（ops/）四层解耦，任何一层可独立升级。
+- **协议设计**：`README_AI.md` 是给 AI Agent 看的 bootstrap 入口，包含严格的指令序列——这是项目作者对 AI 行为控制的一次工程化探索。
+
+![](/assets/blog-images/20-k-star-ai-4-1vyla1/img05.webp)
+
+## 五、适用场景与人群
+
+**典型适用场景：**
+
+1. **移动应用安全审计**：拿到一个 APK，需要在 2 小时内完成反编译、漏洞定位、报告输出，`reverse-skill` 自动调度 jadx + Frida + MobSF 工作流。
+2. **CTF 比赛解题**：Crypto/Misc/Reverse/Pwn 多题型并行，CTF-Sandbox-Orchestrator 提供 40+ 子技能路由，AI 自动判断题型并加载对应解题模板。
+3. **红队渗透测试**：从信息收集到漏洞利用到报告撰写，`skills/pentest-tools/` + `skills/attack-chain/` 串成完整攻击链，配合 scope gate 防止越权。
+
+**适合谁：** 安全研究员、CTF 选手、渗透测试工程师、移动安全审计人员、AI + 安全交叉领域研究者。
+
+**不适合谁：** 完全零基础的小白（需要先理解逆向/渗透基础概念）；只想要一个开箱即用 GUI 工具的用户（这是路由包，不是 GUI 软件）；未获得授权就拿去做非法用途的人（项目明确强调 Authorized Pentesting）。
+
+## 六、竞品对比
+
+| 项目 | 定位 | AI 路由 | 工具自举 | 经验沉淀 | 合规审计 | Star 数 |
+|------|------|---------|----------|----------|----------|---------|
+| **reverse-skill** | AI 安全技能路由包 | ✅ 全场景 | ✅ 自动扫描 | ✅ field-journal | ✅ scope gate | 20,274 |
+| BurpSuite 插件生态 | 流量分析工具集 | ❌ | ❌ | ❌ | ❌ | — |
+| MobSF | 移动安全框架 | ❌ | ❌ | ❌ | ❌ | 10k+ |
+| 自建 prompt 库 | 散落经验 | ❌ 手动 | ❌ | ❌ 人工整理 | ❌ | — |
+| Pentest Swarm AI | 红队编排 | 部分 | ❌ | ❌ | 部分 | — |
+
+对比来看，`reverse-skill` 的差异化在于**把 AI 路由、工具自举、经验沉淀、合规审计四层能力打包成一个协议**。BurpSuite 插件再强大，也是给人类用的；自建 prompt 库无法跨任务复用经验；Pentest Swarm AI 偏红队，且不开源核心代码。`reverse-skill` 用 MIT 协议开放核心，配合 GPLv3 的 CTF-Sandbox-Orchestrator 子模块，兼顾开放与合规。
+
+![](/assets/blog-images/20-k-star-ai-4-1vyla1/img06.webp)
+
+## 七、如何快速上手
+
+**环境准备：**
+
+- JDK（jadx/apktool 依赖）
+- Node.js 22.12+（JS 工具链与 MCP 服务）
+- Python 3.x（Frida 与辅助脚本）
+- 一个代码 AI 客户端：Claude Code / Cursor / Cline 任选
+
+**三步部署：**
+
+1. 克隆仓库：
+   `git clone https://github.com/zhaoxuya520/reverse-skill.git`
+
+2. 刷新工具索引（按平台选择命令）：
+   - Windows：`powershell -File skills/scripts/refresh-tool-index.ps1`
+   - Linux/macOS：`bash skills/scripts/refresh-tool-index.sh`
+   - Kali：`bash kali/scripts/refresh-tool-index.sh`
+
+3. 加载到 AI 客户端：把 `README_AI.md` 喂给 Claude Code 或 Cursor，让 AI 按 bootstrap 指令初始化工作区。
+
+**最小可用示例：**
+
+拿到一个 APK 样本后，在 AI 客户端输入：「请按 reverse-skill 流程分析 samples/test.apk」。AI 会自动路由到 `skills/apk-reverse/`，执行 `case-init` 生成 scope.md，调用 jadx 反编译，输出 timeline 和 evidence 记录。
+
+**进阶建议：**
+
+- 先读 `skills/MASTER-ROUTING.md`（PRIMARY 快梯），理解路由优先级
+- 用 `skills/scripts/master-route.ps1` 做一次性 triage 测试
+- 长期使用建议把 `work/` 目录加入 gitignore，案例数据本地留存
+
+## 八、总结与行动建议
+
+`reverse-skill` 的核心价值在于：**它把安全研究的「方法论 + 工具链 + 经验 + 合规」打包成一个 AI 可消费的协议**。对于已经用 AI 辅助做安全研究的人来说，它解决了「AI 不知道下一步该干什么」的根本问题；对于还在手动翻文档、调环境的安全工程师，它能把 40% 的重复劳动压缩到 10% 以内。
+
+**使用建议：**
+
+- 安全研究员：先在 CTF 场景试水，CTF-Sandbox-Orchestrator 的 40+ 子技能能立刻见到效果
+- 渗透测试工程师：从 `skills/pentest-tools/` 入手，配合 scope gate 跑一个完整 case 验证合规流程
+- AI 工具开发者：研究 `RULES.md` + `MASTER-ROUTING.md` 的协议设计，这是给 AI Agent 写「操作系统级指令集」的范例
+
+**项目链接：**
+
+- GitHub：https://github.com/zhaoxuya520/reverse-skill
+- 中文文档：`README_zh.md`
+- AI 入口：`README_AI.md`
+- 联系：ww7517437@gmail.com / QQ 群 942400892 / Discord reverse-skill
+
+**一句话推荐：** 如果你用 AI 做安全研究却总被「猜命令」困扰，`reverse-skill` 就是那个缺失的路由层。

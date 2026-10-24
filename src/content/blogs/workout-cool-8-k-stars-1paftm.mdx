@@ -1,0 +1,128 @@
+---
+title: "Workout.cool：8K Stars 的健身平台，被原作者亲手重写了"
+publishedAt: "2026-07-14"
+summary: "健身三年，换过五款 App，丢过三次训练记录。手机里躺着一堆零散的笔记和截图，每次换器械都得重新查动作要领。最让人崩溃的是——好不容易找到一个顺手的平台，作者突然把它卖了，新主人接手没几个月，整个项目直接停更。"
+image: "/assets/blog-images/workout-cool-8-k-stars-1paftm/img01.webp"
+tags: ["开源", "视频", "文档"]
+author: "Adam"
+---
+![](/assets/blog-images/workout-cool-8-k-stars-1paftm/img01.webp)
+
+## 一、开篇：别再手动折腾它了
+
+健身三年，换过五款 App，丢过三次训练记录。手机里躺着一堆零散的笔记和截图，每次换器械都得重新查动作要领。最让人崩溃的是——好不容易找到一个顺手的平台，作者突然把它卖了，新主人接手没几个月，整个项目直接停更。
+
+这不是段子，而是 fitness 开源社区里真实发生的事。一个叫 workout.lol 的项目，因为训练视频版权费用过高被新东家放弃，主创尝试联系 9 个月、发了 15 封邮件，全部石沉大海。最终，他决定自己重写一遍。
+
+于是有了 **workout.cool**——一个 8K+ Stars 的现代健身教练平台，目标只有一个：把健身爱好者失去的工具，重新做回来，而且做得更好。
+
+## 二、项目简介：一句话说明它是什么
+
+**Workout.cool** 是一个面向健身爱好者的开源训练管理平台，核心围绕三件事：制定训练计划、追踪训练进度、查询动作数据库。
+
+四个关键词：**Next.js 全栈**、**TypeScript 类型安全**、**Feature-Sliced Design 架构**、**Prisma + PostgreSQL**。
+
+上线至今收获 8.3K Stars，Vercel OSS 项目扶持，社区活跃的 Discord 频道已经有不少健身爱好者与开发者在里面共建。
+
+![](/assets/blog-images/workout-cool-8-k-stars-1paftm/img02.webp)
+
+## 三、核心功能深度解析
+
+### 1. 训练计划制定器
+
+Workout.cool 提供了可视化训练计划编辑器，支持动作组合、组数次数编排、休息时间配置。每个动作都关联了数据库里的标准条目，避免「深蹲做几组」这种含糊描述。
+
+对比 Excel 表格手抄训练计划，这种方式有两个明显优势：一是计划可复用、可分享；二是每条计划都能和进度追踪打通。
+
+### 2. 进度追踪系统
+
+用户完成训练后可以记录实际组数、重量、次数。系统会按时间线汇总训练量、训练频率，方便回看「上周胸推到底推了多重」。
+
+这种轻量级的进度记录特别适合不喜欢复杂统计的人——你不用对着电子表格画柱状图，App 自动把数据整理好。
+
+### 3. 动作数据库
+
+项目内置了完整的动作库，每个动作都包含中英文双语描述、视频示范链接、动作属性（如发力肌群、动作类型）。导入方式很灵活：支持 CSV 批量导入，还提供了一个 ChatGPT 提示词脚本，让 AI 自动扩展动作条目。
+
+对于追求数据库规模的开发者来说，这个设计相当贴心——你不用手动录入几千个动作，让模型去生成结构化数据就行。
+
+### 4. 用户认证与会话管理
+
+基于 Better Auth 实现登录注册，支持邮箱密码与社交登录。所有用户数据都存在自家 PostgreSQL 里，自托管用户完全掌控。
+
+![](/assets/blog-images/workout-cool-8-k-stars-1paftm/img03.webp)
+
+## 四、技术亮点与性能数据
+
+- **架构选型**：采用 Next.js App Router + Feature-Sliced Design（FSD），目录结构清晰分为 `app / processes / widgets / features / entities / shared / styles` 七层。每一层职责明确，新人接手也能快速定位代码。
+- **类型安全**：全栈 TypeScript，Prisma Schema 直接生成类型，前后端数据契约零漂移。
+- **部署友好**：提供官方 Docker 镜像和 docker-compose 配置，一行命令 `docker compose up -d` 就能跑起来；非 Docker 方式支持本地 PostgreSQL + `pnpm dev`。
+- **生态兼容**：被 Vercel OSS 项目收录，部署到 Vercel 几乎零配置；同时保留自托管能力，敏感数据不出本地。
+
+![](/assets/blog-images/workout-cool-8-k-stars-1paftm/img04.webp)
+
+## 五、适用场景与人群
+
+**适合谁**：
+
+1. **健身爱好者**：想找一个开源、可自托管、不怕平台跑路的训练记录工具。
+2. **私教 / 教练**：需要给学员分发训练计划，并且希望数据完全自己掌控。
+3. **全栈开发者**：想学习 FSD 架构、Next.js App Router、Prisma 实战，这个项目是个不错的样板。
+
+**不适合谁**：
+
+1. 只想要现成课程、不关心数据归属的普通用户——直接用 Keep、Strava 更省事。
+2. 不熟悉 Node.js / Docker，又不想折腾部署的非技术用户。
+
+## 六、竞品对比
+
+| 项目 | 类型 | 数据归属 | 视频版权成本 | 自托管难度 |
+|---|---|---|---|---|
+| **Workout.cool** | 开源健身平台 | 100% 自有 | 社区共建 / 用户自填 | 低（Docker 一键起） |
+| workout.lol（已停更） | 开源 | 历史遗留 | 高（项目夭折原因） | 中 |
+| Hevy / Strong 等商业 App | 闭源 | 厂商服务器 | 由厂商承担 | 不支持 |
+
+**为什么选它**：开源、可商用（MIT 协议）、数据库由你自己掌控、动作库可自定义扩展，再也不用担心「平台突然没了」。
+
+![](/assets/blog-images/workout-cool-8-k-stars-1paftm/img05.webp)
+
+## 七、如何快速上手
+
+**前提**：Node.js 18+、pnpm 8+、Docker（可选）。
+
+**Docker 一键启动**：
+
+```bash
+git clone https://github.com/Snouzy/workout-cool.git
+cd workout-cool
+cp .env.example .env
+make dev
+```
+
+跑完访问 [http://localhost:3000](http://localhost:3000) 即可。如果想体验完整动作库，把 `.env` 里的 `SEED_SAMPLE_DATA` 设置为 `true`。
+
+**手动安装（不用 Docker）**：
+
+```bash
+pnpm install
+cp .env.example .env
+createdb -h localhost -p 5432 -U postgres workout_cool
+npx prisma migrate dev
+pnpm dev
+```
+
+**生产部署**：用 Docker Compose 时，记得把 `DATABASE_URL` 里的 `host` 改成 `postgres` 服务名，其他配置保持默认即可。
+
+![](/assets/blog-images/workout-cool-8-k-stars-1paftm/img06.webp)
+
+## 八、总结与行动建议
+
+Workout.cool 不是又一个「健身 + AI」的概念型项目，它解决的是一个真实发生过的问题：一个被放弃的开源工具如何被原班人马重建，并且以更现代的姿态回归。
+
+如果你受够了商业 App 的隐私焦虑和停更风险，这个项目值得你花一个晚上跑起来看看；如果你会写 TypeScript，更欢迎直接去 GitHub 提 PR。
+
+- 仓库地址：https://github.com/Snouzy/workout-cool
+- 官网演示：https://workout.cool
+- 社区 Discord：https://discord.gg/NtrsUBuHUB
+
+开源健身工具能不能活下去，靠的不是某个作者单打独斗，而是每一个用顺手的人顺手点一个 Star。

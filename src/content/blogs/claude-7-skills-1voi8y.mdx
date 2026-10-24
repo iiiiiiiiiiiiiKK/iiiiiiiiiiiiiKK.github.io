@@ -1,0 +1,267 @@
+---
+title: "别再裸聊 Claude 了：这 7 个 Skills 让它干活靠谱十倍"
+publishedAt: "2026-06-23"
+summary: "我装了 7 个 Agent Skills 仓库，这几个最好用"
+image: "/assets/blog-images/claude-7-skills-1voi8y/img01.webp"
+tags: ["AI", "Agent", "开源"]
+author: "Adam"
+---
+![](/assets/blog-images/claude-7-skills-1voi8y/img01.webp)
+
+选择标题（3 选 1）
+
+我装了 7 个 Agent Skills 仓库，这几个最好用
+
+别再裸聊 Claude 了：这 7 个 Skills 让它干活靠谱十倍
+
+私藏 7 个 GitHub 神器：把 Agent 调教成专属员工
+
+## 一、开篇：别再手动折腾它了
+
+产品经理丢过来一句「帮我把这份 PDF 里的表单字段都抽出来」，你打开 Acrobat、复制、粘贴、改格式，半小时过去了。同行已经把整份方案丢给了 Agent，顺手把抽好的 Excel 也附在了回复里。
+
+问题不在你慢，而在你还在用「人工 + 通用聊天」的方式指挥 Agent。一个 Claude、一个 Codex，默认状态下并不知道你公司品牌的字号、不知道你的项目用什么测试框架、不知道你想要哪种封面。把它直接放出去，它只能给你一份「看起来对、其实要返工三次」的产物。
+
+下面这 7 个仓库解决的就是这件事：把可复用的指令、脚本和约束打包成「Skill」，让 Agent 装上就能按你的规矩干活。
+
+## 二、项目速览
+
+| 仓库 | Stars | 主要语言 | 一句话定位 |
+|---|---|---|---|
+| anthropics/skills | 177.3K | Python | Anthropic 官方 Skill 示例库，覆盖 PDF/Word/PPT/Excel |
+| obra/superpowers | 289.2K | Shell | 给编码 Agent 用的完整开发方法论 + 技能集 |
+| addyosmani/agent-skills | 97.6K | JavaScript | 面向生产的 25 个工程 Skill，覆盖全开发流程 |
+| zjunlp/SkillNet | 1.3K | Python | Skill 的搜索、评估、组合与编排基础设施 |
+| KKKKhazix/khazix-skills | 20.8K | Python | 数字生命卡兹克的个人 Skill 合集，主打中文场景 |
+| Pluviobyte/rnskill | 1.6K | Python | 雪踏乌云的中文 Skill 大全，60 个目录覆盖视频/图文/编码 |
+| ibelick/ui-skills | 8.8K | TypeScript | 面向设计工程师的 UI Skill 注册中心 |
+
+## 三、项目解析
+
+### anthropics/skills — Anthropic 官方示例库
+
+这是 Anthropic 自己放出来的 Skills 实现参考库，里面每一项都是「文件夹 + SKILL.md」的结构：YAML frontmatter 写元数据，正文写指令，Agent 动态加载。**你把它当成模板字典用，比自己摸索快很多**。
+
+技术亮点是它把 Claude 文档能力的底层实现也开源了：`skills/docx`、`skills/pdf`、`skills/pptx`、`skills/xlsx` 这几个子目录就是 Claude 实际在用的文档处理 Skill，源代码可见。
+
+适合谁：想自己写 Skill 的开发者、想了解「复杂 Skill 在生产 AI 产品里长什么样」的人。不适合只想装现成 Skill 用的用户——这个库本身不是开箱即用的成品。
+
+**最小上手**
+
+在 Claude Code 里执行：
+
+```
+/plugin marketplace add anthropics/skills
+```
+
+然后在交互里选 `Browse and install plugins` → `anthropic-agent-skills` → `document-skills` → `Install now`。装好后直接跟 Claude Code 说：
+
+```
+用 PDF skill 抽出 path/to/some-file.pdf 里的所有表单字段
+```
+
+*开源地址：* **https://github.com/anthropics/skills**
+
+![](/assets/blog-images/claude-7-skills-1voi8y/img02.webp)
+
+### obra/superpowers — 编码 Agent 的方法论
+
+**它不是一个 Skill，而是一整套给编码 Agent 用的开发方法论**。核心流程是：先用 spec 把需求聊透，分块让你确认；再产出实施计划；最后用「subagent-driven-development」让 Agent 互相 review、互相检查，自己跑一两小时不偏航。
+
+支持的 Agent 数量很惊人：Claude Code、Cursor、Codex CLI、Gemini CLI、GitHub Copilot CLI、OpenCode、Kimi Code、Qwen Code 等 16+ 都在安装列表里。**它的核心价值是把「junior 工程师风格的随手写代码」挡在门外**——强 TDD、YAGNI、DRY 三条铁律写在 harness 里。
+
+适合谁：长期用 Agent 写代码、希望规划阶段更可控的人。不适合只想让 Agent 改一行 bug 的人——它每次启动都会先跟你确认目标，杀鸡用牛刀。
+
+**最小上手**
+
+在 Claude Code 里跑：
+
+```
+/plugin install superpowers@claude-plugins-official
+```
+
+或者用 GitHub 源安装：
+
+```
+/plugin marketplace add obra/superpowers-marketplace
+/plugin install superpowers@superpowers-marketplace
+```
+
+装好后随便开一个新项目，跟 Agent 说「我想做个 XX」，它会先反问你做这件事的真实目标，而不是立刻开始写代码。
+
+*开源地址：* **https://github.com/obra/superpowers**
+
+### addyosmani/agent-skills — 25 个生产级工程 Skill
+
+Addy Osmani（Google Chrome 团队）开源的工程 Skill 包。**和 superpowers 的区别在于：它把流程拆成 9 个 slash 命令**：`/spec`、`/plan`、`/build`、`/test`、`/constraints`、`/review`、`/webperf`、`/code-simplify`、`/ship`，每条命令对应开发生命周期的一个阶段。
+
+里面 25 个 Skill 覆盖 API 设计、UI 工程、TDD、性能审计等场景。最贴心的是 `/build auto` 模式：你审批一次计划，Agent 自动跑完全部任务，每个任务依然测试驱动、单独提交，失败或风险步骤会暂停。
+
+适合谁：希望按命令精确控制 Agent 行为的工程团队、单兵开发者。不适合只想装一两个 Skill 试试的人——它是套装，单买意义不大。
+
+**最小上手**
+
+一行命令装全部：
+
+```
+npx skills add addyosmani/agent-skills
+```
+
+想先看看再装：
+
+```
+npx skills add addyosmani/agent-skills --list
+```
+
+装好后直接说 `/spec 我想做个用户登录功能`，它会进入需求澄清流程。
+
+*开源地址：* **https://github.com/addyosmani/agent-skills**
+
+![](/assets/blog-images/claude-7-skills-1voi8y/img03.webp)
+
+### zjunlp/SkillNet — Skill 的基础设施层
+
+前面三个项目是「Skill 本身」，SkillNet 想做的是「Skill 的 npm」。你可以把它理解成 Skill 的搜索、评分、组合、编排平台：搜索公开 Skill 库、按关键字或语义检索；评估 Skill 的安全性、完整度、可执行性、可维护性；分析本地 Skill 之间的 `compose_with`、`depend_on` 关系；最后生成可以直接喂给下游 Agent 的执行 prompt。
+
+==注意：编排功能需要 OpenAI 兼容端点和 Claude Agent SDK，搜索和下载本身不要 API Key==。目前已索引 500K+ 个 GitHub Skill，自带 MCP server，OpenClaw 和 JiuwenClaw 已经把它做成内置市场。
+
+适合谁：研究 Agent 工程化的团队、需要批量管理 Skill 的平台搭建者。不适合个人用户——它的价值在「规模」，单装一个 Skill 用不到它。
+
+**最小上手**
+
+装 SDK：
+
+```
+pip install skillnet-ai
+```
+
+搜索并下载 Skill：
+
+```python
+from skillnet_ai import SkillNetClient
+
+client = SkillNetClient()
+results = client.search("pdf understanding", limit=5)
+client.download(results[0].skill_url, target_dir="./my_skills")
+```
+
+或者用 CLI：
+
+```
+skillnet search "pdf understanding" --limit 5
+skillnet download <skill_url> -d ./my_skills
+```
+
+*开源地址：* **https://github.com/zjunlp/SkillNet**
+
+![](/assets/blog-images/claude-7-skills-1voi8y/img04.webp)
+
+### KKKKhazix/khazix-skills — 中文个人 Skill 合集
+
+公众号「数字生命卡兹克」开源的 6 个 Skill，全部在他自己的项目里跑通过才放出。**最值得装的是 `leader`（领导）和 `storage-analyzer`（清理垃圾）**。
+
+`leader` 的设计哲学是「人和 AI 的协作单位现在是目标，不是任务」：它会先钻代码库实测调研，再问你最多 5 个必须你拍板的问题，最后输出目标任务书。配套的「目标七问」心法——目的、完成态、证据、反作弊、地界、取舍、未知——把「AI 跑一整夜跑偏了怎么办」这个问题正面回答了。
+
+`storage-analyzer` 则是 CleanMyMac 的 Skill 化版本：扫完磁盘在浏览器里给你一份交互式 HTML 报告，绿灯/黄灯/红灯三色分级，每项都有具体路径和删了的影响说明。**比 CleanMyMac 强在它告诉你每一项「是什么、删了会怎样」，而不是只给一个「可删」标签**。
+
+适合谁：中文用户、用 Claude Code 或 Codex 做长程任务的人、磁盘常年告急的 Mac 用户。不适合只用英文 Agent 的人——Skill 文本是中文为主。
+
+**最小上手**
+
+跟 Agent 说：
+
+```
+帮我安装这个 skill：https://github.com/KKKKhazix/khazix-skills/tree/main/neat-freak
+```
+
+装好后试试清理磁盘：
+
+```
+帮我看看存储
+```
+
+或者试试 leader：
+
+```
+帮我给 agent 写个目标
+```
+
+*开源地址：* **https://github.com/KKKKhazix/khazix-skills**
+
+![](/assets/blog-images/claude-7-skills-1voi8y/img05.webp)
+
+### Pluviobyte/rnskill — 雪踏乌云的中文 Skill 全集
+
+**60 个顶层 Skill 目录，分内容创作和编码开发两大类**。作者自己说「过去一个月总投入不到 10 小时，在抖音涨粉 2k 并接到第一个商单」，靠的就是这套 Skill + Codex + HyperFrames + HeyGen + IndexTTS2 的组合。
+
+几个值得单独拎出来看的 Skill：`ra-cover-skill` 用标题和主题直接生成 5:2 编辑图解风封面，每次右侧概念图重新设计，不会把参考封面的节点和构图反复复制；`novel-distill` 读章节、比较候选事件、输出事件卡和分镜，区分「F 原文事实 / P 视听建议 / A 新增改编」三类，不会把参考视频的能力错写成原著；`ra-人话` 是中文去 AI 味写作，硬禁二元对比壳、伪洞察标记、冒号讲义腔。
+
+适合谁：内容创作者（特别是做短视频、小说改编、公众号的人）、用 Codex 跑自动化工作流的人。不适合纯编码工程师——它的编码 Skill 还在持续补充中，目前主要价值在内容侧。
+
+**最小上手**
+
+装全部：
+
+```
+npx -y skills add Pluviobyte/rnskill -g --all
+```
+
+或者只装封面 Skill：
+
+```
+npx -y skills add Pluviobyte/rnskill --skill rn-cover-skill
+```
+
+装好后跟 Codex 说：
+
+```
+使用 $rn-cover-skill 制作 5:2 封面，标题为「开源 Claude 风格封面 Skill」
+```
+
+*开源地址：* **https://github.com/Pluviobyte/rnskill**
+
+![](/assets/blog-images/claude-7-skills-1voi8y/img06.webp)
+
+### ibelick/ui-skills — UI 设计工程师的 Skill 注册中心
+
+专门给「设计工程师」（Design Engineer）这个岗位做的 Skill 注册中心。CLI 可以浏览、按分类列出、按名获取；MCP 端点 `https://www.ui-skills.com/mcp` 暴露 `list_skills` 和 `get_skill` 两个工具，Agent 可以直接接进去；网站还提供一份 Playbook，把「UI Skill 学到的教训」做成了设计工程实践手册。
+
+适合谁：做前端 + 设计的 hybrid 工程师、想给 Agent 配 UI 规则的团队。不适合纯后端或者纯文案岗——它的所有 Skill 都是围绕 UI 展开的。
+
+**最小上手**
+
+CLI 启动：
+
+```
+npx ui-skills start
+```
+
+看分类：
+
+```
+npx ui-skills categories
+```
+
+按分类列出：
+
+```
+npx ui-skills list --category motion
+```
+
+装单个：
+
+```
+npx ui-skills get baseline-ui
+```
+
+*开源地址：* **https://github.com/ibelick/ui-skills**
+
+![](/assets/blog-images/claude-7-skills-1voi8y/img07.webp)
+
+## 四、总结与行动建议
+
+1. 想最快见效：先装 `KKKKhazix/khazix-skills` 的 `storage-analyzer`，十分钟内就能看到 Agent 自己扫盘给报告的爽感。
+2. 长期做项目：装 `obra/superpowers` 或 `addyosmani/agent-skills` 任选一个，前者重方法论、后者重命令式控制，按你的协作风格挑。
+3. 做内容创作：装 `Pluviobyte/rnskill` 全套，配合 Codex 一晚上就能跑出一条完整流水线；想自己造 Skill 的，去 `anthropics/skills` 看官方模板。
+
+#AI智能体 #AI工作流 #自动化 #Skills #Superpowers #AgentSkills #Skillnet #KhazixSkills #Rnskill #UiSkills

@@ -1,0 +1,141 @@
+---
+title: "跨平台用户苦剪贴板久矣：UniClipboard 想用 P2P 一次解决"
+publishedAt: "2026-08-07"
+summary: "做开发的都经历过这种场景：在 Windows 上查到一段报错信息，按下 Ctrl+C，切到 Mac 上想粘贴，发现在 Mac 上还要重新搜一遍。手机里刚截的验证码，想直接发到电脑的登录框里，结果还得走微信发给自己。剪贴板…"
+image: "/assets/blog-images/uniclipboard-p2p-1n7ot0/img01.webp"
+tags: ["开源", "终端", "安全"]
+author: "Adam"
+---
+![](/assets/blog-images/uniclipboard-p2p-1n7ot0/img01.webp)
+
+## 一、开篇：复制粘贴这件小事，怎么突然就跨不过去了
+
+做开发的都经历过这种场景：在 Windows 上查到一段报错信息，按下 `Ctrl+C`，切到 Mac 上想粘贴，发现在 Mac 上还要重新搜一遍。手机里刚截的验证码，想直接发到电脑的登录框里，结果还得走微信发给自己。剪贴板本该是设备之间最自然的桥梁，但在苹果生态之外，它几乎处于"断网"状态。
+
+更让人警觉的是，剪贴板里跑的是密码、token、身份证号、临时草稿。如果同步路径要经过某个不知名的云端中间件，等于把最私密的文本每天拱手送人。这个痛点，跨平台用户每天都在硬扛。
+
+## 二、项目简介：用一句话概括
+
+UniClipboard 是一款**本地优先、点对点、端到端加密**的跨设备剪贴板同步工具，GitHub 已收获 1508 Stars。它用 Rust 写成，桌面端覆盖 Windows / macOS / Linux，iOS / Android / HarmonyOS 正在以独立 P2P 节点的身份逐步并入同一核心。没有账号，没有云依赖，剪贴板内容永远不会以明文离开你的设备。
+
+## 三、核心功能深度解析
+
+### 1. P2P + 加密中继的传输架构
+
+UniClipboard 桌面节点之间默认走 iroh 提供的 QUIC 点对点连接，同一 Wi-Fi 直连；跨网络时先尝试 NAT 打洞，打洞失败再回落到加密中继。Payload 在写入网络前就由本机密钥加密完毕，中继节点只能看到密文和连接元数据，看不到内容。这种"先加密再选路"的设计，让传输层和密码学层解耦，安全边界比传统云同步清晰得多。
+
+### 2. 以 Space 为中心的密钥与设备管理
+
+每个 Space 拥有独立的 MasterKey，密钥派生使用 Argon2id（内存成本 128 MB、3 次迭代、4 线程并行），可抵御 GPU / ASIC 暴力破解。MasterKey 用 KEK 包裹后存到 KeySlot，KEK 则交给系统钥匙串保管（macOS Keychain、Windows Credential Manager、Linux Secret Service）。换 Space 时，本地历史会被新 MasterKey 重新加密，不会出现"旧密钥残留"。
+
+### 3. 文本、图片、文件的统一同步通道
+
+桌面端同步文本、图片、可传输文件，大文件采用流式分块，不需要把整份内容塞进内存。同步触发后，另一端在 Quick Panel 里能看到带预览的条目，包括代码、链接、图片缩略图，常用快捷键唤起，几乎没有"切应用"的割裂感。
+
+### 4. 加密的全文检索历史
+
+历史记录写入本地加密 SQLite 数据库，搜索索引同样加密落盘。即便有人拿到磁盘镜像，也读不出明文。官方测试覆盖到数万条条目仍能在毫秒级返回结果，足以顶住日常重度使用。
+
+### 5. 无头场景的 `uniclip` 命令行
+
+服务器、SSH 会话、tmux、自动化脚本里没有 GUI 怎么办？UniClipboard 提供了 `uniclip` CLI：`uniclip init` 建 Space、`uniclip invite` 发邀请码、`uniclip send "hello"` 推剪贴板、`uniclip watch` 流式接收事件。它和 GUI 共用同一套流程，可以完全脱离图形界面工作。
+
+### 6. 移动端：兼容模式与目标架构并行
+
+iOS TestFlight 公测版与 Android APK 已上线。当前的移动端走的是"HTTP 兼容模式"——桌面端开启一个本地 HTTP 监听，手机扫码拿到 URL + 一次性密码即可读写。这种模式刻意被定位为过渡方案；目标架构里，手机会和桌面、鸿蒙一样作为完整 P2P 节点加入同一 Space，不再依赖任何桌面守护进程。
+
+![](/assets/blog-images/uniclipboard-p2p-1n7ot0/img02.webp)
+
+## 四、技术亮点与性能数据
+
+- **XChaCha20-Poly1305 AEAD**：24 字节随机 nonce + 32 字节密钥，同时保证机密性、完整性和真实性。
+- **Argon2id 密钥派生**：128 MB / 3 次迭代 / 4 线程，参数处于社区公认的"够硬"区间。
+- **QUIC + iroh P2P**：基于 QUIC 的点对点网络栈，提供跨网络直连与打洞。
+- **Tokio 异步运行时**：所有网络与 I/O 路径都在 Tokio 上调度，避免阻塞 UI。
+- **SQLite 加密索引**：数万条历史仍可毫秒级检索，索引本身加密。
+- **Tauri + Rust 前端**：Tauri 框架 + Rust 后端，体积和内存占用明显小于 Electron 同类应用。
+- **生态兼容**：支持 `.deb` / `.rpm` / AppImage / Homebrew Cask / 官方一键安装脚本；Linux 还提供 COPR 自动更新源。
+
+## 五、适用场景与人群
+
+- **跨平台开发 / 运维**：Windows、Mac、Linux 之间频繁切换，需要随手复制命令、报错、日志片段。
+- **隐私敏感用户**：密码、token、内部链接、合同草稿需要跨设备流转，但不愿意走任何第三方云。
+- **服务器 / 远程工作者**：通过 SSH 或跳板机操作远端服务器时，用 `uniclip` CLI 把内容灌进本地剪贴板，或反向同步回本机。
+- **移动办公**：iPhone 截图验证码、地址链接，希望直接出现在电脑粘贴板中；当前通过兼容模式已可用，P2P 化后体验会更顺滑。
+
+不适合的只有一种情况：你只待在单一苹果生态内，对历史搜索和可审计性也没要求——`Cmd+C` / `Cmd+V` 配合 iCloud 通用剪贴板已经够用。
+
+![](/assets/blog-images/uniclipboard-p2p-1n7ot0/img03.webp)
+
+## 六、竞品对比
+
+| 维度 | UniClipboard | iCloud 通用剪贴板 | 自建同步方案（如 ClipCascade） |
+|---|---|---|---|
+| 跨平台覆盖 | Windows / macOS / Linux / iOS / Android / HarmonyOS | 仅 Apple 设备 | 取决于自建部署 |
+| 账号体系 | 无邀请码 + 口令 | 强制 Apple ID | 自建账号 |
+| 数据存储位置 | 仅本地加密库 | 苹果云 | 自建服务器 |
+| 传输路径 | P2P 直连 + 加密中继回退 | 苹果云中转 | 自建中转 |
+| 可审计性 | Rust + 全部源码在 GitHub | 闭源 | 取决于项目 |
+| 历史搜索 | 加密索引，毫秒级 | 无 | 取决于项目 |
+| 大文件支持 | 流式分块 | 仅文本/小型图片 | 取决于项目 |
+| 离线 / LAN 工作 | 同 Wi-Fi 直连 | 需登录 Apple ID | 需自建服务在线 |
+
+一句话总结：要跨平台、要可审计、要本地优先，UniClipboard 是目前最完整的开源答案。
+
+![](/assets/blog-images/uniclipboard-p2p-1n7ot0/img04.webp)
+
+## 七、如何快速上手
+
+**桌面端一键安装（Linux / macOS）**
+
+```bash
+curl -fsSL https://uniclipboard.app/install.sh | bash
+```
+
+脚本会自动识别 OS 与架构，把 `.app` 放进 `/Applications`，或者在 Linux 上选择 `.deb` / `.rpm` / AppImage。
+
+**macOS Homebrew**
+
+```bash
+brew tap UniClipboard/tap
+brew trust UniClipboard/tap
+brew install --cask uniclipboard   # GUI
+brew install uniclipboard          # 仅 CLI
+```
+
+**Linux COPR 自动更新（Fedora / RHEL）**
+
+```bash
+sudo dnf copr enable mkdir700/uniclipboard
+sudo dnf install uniclipboard
+```
+
+**首次配对两台设备**
+
+1. 在第一台设备选择"Create a Space"，设定加密口令。
+2. 在 Devices 页生成短期邀请码，把"邀请码 + 口令"交给第二台设备。
+3. 第二台设备选择"Join an existing space"，输入两者后自动开始同步。
+
+**进阶：CLI + 服务器节点**
+
+```bash
+uniclip init
+uniclip invite
+uniclip send "hello"
+uniclip watch
+```
+
+想跨公网同步手机，可参考官方"self-host server node"指南，把桌面端以 HTTPS 反代暴露给手机。
+
+![](/assets/blog-images/uniclipboard-p2p-1n7ot0/img05.webp)
+
+## 八、总结与行动建议
+
+UniClipboard 把跨设备剪贴板同步重新拉回了"用户主权"轨道：本地优先、P2P 直连、端到端加密、密码学可审计。没有账号、没有云依赖，1508 颗 Star 背后是大量对 iCloud 通用剪贴板不满、又对自建方案望而却步的跨平台用户。
+
+如果你正被"复制完还要再找一遍"反复折磨，又不希望剪贴板内容漂到任何第三方服务器，不妨装上它试试。先用一台 Windows + 一台 Mac 跑通 Space，再用 `uniclip` CLI 把服务器节点接进来——十分钟左右就能体会到跨设备粘贴的丝滑。
+
+- 项目主页：https://uniclipboard.app
+- GitHub 仓库：https://github.com/UniClipboard/UniClipboard
+- 移动端仓库：https://github.com/UniClipboard/UniClip
+- 文档与 FAQ：https://www.uniclipboard.app/docs

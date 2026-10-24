@@ -1,0 +1,149 @@
+---
+title: "为什么你用 AI 写的前端总是「很 AI」？因为你没有装 Taste Skill"
+publishedAt: "2026-10-09"
+summary: "用 Cursor、Claude Code 或 Codex 写前端页面的开发者，大概率踩过同一个坑：AI 输出的代码能跑，但视觉一言难尽——居中堆叠的 Hero、毫无呼吸感的间距、千篇一律的圆角按钮，还有满屏刺眼的紫色到蓝…"
+image: "/assets/blog-images/ai-ai-taste-skill-1rn2r7/img01.webp"
+tags: ["AI", "Agent", "开源"]
+author: "Adam"
+---
+![](/assets/blog-images/ai-ai-taste-skill-1rn2r7/img01.webp)
+
+## 一、开篇：为什么你需要这个工具？
+
+用 Cursor、Claude Code 或 Codex 写前端页面的开发者，大概率踩过同一个坑：AI 输出的代码能跑，但视觉一言难尽——居中堆叠的 Hero、毫无呼吸感的间距、千篇一律的圆角按钮，还有满屏刺眼的紫色到蓝色渐变。GitHub 上随手一搜「AI 生成前端」，吐槽帖里最常出现的关键词就是「丑」「模板感」「slop」。
+
+「AI slop」这个词在 2024 年开始流行，专指大模型批量产出的低质、同质化内容。在设计领域，slop 的特征非常明显：em-dash 滥用、emoji 当装饰、对称到呆板的布局、永远在屏幕中央的标题。当一个产品 80% 的页面都长一个样，再好的业务逻辑也救不回来。
+
+更扎心的是，开发者想让 AI「设计得好一点」，却发现提示词写了三页，AI 该糊弄还是糊弄。因为审美不是写几条规则就能教会的，它需要结构化的约束、可调节的旋钮，以及对「反模式」的明确禁令。这就是 Taste Skill 要解决的问题。
+
+![](/assets/blog-images/ai-ai-taste-skill-1rn2r7/img02.webp)
+
+## 二、项目简介：一句话说明它是什么
+
+Taste-Skill 把自己定位为「The Anti-Slop Frontend Framework for AI Agents」，翻译过来就是给 AI 智能体用的「反 slop 前端框架」。它不是 UI 组件库，也不是代码生成器，而是一套可移植的 **Agent Skills**（智能体技能包），通过 SKILL.md 指令文件，让 Cursor、Codex、Claude Code 等主流 AI 编程助手在写前端时自动遵循一套经过研究验证的设计规范。
+
+核心特性可以概括为四个关键词：**可调节（dials）**、**反 slop（anti-slop）**、**多场景（variants）**、**框架无关（framework-agnostic）**。项目在 GitHub 上已经获得 **73,499 Stars**（截至当前数据），是目前 Agent Skills 生态中最受欢迎的前端设计类项目之一，由 Vercel 开源计划赞助。最新主版本为 **v2（实验版）**，是对原 v1 的大幅重写。
+
+## 三、核心功能深度解析
+
+### 1. 三大可调节旋钮：让设计从「模板」变成「有性格」
+
+Taste Skill 最具创新性的设计，是在 SKILL.md 顶部暴露了三个 1-10 的数值旋钮：
+
+- **DESIGN_VARIANCE（设计变异性）**：控制布局的实验程度。低值（如 3）输出居中、规整、保守的排版；高值（如 8）输出非对称、打破网格、现代感强的版式。
+- **MOTION_INTENSITY（动效强度）**：控制动画深度。低值仅保留 hover 反馈；高值则解锁滚动驱动、磁性吸附、GSAP 时间轴等复杂动效。
+- **VISUAL_DENSITY（视觉密度）**：控制每屏信息量。低值给呼吸感强的高端留白；高值适合数据密集型 Dashboard。
+
+这三个旋钮不是装饰，而是写进了 AI 的提示工程约束里，开发者可以根据项目类型（如品牌站 vs SaaS 后台）快速切换风格，而无需重写整套规则。
+
+### 2. 多场景变体：一个项目，覆盖十种设计语言
+
+仓库的 `skills/` 目录下提供了十余个独立技能，每个技能对应一种设计方向或工作流：
+
+- `design-taste-frontend`：通用默认技能（v2 实验版）。
+- `high-end-visual-design`（soft-skill）：柔和、高级、克制，强调留白与弹性动画。
+- `minimalist-ui`：编辑型产品风，对标 Notion、Linear。
+- `industrial-brutalist-ui`：瑞士字体、硬朗对比、实验性版式。
+- `redesign-existing-projects`：对已有项目做 UI 审计与重设计。
+- `image-to-code`：图像→分析→实现的端到端管线。
+- `gpt-taste`：针对 GPT/Codex 的强化版规则。
+- `full-output-enforcement`：防止 AI 输出半成品、留 TODO 注释。
+
+这种「一个仓库，多种风格」的设计，避免了开发者为不同项目反复切换工具栈。
+
+### 3. 图像生成技能：把「参考图」也交给 AI
+
+Taste Skill 不止管代码，还管参考图。仓库内置三个图像生成技能：`imagegen-frontend-web`（网页构图）、`imagegen-frontend-mobile`（移动端界面）、`brandkit`（品牌识别板）。这些技能输出参考图，配合 ChatGPT Images 或 Codex 图像模式生成视觉稿，再把成片喂给 Cursor 或 Claude Code 实现前端。这种「先视觉、后代码」的流程，是当前 AI 辅助设计最有效的工作方式之一。
+
+### 4. 反 slop 的硬性规则
+
+项目在 README 和 CHANGELOG 中明确列出了一些「硬禁令」，例如：
+
+- **em-dash 强制禁令**（v2 引入）：AI 生成的英文文案里滥用 em-dash 的现象被视为 slop 信号，规则要求改用句号或换行。
+- **配色反模式**：禁用「中心对称的紫蓝渐变」这类 AI 默认配色。
+- **占位符禁令**：配合 `full-output-enforcement`，禁止输出「// TODO」之类的占位注释。
+
+![](/assets/blog-images/ai-ai-taste-skill-1rn2r7/img03.webp)
+
+## 四、技术亮点与性能数据
+
+**架构层面**，Taste Skill 采用 Vercel Labs 提出的 **Agent Skills 开放标准**，通过 `SKILL.md` 前言（frontmatter）声明技能元信息。这意味着任何兼容该标准的智能体（Codex、Cursor、Claude Code、Gemini CLI 等）都能自动发现并加载这些技能，无需为每个平台单独适配。
+
+**安装体验**做到了一行命令完成：`npx skills add https://github.com/Leonxlnx/taste-skill`。支持按需安装（通过 install name 指定）、可降级到 v1、可复制单文件到本地项目，灵活性极高。
+
+**生态兼容性**方面，项目已通过 Vercel 开源计划认证，并与 `vercel-labs/agent-skills` 生态互通；赞助商包括 IMG.LY、Emil Kowalski（animations.dev 作者）、Sent.dm 等，覆盖创意 SDK、动效教学、消息 API 等领域，侧面验证了项目在专业开发者群体中的认可度。
+
+**版本演进**：v1 到 v2 是实质性重写，新增了「Brief inference（需求推断）」「Design-system map（设计系统映射）」「GSAP 代码骨架（canonical GSAP code skeletons）」「Redesign audit protocol（重设计审计协议）」「Strict pre-flight check（严格预检）」等机制。Star History 显示项目自上线以来持续增长，是 2025-2026 年 AI Agent Skills 领域的现象级项目。
+
+## 五、适用场景与人群
+
+**适合谁**：
+
+- **独立开发者 / 创业团队**：用 Cursor + Claude Code 快速搭建产品落地页、品牌站、营销站，希望第一版视觉就能拿得出手。
+- **设计敏感的前端工程师**：对 AI 输出的「模板感」深恶痛绝，愿意花 10 分钟调旋钮换一套风格。
+- **AI Agent 应用开发者**：基于 Vercel Agent Skills 标准扩展自己的智能体能力，需要参考实现。
+- **设计教学者**：研究「如何让 AI 学会审美」，Taste Skill 的 `research/` 目录里有大量背景论文。
+
+**具体场景**：
+
+1. 用 `design-taste-frontend` + 高 VARIANCE 旋钮，做一个非对称版式的 SaaS 落地页。
+2. 用 `redesign-existing-projects` 改造一个老旧的 React 后台界面。
+3. 用 `imagegen-frontend-web` + `image-to-code` 做「参考图→实现」端到端流程。
+4. 用 `industrial-brutalist-ui` 做艺术家作品集网站。
+
+**不适合谁**：完全依赖 v1 行为且不愿升级的旧项目维护者、对设计无要求的纯后端项目、对提示工程零容忍的极简主义者。
+
+## 六、竞品对比
+
+| 项目 | 定位 | 可调节旋钮 | 多风格变体 | 框架无关 | 反 slop 规则 |
+| --- | --- | --- | --- | --- | --- |
+| **Taste Skill** | Agent Skills（指令包） | ✅ 三旋钮 | ✅ 10+ 变体 | ✅ | ✅ 硬性禁令 |
+| shadcn/ui | 组件库 + CLI | ❌ | ❌ | ✅ React | ❌ |
+| v0.dev | 一站式生成 | ⚠️ 提示词级 | ⚠️ 风格有限 | ⚠️ React/Next | ❌ |
+| Cursor 自带规则 | IDE 内提示词 | ❌ | ❌ | ✅ | ⚠️ 依赖手写 |
+
+Taste Skill 的优势在于：**只规定「不要做什么」「要怎么取舍」，不强制使用任何 UI 库或框架**。这意味着你可以在 Vue、Svelte、SolidJS、原生 HTML 中使用同一套设计规则，而 v0、shadcn 这类项目都强绑定特定技术栈。
+
+## 七、如何快速上手
+
+**一行安装**（推荐）：
+
+```bash
+npx skills add https://github.com/Leonxlnx/taste-skill
+```
+
+这条命令会扫描仓库 `skills/` 目录，安装所有技能。
+
+**按需安装**：
+
+```bash
+npx skills add https://github.com/Leonxlnx/taste-skill --skill "design-taste-frontend"
+```
+
+**最小可用示例**：安装完成后，在 Cursor 或 Claude Code 的对话里输入：
+
+> 使用 design-taste-frontend，VARIANCE 设为 7，MOTION_INTENSITY 设为 5，给我做一个咖啡品牌的落地页。
+
+AI 就会加载该技能的三旋钮 + 反 slop 规则 + GSAP 骨架，输出明显有设计感的代码。
+
+**进阶建议**：先用 `imagegen-frontend-web` 生成 3 张参考图，挑一张满意的，再用 `image-to-code` 一条龙实现。如果对 v2 实验版不满意，可显式锁定 v1：`--skill "design-taste-frontend-v1"`。
+
+![](/assets/blog-images/ai-ai-taste-skill-1rn2r7/img04.webp)
+
+## 八、总结与行动建议
+
+Taste Skill 解决了一个真实存在却被长期忽视的问题：**AI 写前端不难，写好看的前端难**。它通过可调节的旋钮、多场景的变体、严格的反 slop 规则，把「设计审美」这件事从模糊的提示词变成了可执行的约束系统。73K Stars 的体量、Vercel 官方赞助、多家头部技术公司赞助商背书，都说明这是一个值得关注和投入学习的项目。
+
+**给读者的三条行动建议**：
+
+1. **今天就试**：用一行命令安装默认技能，在你的下一个 AI 编程任务里把三个旋钮调到非默认值（VARIANCE=7, MOTION=5, DENSITY=4），感受差异。
+2. **按项目选风格**：品牌站用 `high-end-visual-design`，后台用默认 + 高 DENSITY，作品集用 `industrial-brutalist-ui`。
+3. **关注 CHANGELOG**：v2 仍在快速演进，锁定前请阅读 `CHANGELOG.md` 评估升级风险。
+
+**项目链接**：
+
+- GitHub：https://github.com/Leonxlnx/taste-skill
+- 官网：https://tasteskill.dev
+- 变更日志：https://www.tasteskill.dev/changelog
+
+一句话推荐：**与其让 AI 反复生成紫色渐变，不如把 Taste Skill 装进它的脑子——审美，比代码更难教，但它做到了。**

@@ -1,0 +1,132 @@
+---
+title: "看 PDF 还要收费？KillerPDF 一个 15.9 MB 单文件搞定所有活"
+publishedAt: "2026-08-19"
+summary: "加班改完合同，对方发来一份扫描版 PDF，需要把里面的甲方名称改掉。你打开某款「免费」编辑器，弹窗提示「订阅 Pro 即可编辑文本」；换另一款，导出时强制加水印；再换一款，安装包 800 MB，安装到一半弹了 5 个捆绑…"
+image: "/assets/blog-images/pdf-killerpdf-15-9-mb-y8p736/img01.webp"
+tags: ["开源", "文档", "效率"]
+author: "Adam"
+---
+![](/assets/blog-images/pdf-killerpdf-15-9-mb-y8p736/img01.webp)
+
+## 一、开篇：从踩坑到真香，只差这一个项目
+
+加班改完合同，对方发来一份扫描版 PDF，需要把里面的甲方名称改掉。你打开某款「免费」编辑器，弹窗提示「订阅 Pro 即可编辑文本」；换另一款，导出时强制加水印；再换一款，安装包 800 MB，安装到一半弹了 5 个捆绑软件。
+
+这是很多人处理 PDF 时反复踩过的坑：看 PDF 要一个软件，编辑要另一个，OCR 再来一个，合并拆分还要一个。一台电脑里常年挂着四五个 PDF 工具，开机慢、占内存、互相打架。KillerPDF 想做的事情，就是把这一整套工具塞进一个 15.9 MB 的单文件 EXE 里。
+
+## 二、项目定位：它解决的是什么问题
+
+KillerPDF 是一个面向 Windows 的开源 PDF 编辑器，主打「免费 + 单文件 + 无广告 + 无账号」。GitHub 上拿到 3322 Star，主语言 C#，基于 PDFium 做渲染、PdfSharpCore 做写入、Tesseract 做 OCR，遵循 GPLv3 协议。
+
+四个关键词：
+- **免费开源**：GPLv3 协议，商业用途同样免费，但 fork 或修改后必须开源。
+- **单文件便携**：单个 EXE 仅 15.9 MB，压缩后 11.4 MB，免安装即可运行。
+- **功能完整**：查看、注释、OCR、合并、拆分、文本编辑、绘图、签名、表单填写、打印、扁平化、密码破解，全场景覆盖。
+- **本地离线**：无账号、无埋点、无数据上传，完全本地处理。
+
+![](/assets/blog-images/pdf-killerpdf-15-9-mb-y8p736/img02.webp)
+
+## 三、核心功能深度解析
+
+### 1. 内置 OCR 与可搜索 PDF
+
+KillerPDF 把 Tesseract 引擎直接打包进 EXE，无需联网或安装插件。选中页面上的一段区域，OCR 结果直接进剪贴板；菜单里点「Make Searchable PDF」，会在扫描件上铺一层隐形文字层，原版式不变，但能复制、能搜索。批量处理时，通过 `--ocr scan.pdf searchable.pdf --lang eng` 一行命令搞定，首次使用自动下载语言包。
+
+### 2. 文本与注释编辑
+
+编辑器支持内联修改 PDF 文字，并自动匹配原文档字体，效果比单纯的「白板盖字」自然得多。画图、直线、高亮三种工具各自支持颜色、不透明度、线宽调整；用拾色器取色，带屏幕取色笔和十六进制输入框。撤销/重做按 Tab 独立追踪，Ctrl+Z 跨注释、文字、图章、文档级操作一路回退。
+
+### 3. 页面组织与变换
+
+合并、拆分、拖拽重排、插入空白页、旋转、提取、删除多页选中、右键侧栏一气呵成。裁剪支持角点拖动；变换功能里最有意思的是「拉直线扶正」——对着歪斜的扫描件画一条水平线，文档实时回正，注释会跟着变换一起旋转。拖一个文件夹或 `.zip` 进窗口，自动合并里面的 PDF 和图片，或逐个打开。
+
+### 4. 表单与数字签名
+
+AcroForm 表单（文本框、复选框、单选）直接作为活动控件填写，保存后字段仍然可编辑。数字签名走 Certum SimplySign 云证书，还能点击表单字段完成签名；不想用证书的，手绘或导入 PNG/JPG/BMP 当签名图章也行。
+
+### 5. 命令行批量处理
+
+每个 GUI 功能都有对应的命令行版本，退出码规范（0 成功、1 失败、2 参数错误），应用开着也不影响，常用指令包括：
+
+`KillerPDF.exe --merge out.pdf a.pdf b.pdf scan.jpg`
+`KillerPDF.exe --extract-pages in.pdf 1-3,5 out.pdf`
+`KillerPDF.exe --to-image in.pdf imgs\ --dpi 300 --format jpg`
+`KillerPDF.exe --batch-resave inDir\ outDir\ --log report.csv`
+
+写一个 PowerShell 脚本就能完成「整批扫描件 OCR、转可搜索、合并归档」。
+
+![](/assets/blog-images/pdf-killerpdf-15-9-mb-y8p736/img03.webp)
+
+## 四、技术亮点与性能数据
+
+- **渲染质量**：底层调用 PDFium，复杂排版与嵌入字体还原度高。
+- **合规验证**：每次发布都跑 veraPDF 校验，针对 2900 份样本的合规语料库保持「零回归」门槛，详见 `validation/RESULTS.md`。
+- **体积控制**：Costura 把 .NET Framework 4.8 运行时与 Tesseract 全部打包，输出单 EXE 仅 15.9 MB，Windows 10/11 自带 4.8 即可运行。
+- **标准补丁**：自带的 PdfSharpCore 写了 6 个 standards-conformance 补丁，源码里以 `KillerPDF patch` 标注，提交溯源在 `third_party/PdfSharpCore/VENDORED.txt`。
+- **多语言 UI**：英语、西班牙语、繁简体中文、德语、法语、土耳其语、孟加拉语、日语、捷克语 10 种语言，主题 6 套（Dark、Light、Black、Blood、Greed、Cyanotic）。
+- **安装形态**：支持单用户免 UAC 安装到 `%LOCALAPPDATA%`，或全机安装到 Program Files；自带 `/silent` 静默参数，企业部署友好。
+
+## 五、适用场景与人群
+
+**适合谁**：
+- 日常处理合同、发票、扫描件的办公人群；
+- 需要批量 OCR、合并、转换 PDF 归档的运维与文档管理员；
+- 注重隐私、不愿把文件上传云端的法务、医生、研究人员；
+- 不想付订阅费、又必须用真商业工具的用户。
+
+**不太适合**：
+- macOS、Linux 用户——目前只发 Windows x64 版本；
+- 团队需要统一协作、版本管理、审阅流的企业用户——这是单人单机工具，更像本地化「瑞士军刀」而非 SaaS 平台。
+
+## 六、竞品对比
+
+| 工具 | 价格 | 体积 | OCR | 命令行 | 离线 | 开源 |
+|---|---|---|---|---|---|---|
+| KillerPDF | 免费 | 15.9 MB | 内置 Tesseract | 支持 | 完全离线 | GPLv3 |
+| Adobe Acrobat | 订阅制 | 数百 MB | 需联网 | 付费版 | 部分 | 否 |
+| Foxit Reader/Editor | 个人版需付费 | 数百 MB | 需另购 | 有限 | 部分 | 否 |
+| PDFsam Basic | 免费 | 约 50 MB | 无 | 部分 | 离线 | GPL |
+| SumatraPDF | 免费 | 约 6 MB | 无 | 无 | 离线 | GPLv3 |
+
+KillerPDF 的差异化在于：用单文件体积提供「接近商业编辑器」的功能深度，并把 OCR、命令行、签名这些以往需要付费或外挂的能力做成一等公民。
+
+![](/assets/blog-images/pdf-killerpdf-15-9-mb-y8p736/img04.webp)
+
+## 七、如何快速上手
+
+通过 WinGet 一键安装：
+
+`winget install killerpdf`
+
+Chocolatey 渠道：`choco install killerpdf`。
+
+也可直接下载独立 EXE：[https://github.com/SteveTheKiller/KillerPDF/releases/latest/download/KillerPDF.exe](https://github.com/SteveTheKiller/KillerPDF/releases/latest/download/KillerPDF.exe)。
+
+便携运行无需安装，下载后直接双击即可。
+
+**最小示例**：打开一份扫描合同 PDF → 按 F10 打开分屏，并排参考原文 → 选中正文区域点击「OCR to Clipboard」→ 用「Make Searchable PDF」生成可搜索版本 → Ctrl+S 保存。
+
+**进阶建议**：
+- 定时整理扫描件？在 PowerShell 里循环调用 `--ocr` 加 `--merge` 就能搭归档流水线。
+- 想要多语言界面？编辑菜单切换语言，简体中文已经内置。
+- 想认领翻译？仓库根目录的 `TRANSLATING.md` 写明了流程。
+
+从源码构建需要 .NET 8 SDK 或更高版本，输出在 `bin/Release/net48/publish/`：
+
+`dotnet publish -c Release`
+
+## 八、总结与行动建议
+
+KillerPDF 的核心价值是：用一个 15.9 MB 的绿色单文件，把日常 PDF 处理几乎所有环节都覆盖了——看、改、标注、合并、OCR、签名、命令行批处理——而且完全离线、零订阅、零广告。
+
+使用建议：先从官方主页下载 Portable 版本验证功能；批量场景优先用命令行；扫描件归档优先用「Make Searchable PDF」+ `--batch-resave` 流水线；企业内部部署用 `/silent` 静默安装参数。
+
+项目链接：
+- GitHub：[https://github.com/SteveTheKiller/KillerPDF](https://github.com/SteveTheKiller/KillerPDF)
+- 官网：[https://KillerPDF.net](https://KillerPDF.net)
+- 命令行文档：[https://killerpdf.net/help.html](https://killerpdf.net/help.html)
+
+如果你也被订阅制 PDF 软件反复收费、广告弹窗、捆绑安装折磨过，不妨试试 KillerPDF——GPLv3 协议下 fork 还能继续改，毕竟它留给二次开发的空间，本就是开源精神的题中之义。
+
+![](/assets/blog-images/pdf-killerpdf-15-9-mb-y8p736/img05.webp)
+

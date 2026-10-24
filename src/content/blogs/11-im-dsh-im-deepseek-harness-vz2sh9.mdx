@@ -1,0 +1,146 @@
+---
+title: "11 个 IM 平台各写一套适配器？dsh-im 一个插件搞定 DeepSeek Harness 全部连接"
+publishedAt: "2026-07-02"
+summary: "11 个 IM 平台各写一套适配器？dsh-im 一个插件搞定 DeepSeek Harness 全部连接"
+image: "/assets/blog-images/11-im-dsh-im-deepseek-harness-vz2sh9/img01.webp"
+tags: ["AI", "效率"]
+author: "Adam"
+---
+![](/assets/blog-images/11-im-dsh-im-deepseek-harness-vz2sh9/img01.webp)
+
+选择标题（3 选 1）
+
+11 个 IM 平台各写一套适配器？dsh-im 一个插件搞定 DeepSeek Harness 全部连接
+
+dsh-im 上线：扫码即可接入飞书/微信/钉钉等 11 个 IM 渠道，获官方认可
+
+没写一行 SDK，却把 DeepSeek Harness 接进了 11 个聊天软件
+
+## 一、开篇：为什么你需要这个工具？
+
+很多 DeepSeek Harness 用户都有一个共同困扰：本地 Harness 跑得通，但想把 AI 能力延伸到微信、飞书、钉钉时，要么得为每个 IM 平台单独写适配器，要么就要在不同插件之间来回切换。每个渠道一套凭据、一套会话、一套工作区，调试时满屏日志，部署时满手运维——尤其是当团队要同时管理多个机器人时，传统方案的复杂度会指数级膨胀。
+
+更棘手的是流式回复、文件回传、超时补发这些 IM 场景刚需能力。原生 SDK 没覆盖到时，你只能手动用 Webhook 拼接卡片消息，还要处理 1,800 字符分段、流式进度占位、平台权限差异等问题。
+
+`dsh-im`（DSH-IM）直接瞄准这一整块空白：一个插件、一个设置入口，覆盖 11 个主流 IM 渠道，并拿下 DeepSeek Harness 官方认可与 1,000 元 Token 奖励。
+
+![](/assets/blog-images/11-im-dsh-im-deepseek-harness-vz2sh9/img02.webp)
+
+## 二、一句话看懂：这是个什么项目
+
+**dsh-im 是 DeepSeek Harness 的官方认证 IM 连接插件**，定位关键词：
+
+- **一站式接入**：飞书、微信、钉钉、企业微信（含自建应用）、QQ、Slack、Telegram、Discord、WhatsApp、iMessage 共 11 个内置渠道；
+- **多机器人独立管理**：同一渠道支持多个机器人，每个机器人单独保存凭据、连接状态、工作区、模型、Agent Preset 和会话绑定；
+- **原生体验**：按各平台能力呈现"正在输入"、工具进度、流式回复，不支持原生流式的平台自动用编辑消息、卡片更新兜底；
+- **AI Office Connector**：让本机 Harness 主动连接公网 AI Office，把任务结果投递到远端执行环境。
+
+## 三、核心功能深度解析
+
+### 1. 扫码 / 凭据双模接入
+
+每个渠道都内置扫码引导流程：飞书扫码自动创建机器人、微信扫码绑定、WhatsApp 关联设备、Discord 走 Developer Portal Token。已有机器人也能用 App ID + Secret 直接绑定，无需重建。Secret 与 Token 只单向提交本机 Harness Host，写入受保护的凭据存储，任何 RPC 响应都不会回传这些原始凭据，浏览器侧只看到二维码、Manifest 和脱敏状态。
+
+### 2. 流式回复 + 超时补发
+
+插件按平台能力调用官方流式接口：飞书用流式卡片、钉钉用 AI Card、企业微信原生"正在思考中"、Telegram 通过 Rich Message Draft 流式预览并持久化最终富消息、WhatsApp 通过每秒编辑同一条消息显示工具进度和逐步生成的回答。不支持原生流式的平台回退为编辑消息或最终消息。
+
+当 Harness 出现"等待模型回复超时"时，插件继续跟踪原任务，完成后自动向原聊天或线程补发最终文字；插件重启或连接恢复后也会接着检查。明确发送失败最多重试 3 次，发送结果不确定时停止重试避免重复消息。
+
+### 3. 图片识别 + 文件回传
+
+支持图片输入的渠道统一处理 JPEG、PNG、WebP 以及以图片形式发送的 GIF，单张 5 MB、单条消息 20 MB。回传文件时优先用渠道原生附件（图片会优先以原生图片消息呈现，平台拒绝时回退为文件附件），无需任何开关或白名单，原有文字、流式、命令、会话行为不受影响。
+
+### 4. 多机器人 + 独立工作区
+
+同一渠道可挂多个机器人，每个机器人独立保存连接状态、工作区（默认 `$DSH_HOME/im`，目录自动创建）、模型与思考强度选择、Agent Preset 绑定和聊天会话映射。切换工作区只清除该机器人的旧聊天映射，不删除或归档旧 Session。
+
+### 5. 上下文增强 + 访问模式
+
+每个机器人卡片可独立开关群聊与私聊的"上下文增强"（默认均关闭），旧机器人升级也不会自动开启。访问模式决定 WhatsApp 是否只响应账号自聊、Telegram 是否启用私聊白名单安全模式。
+
+### 6. AI Office Connector
+
+让本机 Harness 主动连接公网 AI Office，管理设备凭据、Job 租约、审批等待与并发上限。它与 IM 渠道的 RPC、凭据、监督逻辑完全隔离，互不干扰。
+
+![](/assets/blog-images/11-im-dsh-im-deepseek-harness-vz2sh9/img03.webp)
+
+## 四、技术亮点与性能数据
+
+- **官方认可**：获 DeepSeek Harness 官方认可，奖励 1,000 元 Token 额度，进入 deepseek1024 下载量 Top 10 与 dshfind 分类第一；
+- **兼容矩阵**：Web profile 验证兼容原版 DSH `0.1.2-alpha.4` 到 `0.1.5-alpha.1`，通过 Connection 公开 `/api` Fetch 接口工作，无需修改或重编 DSH；
+- **图片与文件限额**：单张图片 5 MB、单条消息图片总量 20 MB；飞书文件接口上限 30 MB，QQ 机器人受当日上传配额约束；
+- **重试策略**：补发失败最多 3 次，结果不确定即停，避免重复打扰；
+- **架构亮点**：内置渠道 Host、Client、运行时全部在单仓维护，不依赖外部独立插件；浏览器只拿二维码、Manifest、脱敏状态和用户主动保存的访问模式/白名单；
+- **语言跟随**：机器人回复、命令帮助和 Telegram 命令菜单跟随 DSH 界面语言即时切换，中文始终为兜底，运维可通过 `language` 配置或 `DSH_IM_LANGUAGE` 环境变量强制固定；
+- **代理兼容**：飞书用 SDK 代理感知 HTTP 客户端，消息长连接显式走 `HTTPS_PROXY`；Telegram 需 Node.js ≥ 22.21 并启用 `NODE_USE_ENV_PROXY`；
+- **安全边界**：`rpcAuthority: loopback` 可额外要求回环 Host/Origin，`--trusted-host` 走 DSH 原生校验。
+
+## 五、适用场景与人群
+
+**适合谁**：
+
+- 团队运营需要把 DeepSeek Harness 能力投射到 IM 工作群的研发与产品；
+- 同时维护多个飞书 / 微信 / 钉钉机器人，且各自绑定独立工作区和模型的中后台管理员；
+- 需要把 Harness 任务结果主动推送到 IM 私聊的自动化脚本开发者；
+- 习惯扫码绑定、不想手动折腾 Webhook 与加密回调的个人用户。
+
+**不适合谁**：
+
+- 只用 Web UI 跟 Harness 对话的用户（插件对此场景没有增量价值）；
+- 需要小众 IM 平台（如 Matrix、KakaoTalk）原生集成的团队（目前内置 11 个渠道，可按适配器结构自行扩展，但开箱即用不覆盖）；
+- 服务端强依赖 OAuth 企业授权而非扫码的合规场景。
+
+## 六、竞品对比
+
+| 维度 | dsh-im | 各平台原生 SDK 单独接入 | 通用 Chat-to-IM 中间件 |
+|---|---|---|---|
+| 渠道覆盖 | 11 个内置，统一 UI | 每个平台一套 SDK | 1-2 个主流渠道 |
+| 多机器人管理 | 原生支持，按机器人隔离状态/工作区/会话 | 需自行实现隔离逻辑 | 通常只支持单实例 |
+| 流式回复 | 按平台能力原生支持，自动降级到编辑消息 | 需自行实现 | 多为最终一次性回复 |
+| 超时补发 | 内置，重试 3 次，结果不确定即停 | 需自行实现 | 多数不支持 |
+| 文件回传 | 原生附件，平台拒绝时回退 | 需自行对接上传接口 | 不支持 |
+| 与 DeepSeek Harness 集成 | 官方认可，专属设置入口 | 需自行开发适配层 | 需中间桥接 |
+| 安装方式 | npm 一行命令 | 各自部署 | 视项目而定 |
+
+## 七、如何快速上手
+
+**npm 安装（推荐稳定版）**：
+
+```sh
+dsh plugin --profile web add -w @xmanrui/dsh-im
+```
+
+重启 `dsh web`、刷新浏览器，进入「设置 → IM机器人」。IM机器人使用 `order: 21`，排在一级设置菜单的「Agent 预设」之后；从旧版升级不会改变已有机器人、凭据、工作区、Agent Preset 或会话绑定。
+
+**GitHub 源安装（尝鲜最新代码）**：
+
+```sh
+npx -y github:xmanrui/dsh-im install
+```
+
+GitHub 源安装会直接拉取并构建 Git 依赖；pnpm 10 及以上版本可能要求先在 profile 的 `pnpm-workspace.yaml` 中允许该依赖执行构建脚本。
+
+**最小可用示例**：安装后进入设置页选择一个渠道（如飞书），点击"扫码创建机器人"，用飞书 App 扫码完成授权。回到设置页给机器人选个工作区、模型和 Agent Preset，向该机器人私聊发送 `/help` 查看命令列表，发条普通消息即开启 Harness 会话。
+
+**进阶建议**：
+
+- 代理环境：在启动 `dsh web` 前设置 `HTTPS_PROXY=http://proxy:8080`；Telegram 用户启用 `NODE_USE_ENV_PROXY=1`；
+- 私域安全：把 Telegram 切换为私聊白名单安全模式；
+- 局域网管理加白名单：`dsh web --trusted-host dsh.example.com`；
+- 仅本机访问：在 `cordis.patch.yml` 中设置 `rpcAuthority: loopback`；
+- 强制英文回复：插件配置 `language: en` 或环境变量 `DSH_IM_LANGUAGE=en`。
+
+![](/assets/blog-images/11-im-dsh-im-deepseek-harness-vz2sh9/img04.webp)
+
+## 八、总结与行动建议
+
+`dsh-im` 用一个插件、一个设置入口解决了 DeepSeek Harness 与 11 个主流 IM 平台的连接难题：多机器人隔离、原生流式回复、超时补发、文件回传、扫码 / 凭据双模接入、上下文增强、访问模式、主动投递、AI Office Connector，每个能力都有明确的平台适配和降级路径，而不是停留在"理论上支持"。
+
+如果你正在用 DeepSeek Harness 搭建团队 AI 助手，或苦于 IM 渠道散落在多个插件、多个配置页里，不妨试试 `dsh-im`。一条 npm 命令装好，扫码就能用，旧机器人和会话绑定完整保留。
+
+- GitHub 仓库：`xmanrui/dsh-im`
+- 文档目录：仓库内 `docs/` 子目录（包含 `AI-Office-Connector.md`、`机器人命令.md`、`上下文增强.md`、`访问模式.md`、`检查与安装更新.md` 等）
+- 联系方式：邮箱 `longmanr307@gmail.com`，另有企业微信群、微信、小红书、WhatsApp 渠道（README 末尾二维码）
+
+#dsh-im #DshIm #xmanrui #前端开发 #Web开发 #开源项目 #GitHub

@@ -1,0 +1,131 @@
+---
+title: "做产品宣传片太贵太慢？video-shotcraft 让 Claude 一句话出片"
+publishedAt: "2026-04-07"
+summary: "做产品宣传片太贵太慢？video-shotcraft 让 Claude 一句话出片"
+image: "/assets/blog-images/video-shotcraft-claude-1t6pds/img01.webp"
+tags: ["AI", "视频", "终端"]
+author: "Adam"
+---
+![](/assets/blog-images/video-shotcraft-claude-1t6pds/img01.webp)
+
+选择标题（3 选 1）
+
+做产品宣传片太贵太慢？video-shotcraft 让 Claude 一句话出片
+
+video-shotcraft：152 张分镜配方卡，把 AI 出片从黑盒变成可编辑生产线
+
+没招一个动效设计师，video-shotcraft 却把产品宣传片做成了流水线
+
+# 一句话让 AI 做出电影级产品宣传片：video-shotcraft 全攻略
+
+## 一、开篇：做产品宣传片，每个团队都在重复踩同样的坑
+
+做一支 30 秒的产品宣传片，需要分镜、动效、配音、节拍同步、音效混音——多数中小团队根本没有专职动效设计师。临时外包，沟通 3 天、成片 5 天、报价 5 万；用模板套，又因为「质感太塑料」被老板打回。ClickUp、Perplexity、Slack、Notion、Figma 那些让人「一看就想下载」的短片，动效逻辑藏在每帧曲线里，复制不来。video-shotcraft 这套拿到了 11K Stars 的 AI 视频技能包，正是为了解决这个痛点：把 Claude Code 或 Codex 变成一支随叫随到的动效工作室。
+
+![](/assets/blog-images/video-shotcraft-claude-1t6pds/img02.webp)
+
+## 二、项目简介：把 AI Agent 变成一支动效工作室
+
+video-shotcraft 是一个面向 Claude Code / Codex 的「AI 视频技能包」，核心定位是「用自然语言生成电影级产品宣传片」。三个关键词：**Remotion 驱动**（React 原生视频框架）、**152 张分镜配方卡**（覆盖 10 个功能类别）、**209 个动态预览**（在线 Gallery 可搜索筛选）。配套还交付一份可直接渲染的成品模板「Ink Press」——36.2 秒、1920×1080、30fps、10 个镜头、水墨琥珀风格，开箱即用。
+
+## 三、核心功能深度解析
+
+### 1. 152 张「分镜配方卡」：动效逻辑的乐高积木
+
+每张配方卡不是孤立的动效文件，而是一份结构化剧本：包含**用途、能量曲线、建议时长、参数范围、实现要点、已知坑位**。比如 `spotlight-hero-card` 卡片会告诉你镜头怎么推、卡片怎么亮、停留几秒再淡出；`deck-deal-flyin` 卡片则规定牌的进场顺序、旋转角度和落地缓冲。Agent 拿到这些卡片，就像编剧拿到了分镜脚本，不再凭感觉瞎试。卡片背后是经过 8 轮逐帧评审的调参过程，每张都对应一份 Remotion 的 TSX 原生实现，缓动和时序都写死在代码里。
+
+### 2. Motion Workbench：交付后还能继续剪的浏览器时间线
+
+传统 AI 出片最让人崩溃的地方是「交付即终点」——改一个字就得重新跑一次。video-shotcraft 配套了一个 CapCut 风格的浏览器时间线编辑器 `node workbench/scripts/open.mjs <project>`：成片会被拆成镜头、转场、字幕、音轨四条独立轨道，点哪个镜头就能在右侧 schema 面板里改文案、字号、颜色；216 个 demo 动作直接拖到时间线上；预览和最终渲染像素级一致（已验证 pixel-parity）。这对非设计岗的产品经理极其友好。
+
+### 3. 节拍同步与音效：149 段 SFX 覆盖 16 类场景
+
+动效的灵魂在节拍。video-shotcraft 提供完整的 BGM 分析方法论（`music-beat-sync.md`）和 149 段分门别类的音效素材，覆盖 transition、impact、riser、camera、ui、text、paper、film、light、data、scifi、mech、glass、fluid、crowd、counter 十六类场景。Agent 会先选「场景类别」再选「音色」，避免出现「玻璃碎裂音效配科技感镜头」的违和组合。
+
+### 4. 剪映工程导出：进剪辑软件继续精修
+
+成片交付后，可以一键导出为剪映（JianYing / CapCut CN）可编辑草稿：每段镜头独立切分（可单独变速、调序、调色），字幕重建为原生文字轨（内容/字号/颜色可改），SFX 和 BGM 落到独立音轨。已在 macOS 11.2 剪映专业版验证。这一步把 AI 出片和人工精修无缝衔接。
+
+![](/assets/blog-images/video-shotcraft-claude-1t6pds/img03.webp)
+
+## 四、技术亮点与性能数据
+
+- **Remotion 原生 TSX 实现**：所有镜头组件遵循「确定性 + 标准化进度 `t` 驱动」原则，相同输入永远产出相同帧，方便 A/B 调参。
+- **2.5D 实页相机**：用真实网页截图当底图，叠加多层视差和相机运动，比纯 3D 渲染更轻量，比纯 2D 平面动效更有空间感。
+- **像素级预览一致性**：Workbench 编辑器与最终渲染在帧级别一致，告别「编辑器看着对、导出全变样」。
+- **一句话安装**：`npx skills add Vincentwei1021/video-shotcraft` 或直接把仓库地址丢给 Agent，3 行命令接入。
+- **无头 CI 渲染支持**：已踩平三大坑——低核机器并发上限、Chrome 老 Headless 模式废弃、`remotion.media` CDN 被墙时的本地二进制回退。
+- **生态兼容**：同系列已发布 `video-talkcraft`（口播视频版，词级时间戳中位误差 20–40ms，78 张口播动作卡），共享同一套配方卡 + Remotion 工作流。
+
+![](/assets/blog-images/video-shotcraft-claude-1t6pds/img04.webp)
+
+## 五、适用场景与人群
+
+**适合谁**：
+- 独立开发者和初创团队：没有专职动效设计师，又需要给产品/官网/Launch 准备宣传片。
+- 产品经理和增长团队：批量产出 A/B 测试用的产品介绍短片，按渠道定制时长。
+- 内容创作者：技术博主拆解产品、需要动态演示片段。
+- AI Agent 重度用户：已经在用 Claude Code 或 Codex 写代码、做调研，想拓展到视频生产力。
+
+**不太适合**：纯真人出镜的剧情短片、需要实拍三维建模的产品（如汽车/家具）、对版权音乐有严苛要求的大型品牌广告。
+
+## 六、竞品对比
+
+| 项目 | video-shotcraft | 通用 AI 视频生成（Runway/Pika） | After Effects 模板套用 |
+| --- | --- | --- | --- |
+| 输出形态 | 完整可编辑 Remotion 工程 | 不可编辑的 MP4 | 可编辑但需手动换素材 |
+| 动效可控性 | 152 张配方卡精确到毫秒 | 黑盒生成，不可微调 | 高但门槛也高 |
+| 学习成本 | 一句自然语言 | 低 | 高 |
+| 后续编辑 | Workbench + 剪映双轨编辑 | 需重生成 | 需 AE 软件 |
+| 价格 | 开源免费 | 按秒计费 | 模板 + 软件订阅 |
+
+选择 video-shotcraft 的核心理由：**它交付的不是一个视频文件，而是一条可被 Agent 调用的动效生产线**。
+
+![](/assets/blog-images/video-shotcraft-claude-1t6pds/img05.webp)
+
+## 七、如何快速上手
+
+**1. 一句话安装**（最快路径）：
+
+直接在 Claude Code 或 Codex 里说：
+
+> Install this skill for me: https://github.com/Vincentwei1021/video-shotcraft
+
+Agent 会自动克隆仓库并链接到 skills 目录。
+
+**2. CLI 安装**：
+
+```bash
+npx skills add Vincentwei1021/video-shotcraft
+```
+
+**3. 手动安装**：
+
+```bash
+git clone https://github.com/Vincentwei1021/video-shotcraft.git
+cd video-shotcraft
+ln -s "$(pwd)" ~/.claude/skills/video-shotcraft
+```
+
+**4. 第一次出片**：
+
+让 Agent 用内置 Ink Press 模板做一支 30 秒产品宣传片，告诉它你的产品截图、文案和品牌色，Agent 会自动替换占位素材并渲染成片。
+
+**5. 进阶用法**：先去 [在线 Gallery](https://vincentwei1021.github.io/video-shotcraft/) 浏览 209 个动态预览，挑选喜欢的镜头卡名（如 `deck-deal-flyin`、`row-embed`），然后告诉 Agent 用这些卡做片。
+
+![](/assets/blog-images/video-shotcraft-claude-1t6pds/img06.webp)
+
+## 八、总结与行动建议
+
+video-shotcraft 把「做一支电影级产品宣传片」从一项动效设计任务，重定义为一个**可被 AI Agent 调用的标准化生产流程**：152 张配方卡 + 209 个动作预览 + Remotion 工程模板 + Workbench 浏览器编辑器 + 剪映工程导出，五件套形成闭环。
+
+**行动建议**：先用 Ink Press 模板跑通第一支成片，感受「一句话出片」的基线；再去 Gallery 挑 3-5 张喜欢的镜头卡，组合成你的产品专属风格；最后把成片导进剪映做最后一公里的精修。
+
+- **GitHub**：https://github.com/Vincentwei1021/video-shotcraft
+- **在线 Gallery**：https://vincentwei1021.github.io/video-shotcraft/
+- **Showcase 案例库**：https://vincentwei1021.github.io/video-shotcraft/showcase.html
+- **姊妹项目 video-talkcraft**：https://github.com/Vincentwei1021/video-talkcraft
+
+一句话推荐：**想要的产品宣传片，不必从空白时间线开始——让它从 152 张已经调好的镜头配方开始。**
+
+#video-shotcraft #VideoShotcraft #vincentwei1021 #AI视频剪辑 #脚本化视频 #口播视频 #开源项目 #GitHub

@@ -1,0 +1,111 @@
+---
+title: "Obscura：用 Rust 把 headless 浏览器内存打到 30MB，反指纹还白送"
+publishedAt: "2026-07-27"
+summary: "凌晨部署的爬虫任务，到上午一看日志：200 个 URL，存活 17 个，其余全部被目标站风控拦截。运维同事把问题归到「IP 池质量差」，你换了三批住宅代理，依然有 Cloudflare 的挑战页面在等。换到 Puppet…"
+image: "/assets/blog-images/obscura-rust-headless-30-mb-1xggbp/img01.webp"
+tags: ["AI", "Agent", "开源"]
+author: "Adam"
+---
+![](/assets/blog-images/obscura-rust-headless-30-mb-1xggbp/img01.webp)
+
+## 一、开篇：如果有个工具能替你做完这一步…
+
+凌晨部署的爬虫任务，到上午一看日志：200 个 URL，存活 17 个，其余全部被目标站风控拦截。运维同事把问题归到「IP 池质量差」，你换了三批住宅代理，依然有 Cloudflare 的挑战页面在等。换到 Puppeteer + headless Chrome，单实例内存冲到 800MB，并发一上去服务器先 OOM。这是大量爬虫工程师和 AI Agent 团队的共同遭遇——浏览器自动化工具本该是解决方案，自己却成了新的瓶颈。
+
+有没有一款浏览器，内存 30MB、启动接近瞬时、还能自带反指纹？21K Stars 的 Rust 项目 Obscura 给出了答案。
+
+## 二、一句话看懂：这是个什么项目
+
+Obscura 是一个用 Rust 编写的开源 headless 浏览器引擎，专为 AI Agent 自动化与大规模网页抓取设计。它内嵌 V8 真实执行 JavaScript，完整实现 Chrome DevTools Protocol，可作为 headless Chrome 的直接替代品，兼容 Puppeteer 与 Playwright。
+
+核心关键词：**Rust 编写、原生 V8、内置反检测、CDP 兼容、Apache-2.0 开源**。截至目前已斩获 21310 Stars，团队正在筹备 Obscura Cloud 托管版本。
+
+## 三、核心功能深度解析
+
+### 1. 极致轻量的运行时
+
+Obscura 二进制仅 70MB，运行时内存 30MB，而 headless Chrome 通常要 200MB+。Docker 镜像基于 distroless/cc 打包，压缩后约 57MB，没有 shell、没有包管理器，体积干净到可以直接塞进任何 CI 流水线。对需要横向扩容的抓取集群来说，这意味着同样的物理机可以跑 5–7 倍的并发实例。
+
+### 2. 真实 JavaScript 渲染 + 内置截图与 PDF
+
+Obscura 直接嵌入 V8 引擎，渲染管线原生实现 block、inline、flex、grid、table、float、transform 等主流 CSS 路径，并支持 viewport 与 full-page 截图、活动驱动的 CDP screencast、栅格化 PDF 导出。整个过程不需要拉起 Chromium，单条命令就能完成「访问 → 渲染 → 出图」：
+
+`obscura fetch https://example.com -s page.png`
+
+### 3. 内置反指纹与追踪器拦截
+
+启动时加上 `--stealth` 即可开启反检测模式。它会为每个会话随机化 GPU、屏幕、canvas、音频、电池指纹，伪造 Chrome 145 的 `navigator.userAgentData` 高熵值，让 `event.isTrusted = true`，并把 `navigator.webdriver` 重置为 `undefined`。同时内置 3520 个追踪域名的拦截列表，开箱即用——这是任何 headless Chrome 都要靠第三方扩展拼凑的能力。
+
+### 4. 并发抓取与 MCP 接口
+
+`obscura scrape` 支持以 worker 进程并行抓取多个 URL，默认并发 10，可通过 `--concurrency` 调高。每个 worker 自动继承全局代理配置。再加 `obscura mcp` 启动 MCP Server，Claude Desktop、Cursor 等 AI 客户端可以直接调用 `browser_navigate`、`browser_snapshot`、`browser_click`、`browser_evaluate` 等 13 个工具，让 AI Agent 真正「用上」一个不被风控盯死的浏览器。
+
+### 5. 完整 CDP 兼容
+
+它实现了 Target、Page、Runtime、DOM、Network、Fetch、IO、Storage、Input 等核心 CDP 域，包括 `Fetch.takeResponseBodyAsStream` + `IO.read` 的分块下载路径，可流式获取大体积响应体而不必一次性塞入内存。这意味着既有的 Puppeteer/Playwright 脚本可以直接 `connect` 到 Obscura，不需要改动业务代码。
+
+![](/assets/blog-images/obscura-rust-headless-30-mb-1xggbp/img02.webp)
+
+## 四、技术亮点与性能数据
+
+官方基准测试给出了相当激进的数据：静态 HTML 页面加载 51ms（Chrome 约 500ms）、带 XHR/fetch 的 JS 页面 84ms（Chrome 约 800ms）、动态脚本页面 78ms（Chrome 约 700ms）。启动时间从 Chrome 的 2 秒压缩到接近瞬时。
+
+技术层面几个值得关注的点：原生 V8 嵌入支持 `--v8-flags` 直通参数，配合 `OBSCURA_SCRIPT_DEADLINE_MS` 环境变量可以精细控制 SPA 的脚本执行预算；stealth 构建集成 BoringSSL 并通过 `wreq` 提供强化的网络栈；提供 `-no-render` 与 `-no-render-stealth` 变体，让用户按需选择「只要协议层」还是「要渲染 + 反检测」。
+
+生态兼容上，Puppeteer-core、Playwright-core 都能即连即用，Hermes agent 插件也已经发布，社区基本不需要重写接入层。
+
+## 五、适用场景与人群
+
+**大规模网页抓取**：电商价格监控、SEO 排名追踪、舆情采集——并发高、被风控盯得死，Obscura 的低内存 + 内置反指纹直接对症。
+
+**AI Agent 浏览器自动化**：需要让 LLM 真的「操作浏览器」完成任务（订票、填表、信息聚合），MCP Server 把能力直接暴露给 Claude/Cursor。
+
+**JS 密集型单页应用渲染**：传统 HTTP 客户端拿不到 SPA 数据，Obscura 原生 V8 渲染后可直接 dump HTML / markdown / 截图 / PDF。
+
+**不适合**：需要 WebGL 3D、游戏、媒体播放、富文本编辑器等长尾 Web API 的场景——官方明确说明这些尚在演进中，与 Chromium 行为可能不一致。
+
+## 六、竞品对比
+
+| 维度 | Obscura | Headless Chrome | Playwright (Chromium) |
+|---|---|---|---|
+| 内存占用 | 30 MB | 200+ MB | 250+ MB |
+| 二进制大小 | 70 MB | 300+ MB | 需 Chromium 全量 |
+| 启动时间 | 瞬时 | ~2s | ~2s |
+| 反指纹 | 内置 | 无 | 需 stealth 插件 |
+| 追踪拦截 | 3520 域名 | 无 | 需扩展 |
+| 页面加载 | 51–84ms | 500–800ms | 500–800ms |
+| CDP 兼容 | 是 | 是 | 是 |
+
+一句话总结：Obscura 用约十分之一的资源占用，提供了 headless Chrome 同等的 CDP 能力，并且把反检测做进了默认构建。
+
+![](/assets/blog-images/obscura-rust-headless-30-mb-1xggbp/img03.webp)
+
+## 七、如何快速上手
+
+**一行安装（Linux x86_64）**：
+
+`curl -LO https://github.com/h4ckf0r0day/obscura/releases/latest/download/obscura-x86_64-linux.tar.gz && tar xzf obscura-x86_64-linux.tar.gz`
+
+Arch 用户可以直接 `yay -S obscura-browser`，macOS 与 Windows 在 Releases 页下载对应包。Docker 用户一条命令：`docker run -d --name obscura -p 127.0.0.1:9222:9222 h4ckf0r0day/obscura`。
+
+**最小可用示例**：
+
+`./obscura fetch https://example.com --eval "document.title"`
+
+**启动 CDP Server 给 Puppeteer 用**：
+
+`./obscura serve --port 9222 --stealth`
+
+然后用 `puppeteer-core` 的 `puppeteer.connect({ browserWSEndpoint: 'ws://127.0.0.1:9222/devtools/browser' })` 连上来即可，已有脚本几乎零修改。
+
+**进阶建议**：JS 重度站点记得加 `--v8-flags "--max-old-space-size=4096"` 并设置 `OBSCURA_SCRIPT_DEADLINE_MS=60000`，避免 V8 堆爆或脚本预算被截。需要大文件流式下载时调高 `OBSCURA_NETWORK_BODY_BUFFER_BYTES`。
+
+![](/assets/blog-images/obscura-rust-headless-30-mb-1xggbp/img04.webp)
+
+## 八、总结与行动建议
+
+Obscura 用 Rust 重写了 headless 浏览器的关键路径，把内存、启动、并发、反指纹这几个爬虫与 AI Agent 团队最痛的点一次性解决，同时保持与 Puppeteer/Playwright 的完全兼容——既有脚本几乎可以无痛迁移。Apache-2.0 协议下开源引擎不做任何功能阉割，未来 Obscura Cloud 会提供托管基础设施和住宅代理，但开源版本始终保持完整。
+
+如果你正在为 headless Chrome 的资源开销头疼，或在和 Cloudflare 的挑战页死磕，建议直接到 [GitHub 仓库](https://github.com/h4ckf0r0day/obscura) 下载最新 Release，今晚就能把内存占用从 GB 级打到 MB 级。如果不想自己运维，也可以去 [obscura.sh](https://obscura.sh) 排队 Cloud 的 waitlist。
+
+工具的意义，是把工程师从重复劳动里解放出来——Obscura 正是这样一个该早早进入你工具链的项目。

@@ -1,0 +1,88 @@
+---
+title: "个人主页卡在排版阶段？试试 portfolio-ideas 这个灵感库"
+publishedAt: "2026-08-21"
+summary: "你打开 Dribbble、Awwwards，翻了 30 个作品，决定动手做自己的个人主页。两天后，卡在排版、动画、配色里，进度条卡在 30%。这场景不陌生——想做个人主页的开发者，70% 死在「不知道做成什么样」这一步，…"
+image: "/assets/blog-images/portfolio-ideas-12rkk6/img01.webp"
+tags: ["开源", "视频", "写作"]
+author: "Adam"
+---
+![](/assets/blog-images/portfolio-ideas-12rkk6/img01.webp)
+
+## 一、开篇：做一个让人记得住的个人网站，到底有多难
+
+你打开 Dribbble、Awwwards，翻了 30 个作品，决定动手做自己的个人主页。两天后，卡在排版、动画、配色里，进度条卡在 30%。这场景不陌生——想做个人主页的开发者，70% 死在「不知道做成什么样」这一步，更别提用 Three.js 整 3D 交互这种神仙操作。
+
+对独立开发者来说，个人主页是求职、接单、攒影响力的第一张脸。一个会让人停留的设计，比简历上 10 个项目链接都管用。但灵感这东西，从来不是凭空掉下来的。
+
+## 二、项目简介：portfolio-ideas 是什么
+
+`portfolio-ideas` 是 GitHub 上一个 **6.2K Stars** 的开源灵感库，专门收集开发者、设计师的个人主页案例。每个条目都带作者、截图、Live 链接、GitHub 仓库和所用技术栈，覆盖 React、Next.js、Vue、Svelte、Flutter、Jekyll、Eleventy 等主流方案。
+
+它由 Victor Eke 创建，灵感来自 Clone Wars、Hashnode 的 30 个 Web Developer Portfolios 集合，以及作者自己搭建个人站时的真实纠结。仓库以纯 Markdown 维护，通过 PR 协作更新，配套 `portfolio.html` 站点提供可视化浏览体验。
+
+## 三、核心功能深度解析
+
+### 1. 一站式案例展示
+仓库用 Markdown 表格统一展示 60+ 个精选作品，每行包含作者、Screenshot、Live URL、Repo、Tech Stack 五个字段。这种结构化呈现意味着你能横向对比，比如想看 Next.js + GSAP 的真实成品，直接在表格里筛技术栈就行。
+
+### 2. 技术栈覆盖广
+从纯 HTML/CSS/JavaScript 三件套，到 Next.js + Sanity + Tailwind CSS 的现代方案；从用 Jekyll 搭的静态站，到 Three.js + GSAP 驱动的 3D 交互站（Bruno Simon 的 bruno-simon.com 就是经典案例）。无论你技术深度如何，都能找到对应参考。
+
+### 3. 配套可视化站点
+README 链接到 https://portfolio-ideas.vercel.app/portfolio.html，以卡片墙形式展示所有案例，配截图预览和点击跳转。对于纯文本阅读疲劳的读者，这种可视化浏览更友好。
+
+### 4. 开放的贡献机制
+项目用 All Contributors 徽章记录每位提交者，配套 CONTRIBUTING.md 写明添加新案例的规则。想推荐自己或别人的作品，PR 即可入库，整个流程对新人友好。
+
+![](/assets/blog-images/portfolio-ideas-12rkk6/img02.webp)
+
+## 四、技术亮点与性能数据
+
+项目本身是纯 Markdown + Vercel 部署的静态站，加载速度极快，截图走 GitHub 图床。表格结构方便后续扩展，新增案例只需追加一行，无需改动模板。亮点在于「极简但可扩展」：维护者无需写代码，贡献者只需懂 Markdown。
+
+对浏览者而言，最大价值在于覆盖度——60+ 案例横跨 2D 卡片风、3D 沉浸式、极简文字派、动画轰炸派等主流方向。配合 Tech Stack 字段，相当于一个实时更新的「个人主页技术选型样本库」。
+
+## 五、适用场景与人群
+
+- **求职前的开发者**：想做一个差异化主页，让 HR 多停留 30 秒，可以从这里挑风格再二创。
+- **自由职业接单者**：用高质量案例对标客户预期，提升报价说服力。
+- **设计 / 前端学习者**：把每个案例当作「真题」，模仿其布局、动画、响应式处理。
+- **不适合**：已经做了自己作品集网站、且对当前设计满意的人；以及只想找模板直接套、不愿研究结构的用户。
+
+![](/assets/blog-images/portfolio-ideas-12rkk6/img03.webp)
+
+## 六、竞品对比
+
+| 项目 | 内容形态 | 更新机制 | 视觉预览 | 覆盖规模 |
+|------|---------|---------|---------|---------|
+| **portfolio-ideas** | Markdown 表格 + Vercel 可视化站 | 社区 PR | 截图 + 卡片墙 | 60+ 精选 |
+| Dribbble / Awwwards | 设计作品流 | 平台编辑 | 高质量截图 | 上万但杂 |
+| Clone Wars | 开源项目克隆集合 | 社区 PR | 无 | 100+ 仓库 |
+| 个人博客推荐列表 | 文本流 | 手动维护 | 极少 | 几十到上百 |
+
+`portfolio-ideas` 的差异化在于：聚焦「开发者/设计师个人主页」这一垂直场景，附带 GitHub 仓库链接意味着每个案例都能直接 fork 学习，不是看完就完。
+
+## 七、如何快速上手
+
+1. 打开 https://github.com/Evavic44/portfolio-ideas ，浏览 README 表格。
+2. 挑选 3-5 个与你目标方向接近的案例，记录其技术栈。
+3. 访问对应 GitHub 仓库，clone 到本地运行，理解动画与布局实现。
+4. 改造为自己的版本，部署到 Vercel 或 Netlify。
+5. 如果产出满意，反向给 `portfolio-ideas` 提个 PR，把自己的作品加进去。
+
+进阶建议：用表格的 Tech Stack 列做技术选型决策——比如决定用 GSAP 时，先看已有案例如何结合 ScrollTrigger，再决定是否引入 Framer Motion。
+
+![](/assets/blog-images/portfolio-ideas-12rkk6/img04.webp)
+
+## 八、总结与行动建议
+
+`portfolio-ideas` 的核心价值是把「别人做过的优秀案例」结构化、开源化、社区化。它不教你具体怎么写代码，但能让你看清整个生态的玩法边界，避免在错误的方向上死磕排版。
+
+如果你正在为个人主页纠结，从表格里挑 3 个最爱的风格开始临摹，比从零设计快 10 倍。完成后别忘了回仓库提个 PR，让你的作品成为下一个人的灵感。
+
+- GitHub：https://github.com/Evavic44/portfolio-ideas
+- 在线浏览：https://portfolio-ideas.vercel.app/portfolio.html
+- 一句话推荐：开发者的个人主页灵感库，看完 60 个案例，你的首页方向自然就清晰了。
+
+![](/assets/blog-images/portfolio-ideas-12rkk6/img05.webp)
+

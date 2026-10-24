@@ -1,0 +1,86 @@
+---
+title: "网盘、媒体库、Jellyfin 装了 5 个 App？试试 BoxPlayer 一个搞定"
+publishedAt: "2026-08-09"
+summary: "手里 3 个网盘、1 台 Jellyfin、还有一堆散落在 OneDrive 和本地硬盘里的电影——想追一部剧，得在 4 个 App 之间来回切换；想找一部老片，要在每个网盘里搜一遍名字。这是国内影音爱好者和囤资源党最常…"
+image: "/assets/blog-images/jellyfin-5-app-boxplayer-1d466h/img01.webp"
+tags: ["AI", "Agent", "开源"]
+author: "Adam"
+---
+![](/assets/blog-images/jellyfin-5-app-boxplayer-1d466h/img01.webp)
+
+## 一、开篇：为什么你需要这个工具？
+
+手里 3 个网盘、1 台 Jellyfin、还有一堆散落在 OneDrive 和本地硬盘里的电影——想追一部剧，得在 4 个 App 之间来回切换；想找一部老片，要在每个网盘里搜一遍名字。这是国内影音爱好者和囤资源党最常见的痛点：资源分散、播放器割裂、AI 整理工具要么收费要么难用。GitHub 上 6.8K Stars 的 BoxPlayer，给出的解法是"把网盘管理、媒体库、媒体服务器、AI Agent、音乐、电子书塞进同一个桌面 App"。
+
+## 二、一句话看懂：这是个什么项目
+
+BoxPlayer 是一款基于 Electron + Vue 3 + TypeScript 的跨平台个人影音工作台，核心关键词是：**多网盘统一管理、AI 工作台、Jellyfin/Emby/Plex 客户端、内置视频/音乐/电子书播放器、桌面 + 移动全平台**。
+
+## 三、核心功能深度解析
+
+### 1. 多网盘文件管理
+BoxPlayer 支持阿里云盘、百度网盘、123、115、夸克、PikPak、OneDrive、Dropbox、Box、移动云盘、天翼云盘、光鸭云盘共 12 家云盘的统一登录与侧边栏管理。每个网盘的 API 能力差异被封装在 `src/cloud*/` 适配层，不支持的操作不会"假装成功"或者错误回落，这一点比很多同类工具更稳。文件夹树、收藏、回收站、相册、全盘搜索、批量拖拽都齐活。
+
+### 2. 云盘媒体库 + 媒体服务器客户端
+它能扫描云盘、本地目录、WebDAV、AList，把电影/剧集/动漫/纪录片建库，并拉取 TMDB / 豆瓣元数据生成海报墙。同时内置 Jellyfin、Emby、Plex 客户端首页——继续观看、下一集、最近添加、媒体库分区、跨服务器搜索、播放进度同步、多线路切换都直接集成在同一个窗口里。
+
+### 3. 视频播放与下载
+内置 Web 播放器支持 HLS / DASH / 直链，外部可调用 MPV、IINA；外挂字幕、双字幕、ASS/SSA、字幕偏移、繁简转换、在线字幕搜索、弹幕、自动跳片头片尾一应俱全。下载侧集成 aria2c，支持 HTTP/BT/磁力、`magnet://` 协议捕获、tracker 同步、UPnP 端口映射。
+
+### 4. AI 工作台 + clouddrive-cli
+BoxPlayer 内置 AI Agent，支持自然语言搜索网盘和公开资源、查重、空间分析、媒体整理规划，写入操作会先弹确认。配套的 `clouddrive-cli` 既是命令行工具，也能作为 MCP Server 给 Claude Desktop、Cursor、Windsurf 调用，例如 `clouddrive-cli files search --provider aliyun --name "Inception"`。BYOK 模式支持 OpenAI / DeepSeek / OpenRouter / Ollama 等兼容服务。
+
+### 5. 音乐库 + 电子书阅读器
+音乐模块主打"沉浸式"：粒子舞台、实时频谱、3D 歌单架、封面取色、10 段 EQ、桌面悬浮歌词。阅读器支持 EPUB / PDF / TXT / MOBI / AZW3 / DOCX / Markdown，内置 AI 阅读助手可对当前文档做总结、问答、翻译，答案带引用回溯。
+
+![](/assets/blog-images/jellyfin-5-app-boxplayer-1d466h/img02.webp)
+
+## 四、技术亮点与性能数据
+
+技术栈：Electron 40 + Vue 3 + Vite + TypeScript + Arco Design Vue，本地存储用 Dexie / SQLite / better-sqlite3，视频层用 ArtPlayer + MPV，下载层用 aria2c。跨平台覆盖 Windows / macOS / Linux 桌面以及 iOS / tvOS / Android 移动端（App Store 已有正式上架）。AI 层走 AI SDK，支持 OpenAI 兼容协议。代码组织上，主进程、渲染端、CLI 共用 `shared/` 目录，避免逻辑重复。
+
+## 五、适用场景与人群
+
+- **多网盘囤资源用户**：同时用阿里云盘 + 夸克 + 115 的人，一个 App 顶 5 个客户端。
+- **自建 Jellyfin / Emby / Plex 的影音爱好者**：不想在浏览器和网盘之间来回跳。
+- **折腾派 / AI Agent 玩家**：想用 Claude Desktop / Cursor 通过 MCP 直接驱动网盘整理。
+- **不适合**：只想找个简单网盘客户端、不需要 AI 与媒体库功能的轻度用户；以及对账号安全极度敏感、不愿授权第三方客户端的用户。
+
+## 六、竞品对比
+
+| 维度 | BoxPlayer | 小白羊原版 | CloudDrive2 | 单纯 Jellyfin 客户端 |
+|---|---|---|---|---|
+| 多网盘数量 | 12 家 | 主打阿里 | 部分 | 不支持 |
+| 媒体服务器客户端 | Jellyfin/Emby/Plex | 无 | 无 | 单一 |
+| 内置播放器 | Web + MPV + IINA | 基础 | 基础 | 强 |
+| AI Agent + MCP | ✅ | ❌ | ❌ | ❌ |
+| 音乐/电子书 | ✅ | ❌ | ❌ | ❌ |
+| 跨平台 | 桌面+iOS+tvOS+Android | 桌面为主 | 桌面 | 多端 |
+| 价格 | 核心免费 / Pro 可选 | 免费 | 部分订阅 | 免费 |
+
+相比原版"小白羊"，BoxPlayer 不只是 fork 升级，而是扩展成了"云盘+媒体库+AI"三位一体的桌面工作台。
+
+![](/assets/blog-images/jellyfin-5-app-boxplayer-1d466h/img03.webp)
+
+## 七、如何快速上手
+
+桌面端：到 GitHub Releases（`gaozhangmin/aliyunpan/releases`）下载对应安装包，macOS Apple Silicon 选 `*-mac-arm64.dmg`，Windows 选 `*-win.exe`，Linux 选 `.deb` 或 `.AppImage`。iOS / tvOS / macOS 用户也可走 App Store 搜索 BoxPlayer。首次启动会自动识别系统语言，登录网盘扫码即用。
+
+CLI / MCP：在 App 内 `账户设置 → 安装命令行工具`，或独立执行 `npm install -g clouddrive-cli`，然后在 Claude Desktop / Cursor 的 MCP 配置里加一条 `clouddrive-mcp` 即可。
+
+开发者：Node.js ≥ 22.12.0 + pnpm，`pnpm install` → `pnpm dev` 起本地开发；`CI=true pnpm exec vue-tsc --noEmit` 跑类型检查。仓库严禁 npm/yarn。
+
+![](/assets/blog-images/jellyfin-5-app-boxplayer-1d466h/img04.webp)
+
+## 八、总结与行动建议
+
+BoxPlayer 的核心价值，是把"分散的云盘 + 本地媒体库 + 媒体服务器 + AI 助手"整合成一个跨平台桌面控制台，省掉 5 个客户端来回切的时间。GitHub 6.8K Stars、Electron 40 + Vue 3 的现代技术栈、12 家云盘 + 3 大媒体服务器的覆盖宽度，在同类开源项目里相当能打。
+
+使用建议：先把它当统一网盘客户端上手，熟悉后再开启 AI Agent 做媒体整理，最后接 MCP 把 Claude / Cursor 接进来做自动化。
+
+- GitHub：https://github.com/gaozhangmin/boxplayer
+- 官网：https://xbyvideohub.com
+- 下载：https://github.com/gaozhangmin/aliyunpan/releases
+- App Store：https://apps.apple.com/us/app/boxplayer/id6739804060
+
+如果你同时用着 2 个以上网盘、又自建了媒体服务器，不妨试试它。

@@ -1,0 +1,98 @@
+---
+title: "别再为 OpenAI Operator 每月烧 200 美元了"
+publishedAt: "2026-04-25"
+summary: "别再为 OpenAI Operator 每月烧 200 美元了"
+image: "/assets/blog-images/openai-operator-200-1iekkt/img01.webp"
+tags: ["AI", "Agent", "开源"]
+author: "Adam"
+---
+![](/assets/blog-images/openai-operator-200-1iekkt/img01.webp)
+
+选择标题（3 选 1）
+
+别再为 OpenAI Operator 每月烧 200 美元了
+
+14K Star 开源神器：Nanobrowser 让浏览器自动化零成本落地
+
+没花一分钱 LLM 费用，他用开源扩展搭起多 Agent 网页工作流
+
+# 别再为 OpenAI Operator 每月烧 200 美元了
+
+## 一、开篇：你的浏览器自动化工具，凭什么这么贵
+
+做产品调研时，先打开 5 个竞品官网抓取定价、截图、再整理到表格；做跨境电商时，每天重复登录 3 个平台导出订单、核对库存；做内容运营时，逐个打开新闻站点、复制标题、提取关键信息汇总。这些流程机械却耗时，手动操作一下午，写个脚本又得折腾半天 Selenium 和反爬。
+
+于是许多人把希望寄托在 OpenAI Operator 这类 AI 浏览器代理上。但现实是：每月 200 美元的订阅费、入门门槛高、私有数据上传云端、模型固定不可换。想本地跑？想换便宜模型？想用 DeepSeek 或本地 Ollama？没门。
+
+今天要聊的 Nanobrowser，正是冲着这些痛点来的。它在 GitHub 上拿下 14000+ Star，是一个开源 Chrome 扩展，把多 Agent 浏览器自动化能力塞进你本地浏览器，绕过订阅、按用量付费、完全可控。
+
+![](/assets/blog-images/openai-operator-200-1iekkt/img02.webp)
+
+## 二、项目简介：开源免费的 AI 浏览器代理
+
+Nanobrowser 的定位很明确——开源、可自托管的 Chrome 扩展，用多 Agent 协作完成复杂网页自动化任务。它不是另一个套壳 ChatGPT，而是面向 OpenAI Operator 的开源替代品。核心关键词四个：**多 Agent 架构、自带 LLM 灵活接入、本地运行、Apache 2.0 完全开源**。当前 GitHub Stars 14023，主仓库使用 TypeScript 开发，遵循 Manifest V3 规范。
+
+## 三、核心功能深度解析
+
+### 1. Planner + Navigator 多 Agent 协作
+
+Nanobrowser 把一个任务拆给两个角色：`Planner` 负责思考和规划，`Navigator` 负责操作浏览器。Planner 把复杂任务拆解成子步骤，Navigator 真正点击、输入、滚动、抓取数据；遇到障碍时 Planner 会动态调整计划，命令 Navigator 重试或换路径。这种分工让 7B 小模型也能胜任导航，复杂推理交给更强的模型，整体成本和稳定性都更优。
+
+![](/assets/blog-images/openai-operator-200-1iekkt/img03.webp)
+
+### 2. 多 LLM 灵活接入
+
+Nanobrowser 原生支持 OpenAI、Anthropic、Gemini、DeepSeek、Grok、Azure OpenAI、OpenRouter、Ollama 以及自定义 OpenAI 兼容接口。更有意思的是，Planner 和 Navigator 可以分配不同模型：让 Claude Sonnet 5.5 做规划、Claude Haiku 4.5 做执行；或者本地 Qwen3-30B-A3B-Instruct 跑整套流程，零 API 费用。预算紧就上 Gemini Flash，便宜又能跑。
+
+### 3. 本地运行 + 数据不出浏览器
+
+所有推理调用通过你自己填的 API Key 发起，或者完全走本地 Ollama。Nanobrowser 本身不收集任何数据，没有中间服务器。涉及账号、Cookie、表单内容的工作流，数据始终停留在你的设备上。
+
+### 4. 任务历史 + 上下文追问
+
+侧边栏内置对话记录，完成任务后可以追问、复用、归档。上一轮跑过的抓取流程换一组参数就能再次执行，省去重复输入指令。
+
+![](/assets/blog-images/openai-operator-200-1iekkt/img04.webp)
+
+## 四、技术亮点与性能数据
+
+Nanobrowser 基于 WXT + Manifest V3 构建，开发期支持 HMR 热更新，扩展 ID 持久不丢。底层依赖 Puppeteer 控制浏览器、Vercel AI SDK 统一多模型调用协议，并借鉴 Browser-Use 的导航抽象。
+
+社区实测的本地模型推荐组合：Qwen3-30B-A3B-Instruct-2507、Falcon3 10B、Qwen 2.5 Coder 14B、Mistral Small 24B 都跑得通。性价比方案中，`Planner` 用 Gemini 3.5 Flash-Lite、`Navigator` 用 Gemini 3.5 Flash-Lite，单次任务成本可以压到几分钱。
+
+## 五、适用场景与人群
+
+**适用场景**：① 跨境电商日常运营（多平台订单、库存、价格抓取）；② 内容运营（定时抓取新闻、汇总热点、生成简报）；③ 产品/竞品调研（批量抓取商品信息、生成对比表）；④ 自动化测试（模拟用户点击路径、回归验证）。
+
+**适合谁**：预算敏感的独立开发者、需要数据本地化处理的企业团队、研究多 Agent 系统的工程师。
+
+**不适合谁**：追求点击即用、不愿配置 API Key 的纯小白用户。Firefox、Safari 用户暂时无缘，目前官方仅承诺 Chrome 和 Edge 的完整体验。
+
+## 六、竞品对比
+
+| 维度 | Nanobrowser | OpenAI Operator | 传统 RPA（如 UiPath） |
+|------|------------|----------------|----------------------|
+| 价格 | 免费（按 LLM 用量付费） | 200 美元/月 | 高昂企业授权 |
+| 模型选择 | OpenAI/Claude/Gemini/DeepSeek/Ollama 等全可选 | 固定 GPT 系列 | 通常无 AI |
+| 数据隐私 | 本地浏览器运行 | 云端处理 | 本地部署但复杂 |
+| 多 Agent | Planner + Navigator 协作 | 单 Agent | 通常无 |
+| 开源 | Apache 2.0 | 闭源 | 部分闭源 |
+| 部署难度 | 装扩展 + 配 Key，几分钟 | 注册账号、订阅 | 数周到数月 |
+
+## 七、如何快速上手
+
+最快方式：从 Chrome Web Store 搜索「Nanobrowser」，点「添加至 Chrome」，几秒装好。需要最新版可以到 GitHub Releases 页面下载 `nanobrowser.zip`，解压后在 `chrome://extensions/` 开启「开发者模式」→「加载已解压的扩展程序」即可。
+
+首次使用：点击工具栏图标打开侧边栏，进入「设置」填入 API Key，为 Planner 与 Navigator 分别挑选模型。想本地跑可以填入 Ollama 的 `http://localhost:11434/v1` 作为自定义 Base URL。
+
+进阶玩法：从源码构建需要 Node.js 24 LTS + pnpm 10+，执行 `pnpm install && pnpm build` 即可生成生产包；开发模式用 `pnpm dev` 启动 HMR，改一行代码即刻热更新。
+
+![](/assets/blog-images/openai-operator-200-1iekkt/img05.webp)
+
+## 八、总结与行动建议
+
+Nanobrowser 用开源 + 多 Agent + 多模型 + 本地运行这套组合拳，把原本只有巨头玩家才玩得起的浏览器自动化交到了普通开发者手里。对于既想省 200 美元月费、又想把数据握在自己手里、还想灵活切换 LLM 的团队，它提供了一个几乎零成本的入口。
+
+**值得一试的理由**：14K Star 的社区验证、Apache 2.0 商用友好、本地 Ollama 零费用、支持 DeepSeek 等国产模型。访问 https://github.com/nanobrowser/nanobrowser 给个 Star，或者直接前往 https://nanobrowser.ai 下载体验，把每月那 200 美元省下来。
+
+#nanobrowser #Nanobrowser #AI智能体 #AI工作流 #自动化 #开源项目 #GitHub

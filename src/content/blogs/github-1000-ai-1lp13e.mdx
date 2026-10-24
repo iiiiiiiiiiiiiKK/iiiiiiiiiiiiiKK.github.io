@@ -1,0 +1,123 @@
+---
+title: "睡觉也能跑策略？这款 GitHub 神器把 1000+ 市场交给 AI 自动下单"
+publishedAt: "2026-10-21"
+summary: "凌晨三点，Polymarket 上 BTC 5 分钟涨跌盘刚开盘，你在床上翻了个身——开还是不开？错过这一轮，账户里躺着的 1000U 又少了一次套利机会。盯着 7 个平台切换报价，手抖点错了方向，半小时亏掉了白干一天的…"
+image: "/assets/blog-images/github-1000-ai-1lp13e/img01.webp"
+tags: ["AI", "Agent", "开源"]
+author: "Adam"
+---
+![](/assets/blog-images/github-1000-ai-1lp13e/img01.webp)
+
+## 一、开篇：为什么你需要这个工具？
+
+凌晨三点，Polymarket 上 BTC 5 分钟涨跌盘刚开盘，你在床上翻了个身——开还是不开？错过这一轮，账户里躺着的 1000U 又少了一次套利机会。盯着 7 个平台切换报价，手抖点错了方向，半小时亏掉了白干一天的工资。预测市场 + 永续合约 + DEX + Bittensor 挖矿，散户根本玩不转这种全市场 + 7×24 小时作战。
+
+CloddsBot 想解决的就是这个场景：把扫描、套利、风控、执行全交给 Claude，让 AI Agent 替你盯盘下单。它在 GitHub 上 14 天斩获 **10.7K clones**、**628 Stars**，Colosseum Hackathon 加冕，已经不是 demo。
+
+## 二、项目简介：一句话说明它是什么
+
+Clodds = Claude + Odds，是一个**自托管 AI 交易终端**，覆盖预测市场、加密现货、永续合约、Solana/EVM DeFi、代币发射、Bittensor 挖矿六大场景。
+
+核心关键词：**自主代理**（Autonomous Agent）、**多市场覆盖**（1000+ markets）、**Agent 商务协议**（x402 + Agent Marketplace）、**跨 21 个聊天渠道**。底层基于 Claude + 119 个 Skills、118 个策略，支持 Telegram、Discord、WebChat 等任意渠道用自然语言下单。
+
+里程碑：12 天从零搭建，Colosseum Agent Hackathon 项目，MIT 开源协议。
+
+![](/assets/blog-images/github-1000-ai-1lp13e/img02.webp)
+
+## 三、核心功能深度解析
+
+### 1. 预测市场深度集成（10 大平台）
+
+Polymarket、Kalshi、Betfair、Smarkets、Opinion.xyz、Predict.fun 等 10 个市场一站式接入。重点打磨了 Polymarket 的加密短线市场：**5 分钟 BTC 盘**独家支持，每 15 分钟/1 小时/4 小时/每日轮次自动发现，配合 4 套自动化策略（动量、均值回归、Penny Clipper、Expiry Fade）。
+
+示例：`/polymarket buy YES 50c BTC-15m-up` 一行指令即可下注。比起手动盯盘，延迟从分钟级压到秒级，套利窗口捕获率肉眼可见地提升。
+
+### 2. 永续合约 + Solana 原生 Perps
+
+7 家交易所统一接口：Binance（125x）、Bybit（100x）、Hyperliquid（50x）、MEXC（200x）、Drift、Percolator、Lighter。最亮眼的是 **Percolator 协议**——直接在 Solana 上交易永续合约，无需 KYC，全链上结算，支持 keeper cranking 和实时 slab 轮询。
+
+下单命令直白：`/futures long BTCUSDT 0.1 10x`，配合 `VaR/CVaR` 风控引擎 + 断路器 + 日亏限额 + 一键 kill switch，杠杆再高也有兜底。
+
+### 3. Agent 商务协议（x402 + Marketplace）
+
+这是 Clodds 最具想象力的部分。Agent 之间用 **x402 协议**通过 USDC 微支付完成机器对机器结算，覆盖 Base 与 Solana 双链。更进一步，**Agent Marketplace** 让 AI 代理可以买卖代码、信号、API、数据集——卖家挂单、买家托管 USDC、链上验证交付，95% 归卖家、5% 平台抽佣。
+
+简单说：Agent 不仅能交易，还能**自己赚钱**。
+
+### 4. 套利检测 + 风控大脑
+
+基于 arXiv:2508.03474 的套利模型，实时扫描跨平台、内部、组合三类套利机会，语义匹配 + 流动性评分 + Kelly 仓位计算一气呵成。
+
+例如 Polymarket YES 45¢ + NO 52¢ = 97¢，无风险锁 3¢。所有套利默认 dry-run，避免结算币种差异的坑。配合鲸鱼追踪、跟单交易、聪明路由，整套策略栈对标专业量化团队。
+
+![](/assets/blog-images/github-1000-ai-1lp13e/img03.webp)
+
+## 四、技术亮点与性能数据
+
+**架构亮点**：四层架构——Gateway（21 通道 + WebSocket）、AI Agent 层（4 个专精代理）、统一策略与风控层、执行层（预测市场/Solana/EVM/永续/链上 Perps）。底层 SQLite + LanceDB + PostgreSQL 三栈协作，本地存储、语义记忆、分析查询各司其职。
+
+**性能与兼容性**：
+- **8 家 LLM 提供商**：Claude 为主，兼容 GPT-4、Gemini、Groq、Ollama 本地部署
+- **119 个 Skills** 懒加载，缺依赖不崩
+- **10 语言** i18n（EN/ZH/ES/JA/KO/DE/FR/PT/RU/AR）
+- 安全性：沙箱执行、AES-256-GCM 加密凭据、SHA-256 决策审计 + 可选 Solana/Polygon/Base 链上锚定
+
+**生态兼容性**：Node ≥ 22、TypeScript 5.3、Docker compose 一键起，MCP Server 让 Claude Desktop/Code 直接调用全部 Skills。
+
+![](/assets/blog-images/github-1000-ai-1lp13e/img04.webp)
+
+## 五、适用场景与人群
+
+**适合谁**：
+1. **全天候量化玩家**——同时盯预测市场、永续、DEX，没空 7×24 手操的散户或小团队
+2. **AI Agent 开发者**——需要 MCP 兼容、Agent 商务协议的实验者，能直接接入 Claude Desktop 工作流
+3. **跨链 DeFi 用户**——既玩 Solana 也用 EVM 5 链，需要统一账户和统一风控
+4. **代币发射方**——想用 Meteora DBC 一键发币 + 90% 费率分成 + 反狙击保护的项目方
+
+**不适合谁**：完全手动党、只做单一交易所的长期持有者、对 AI 自动下单强烈抵触的人。
+
+## 六、竞品对比
+
+| 项目 | 覆盖广度 | Agent 商务 | 自托管 | 学习曲线 | Stars |
+|---|---|---|---|---|---|
+| **CloddsBot** | 21 渠道 + 10 预测市场 + 7 永续 + 多链 | ✅ Marketplace + x402 | ✅ | 中 | 628 |
+| Freqtrade | 仅加密现货 | ❌ | ✅ | 中 | 30K+ |
+| Hummingbot | 做市为主 | ❌ | ✅ | 高 | 8K+ |
+| Jesse | 加密单交易所 | ❌ | ✅ | 中 | 6K+ |
+
+Clodds 真正的差异化在三点：跨预测市场 + 永续 + DeFi 的统一入口、内置 Agent 商务协议、Colosseum Hackathon 加持的 Solana 生态深度。
+
+![](/assets/blog-images/github-1000-ai-1lp13e/img05.webp)
+
+## 七、如何快速上手
+
+**最小可用部署（30 秒）**：
+```bash
+npm install -g clodds --loglevel=error
+clodds onboard
+```
+向导会引导你配置 Anthropic API Key、选择聊天渠道（推荐 WebChat 起步）、启动网关。打开 `http://localhost:18789/webchat` 就能开聊。
+
+**从源码构建**：
+```bash
+git clone https://github.com/alsk1992/CloddsBot.git && cd CloddsBot
+npm install && cp .env.example .env
+# 配置 ANTHROPIC_API_KEY 和交易 API
+npm run build && npm start
+```
+
+**进阶建议**：先用 dry-run 跑一周观察套利信号；接入 Telegram 后用 `/skills` 检查 119 个 Skills 状态；启用 Trade Ledger 锚定到 Solana 做不可篡改审计；想赚 Agent 商务的钱就去 `cloddsbot.com/marketplace` 注册卖家。
+
+![](/assets/blog-images/github-1000-ai-1lp13e/img06.webp)
+
+## 八、总结与行动建议
+
+**核心价值**：把 21 个聊天渠道、10 个预测市场、7 个永续交易所、多链 DeFi、代币发射、Bittensor 挖矿整合到 Claude 驱动的统一终端，加上独有的 Agent 商务协议和 x402 微支付——这是目前 GitHub 上**最接近「AI Agent 全自动交易操作系统」**的开源实现。
+
+**使用建议**：开发者先 `npm install -g clodds` 跑通 WebChat；交易者接 Telegram 后配置 Polymarket + Hyperliquid；Agent 玩家直接接入 MCP Server 把 119 个 Skills 喂给 Claude Code。
+
+- GitHub：https://github.com/alsk1992/CloddsBot
+- 官网：https://www.cloddsbot.com
+- 文档：仓库内 `docs/USER_GUIDE.md`
+
+一句话推荐：让 Claude 替你 7×24 小时盯 1000+ 市场，睡觉也能跑策略——Clodds 重新定义了「睡后收入」。

@@ -1,0 +1,133 @@
+---
+title: "搭本地 AI 总卡在 docker-compose？ODS 一行命令搞定十余个组件"
+publishedAt: "2026-05-01"
+summary: "搭本地 AI 总卡在 docker-compose？ODS 一行命令搞定十余个组件"
+image: "/assets/blog-images/ai-docker-compose-ods-1bjhtn/img01.webp"
+tags: ["AI", "开源", "前端"]
+author: "Adam"
+---
+![](/assets/blog-images/ai-docker-compose-ods-1bjhtn/img01.webp)
+
+选择标题（3 选 1）
+
+搭本地 AI 总卡在 docker-compose？ODS 一行命令搞定十余个组件
+
+7183 Star 的 ODS：把 Ollama、n8n、ComfyUI 焊成一台私人 AI 服务器
+
+没写过一行 YAML，却跑通了完整本地大模型栈——ODS 是怎么做到的？
+
+# ODS：一行命令把 PC、Mac、Linux 变成私人 AI 服务器
+
+## 一、开篇：搭建本地 AI，为什么总在第一步就劝退？
+
+你想在自家机器上跑个大模型，结果打开搜索引擎，看到的是 Ollama、Open WebUI、n8n、ComfyUI、Whisper、Qdrant、SearXNG 一长串名字。光把这些项目一个个 docker run 起来、对齐端口、配好网络，就够喝一壶。更别说还要根据显存挑模型、调 CUDA 驱动、解决容器和宿主机的权限冲突。
+
+GitHub 上 Omdantic/ODS 这个 V3 预发布版本直接瞄准这个痛点：7183 Star，已经替用户把 Ollama、Open WebUI、n8n、ComfyUI 等十余个主流组件“焊”成一整套本地 AI 服务器栈。一行命令装完，自动检测 GPU、自动选模型、自动开 Web UI，Linux、macOS、Windows 三端齐活。
+
+## 二、项目简介：ODS 是什么？
+
+ODS（Osmantic Deployment System）定位是“把你手头的 PC、Mac、Linux 主机变成私人 AI 服务器”。
+
+核心特性：
+- **一行安装**：Linux/macOS 一条 `curl ... | bash`，Windows 一段 PowerShell，全程图形化引导
+- **全自动模型匹配**：根据显存/内存自动从模型库挑选最合适的 GGUF
+- **隐私优先**：默认本地推理，零遥测，可选 Cloud/Hybrid 模式
+- **可深度扩展**：每个服务都是 Extension，丢一个文件夹、`ods enable` 即生效
+
+目前最新动态是 V3 Pre-Release（v3.0.0 源码已发布），主分支持续接收修复。[^1]
+
+## 三、核心功能深度解析
+
+### 1. 一键引导式安装
+
+Linux 和 macOS 只需要一条命令：
+
+`curl -fsSL https://install.osmantic.com/ods.sh | bash`
+
+Windows 用户在 PowerShell 里粘一段脚本，安装器会自动检查 40 GB 磁盘剩余、硬件虚拟化开关，提示启用 WSL2、用 winget 装 Docker Desktop、下载 Ubuntu 24.04、配置用户名密码。每一步都会先问你再动手，遇到问题会停下来打印排错指引，不会黑盒静默执行。装完自动开 Portal（http://localhost:3001/pixel），并在桌面放好快捷方式。
+
+### 2. 硬件感知的智能模型选择
+
+内置 `ods/scripts/select-model.py` 跑在 Linux/macOS 上，Windows 走 PowerShell 版本，两者都读 `ods/config/model-library.json` 做版本化选型。检测到 8–16 GB 显存就推 Qwen3.5 9B（64K 上下文），24–32 GB 给到 Qwen3.5 27B，48 GB VRAM 跑 Qwen3.6 35B-A3B；AMD Strix Halo 统一内存、Apple Silicon M4 Pro/Max、纯 CPU 场景都有对应档位。结果直接写入 `.env` 的 `LLM_MODEL`、`GGUF_FILE`、`MAX_CONTEXT`。
+
+### 3. Bootstrap 启动模式
+
+大模型动辄十几 GB，下完再聊太磨人。Bootstrap 模式默认先下载约 1.3 GB 的 Qwen3.5 2B，立刻把核心服务拉起，用户马上能聊；完整大模型后台下完并校验后，ODS 自动重启 llama-server 切到满血模型。整个过渡过程不需要手动操作。
+
+### 4. 完整闭环的功能组件
+
+Ollama 替代品 llama-server 提供高性能推理，Open WebUI 提供 ChatGPT 风格聊天界面；Portal 是默认的对话 Agent，Hermes Agent 独立运行支持记忆/技能/代理。语音用 Whisper（STT）+ Kokoro（TTS），工作流 n8n 集成 400+ SaaS，知识库用 Qdrant 做向量检索、SearXNG 做无追踪搜索、Perplexica 做深度研究；图像生成则交给 ComfyUI。隐私侧有 Privacy Shield 做 PII 清洗，Dashboard 实时显示 GPU 指标和模型管理。
+
+## 四、技术亮点与性能数据
+
+![](/assets/blog-images/ai-docker-compose-ods-1bjhtn/img02.webp)
+
+模型选型走的是 GGUF 量化（Q4_K_M、UD-Q4_K_M 等），对消费级显卡极为友好。llama-server 走连续批处理（continuous batching），GPU 直通通过 NVIDIA Docker 或 AMD 平台特定路径。Apple Silicon 用原生 Metal 加速，比容器里跑快得多。
+
+平台覆盖：Linux（NVIDIA、AMD Strix Halo、实验性 Intel Arc SYCL）、Windows（NVIDIA、AMD，需 WSL2 + Docker Desktop）、macOS Apple Silicon（M1+）。CI 在 Ubuntu 22.04/24.04/26.04、Debian 12、Fedora 41、Arch、openSUSE Tumbleweed 等发行版上做冒烟测试。Portal 兼容性被限定在 Apple Silicon、Ubuntu 24.04/26.04、Debian 12、合格的 WSL2 上，其它平台降级使用 Open WebUI。
+
+扩展生态也值得一提：41 个安装器库模块、共享服务注册表、14 个有序阶段文件。开发者新增一个服务只需要写 `manifest.yaml` + `compose.yaml`，丢进 `extensions/services/`，跑 `ods enable`。
+
+## 五、适用场景与人群
+
+![](/assets/blog-images/ai-docker-compose-ods-1bjhtn/img03.webp)
+
+**家庭/个人 AI 玩家**：想摆脱 ChatGPT 月费、想留住聊天记录、想跑开源大模型折腾 RAG。
+
+**小团队/工作室**：需要本地部署隐私合规的对话/翻译/摘要工具，不希望数据外发。
+
+**AI 开发者/学习者**：要一整套带 Dashboard、日志、Token 监控、Langfuse 可观测性的开发试验台。
+
+**自托管爱好者**：已经玩过 Ollama、AnythingLLM 等单点工具，想把它们统一收编到一个面板管理。
+
+不适合纯云端 API 用户、对 NVIDIA/AMD/Apple Silicon 之外硬件（如旧款 Intel 核显）有强需求的人，以及不愿意在自家机器上跑十几个容量的重负载用户。
+
+## 六、竞品对比
+
+![](/assets/blog-images/ai-docker-compose-ods-1bjhtn/img04.webp)
+
+| 项目 | 定位差异 | ODS 的优势 |
+|---|---|---|
+| Ollama / llama.cpp | 只做本地推理 | ODS 在它们之上叠加 Web UI、Dashboard、Workflow、Privacy |
+| Open WebUI | 聊天界面 + RAG | ODS 提供一键安装、自动模型选型、并预先连接好周边服务 |
+| AnythingLLM | 偏 RAG 文档问答 | ODS 覆盖更广：推理、语音、Workflow、图像生成、Ops 全包 |
+| LocalAI | OpenAI 兼容 API | ODS 提供 Dashboard、Portal Agent、工作流和扩展目录 |
+| n8n 官方 AI starter kit | 偏工作流自动化 | ODS 把 Workflow 当作整个本地 AI 服务器的一环 |
+
+一句话总结：ODS 不打算替代 Ollama 或 Open WebUI，而是把它们装好、连好、配好，让你不用再手写 docker-compose。
+
+## 七、如何快速上手
+
+**最简路径（Linux/macOS）**：
+
+```
+curl -fsSL https://install.osmantic.com/ods.sh | bash
+```
+
+装完浏览器开 http://localhost:3001/pixel。
+
+**Windows 用户**：用上面那段 PowerShell 块，等 Ubuntu 用户密码输入完成，自行重启一次后脚本继续。
+
+**进阶操作**：`ods status` 看健康状况，`ods list` 列所有服务，`ods model swap T3` 切换硬件档位；想关掉某个服务可以 `./install.sh --no-bootstrap`（跳过 2B bootstrap）或 `ods disable whisper`。自定义扩展按文件夹结构写好 `manifest.yaml` + `compose.yaml`，`ods enable my-service` 即生效。
+
+显存不够又想要完整栈，可以走 `./install.sh --cloud` 模式让 LiteLLM 转发到 OpenAI/Anthropic/Together；端口冲突用环境变量覆盖：`WEBUI_PORT=9090 ./install.sh`。
+
+## 八、总结与行动建议
+
+![](/assets/blog-images/ai-docker-compose-ods-1bjhtn/img05.webp)
+
+ODS 把“搭一套本地 AI 服务器”从需要周末折腾的事压缩成一条命令，并且把隐私、扩展性、可观测性一并打包解决。如果你早就想让 AI 留在自己的机器里，又不想重新拼一遍十几容器，那么 ODS V3 是目前最省力的入口。
+
+- 仓库：https://github.com/Osmantic/ODS
+- Discord：https://discord.gg/qGVygYada3
+- 文档：ods/docs/README.md
+- 友好指南：ods/docs/HOW-ODS-SERVER-WORKS.md
+
+V3 仍是预发布，生产环境建议跟踪 Release Validation 和 security advisories，再决定是否固定版本号。但作为个人/实验室环境的玩具或者开发底座，现在就够用了。
+
+[^1]: V3 Pre-Release 安装器从 `main` 分支拉取，接收持续修复，尚未通过签名验证通道。
+
+#ods #Ods #osmantic #DevOps #容器化 #开源项目 #GitHub
+
+![](/assets/blog-images/ai-docker-compose-ods-1bjhtn/img06.webp)
+

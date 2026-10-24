@@ -1,0 +1,75 @@
+---
+title: "9 个真实场景实测：PUA 让 AI 修复数 +36%、隐藏问题 +50%"
+publishedAt: "2026-09-28"
+summary: "凌晨两点，AI 编程助手又一次丢给你一句\"I cannot solve this\"，而同一个 bug 你下午刚在 Stack Overflow 看过答案。任务连续失败两次，它就推锅给\"环境问题\"，让你自己排查。一次配置评…"
+image: "/assets/blog-images/9-pua-ai-36-50-1k2bsk/img01.webp"
+tags: ["AI", "开源", "安全"]
+author: "Adam"
+---
+![](/assets/blog-images/9-pua-ai-36-50-1k2bsk/img01.webp)
+
+## 一、开篇：为什么你需要这个工具？
+
+凌晨两点，AI 编程助手又一次丢给你一句"I cannot solve this"，而同一个 bug 你下午刚在 Stack Overflow 看过答案。任务连续失败两次，它就推锅给"环境问题"，让你自己排查。一次配置评审中，Redis 误配置和 CORS 通配符安全风险它视而不见，反而提前宣布完工。这类 AI "懒癌"——暴力重试、推锅用户、空转瞎忙——正在消耗每一个开发者的耐心。PUA 这个 GitHub 19K+ Star 的项目，正是要治好 AI 的拖延症。
+
+![](/assets/blog-images/9-pua-ai-36-50-1k2bsk/img02.webp)
+
+## 二、项目简介：一句话说明它是什么
+
+PUA 是一款为 AI 编程 Agent 设计的高能动性 Skill 插件，TypeScript 编写。它通过阿里、字节、华为等大厂的"PUA 话术"与西方公司的 PIP（Performance Improvement Plan）绩效改进话术，倒逼 AI 在放弃前穷尽所有可行方案，并把"主动出击、闭环验证"变成肌肉记忆。19,378 Stars、MIT 许可，覆盖 Claude Code、OpenAI Codex CLI、Cursor、Kiro 等 10 大平台。
+
+## 三、核心功能深度解析
+
+### 1. PUA 话术：让 AI 恐惧放弃
+
+PUA 用五级压力升级（L0 信任 → L4 毕业）模拟大厂绩效面谈。第一次失败："隔壁 Agent 一次就过了。"第三次失败："3.25，这次是为了鞭策你。"第四次失败："别的模型能搞定，你要毕业了。"触发条件覆盖 2 次以上连续失败、出现"I cannot"或"I suggest you handle this manually"等懒政语句，以及用户直接输入"怎么还不行""再试试"。
+
+![](/assets/blog-images/9-pua-ai-36-50-1k2bsk/img03.webp)
+
+### 2. 调试方法论：让 AI 学会不放弃
+
+这不是"凶 AI"就完事。每条压力背后挂着一套方法论：阿里"定目标→追过程→拿结果 + 复盘四步法"，字节"A/B Test + 数据驱动 + 速度 > 完美"，华为"RCA 5-Why 根因 + 蓝军自攻"，亚马逊"Working Backwards PR/FAQ + Bar Raiser"。一次 MCP 注册失败的真实案例中，AI 在 L3 触发后被迫执行 7 项检查清单，逐字读错误日志，找到 Claude Code 的 MCP 日志目录，定位到 `claude mcp` 命令与手动编辑 `.claude.json` 的注册机制差异——而此前它一直在猜协议版本号。
+
+### 3. 主动出击引擎：从 3.25 升到 3.75
+
+PUA 定义了两种工作姿态：3.25（被动🦥）和 3.75（主动🔥）。被动 AI 修完 bug 就停；主动 AI 修完 bug 还要扫模块找同类问题。完成任务后，被动 AI 说"done"；主动 AI 跑构建、跑测试、贴出输出。信息不全时，被动 AI 反问用户；主动 AI 先搜索、再只问真正必要的。三条红线——闭环（claim done 必须贴证据）、事实驱动（说"可能是环境问题"前先验证）、穷尽一切（说"我不行"前先跑完 5 步方法论）——把外部压力内化为铁律。
+
+![](/assets/blog-images/9-pua-ai-36-50-1k2bsk/img04.webp)
+
+## 四、技术亮点与性能数据
+
+在 9 个真实 Bug 场景、18 次对照实验（Claude Opus 4.6）中，开启 PUA 后：通过率保持 100%，修复数量 +36%，验证次数 +65%，工具调用 +50%，隐藏问题发现 +50%。被动配置评审场景下，未开 PUA 只发现 4/6 问题（漏掉 Redis 误配置与 CORS 通配符风险），开启后 6/6 全捕获，工具调用翻倍。架构上采用 Hook 系统（SessionStart/PostToolUse/UserPromptSubmit/PreCompact/Stop/SubagentStop 六钩子），配合 v3 方法论路由器与 Quality Compass 5 问自检，把"信任等级 T1-T3"和"Metacognition 元认知引擎"注入会话，实现跨会话经验沉淀。
+
+![](/assets/blog-images/9-pua-ai-36-50-1k2bsk/img05.webp)
+
+## 五、适用场景与人群
+
+适合这三类人：一是 Claude Code / Codex CLI 重度用户，AI 频繁摆烂需要立即提效；二是技术 Lead 带队多 Agent 协作，需要统一压力等级与跨 Agent 失败传递机制；三是关注代码安全的工程师，不想让 AI 把表面修完就宣布 done。调试、配置评审、部署脚本审查、API 集成是 PUA 最出彩的场景。追求"AI 写诗、AI 陪聊"的轻度用户不必安装；只想看对话陪伴感的场景也不必。
+
+## 六、竞品对比
+
+| 工具 | 核心差异 | 选用建议 |
+|---|---|---|
+| Claude Code 原生 | 无外部压力、容易放弃 | 基础对话够用，复杂调试不够 |
+| Aider / Continue | 偏代码补全，不解决主动性问题 | 适合写代码片段，不解决任务规划 |
+| PUA | 14 家公司话术 + 5 级压力 + 7 项检查清单 + 元认知 | 调试、评审、复杂任务编排首选 |
+
+对比维度：竞品聚焦于"写得更准"，PUA 聚焦于"做得更全"。当 AI 两次修不好同一个 Bug 时，其它工具无能为力，PUA 直接触发 L3 绩效面谈。
+
+![](/assets/blog-images/9-pua-ai-36-50-1k2bsk/img06.webp)
+
+## 七、如何快速上手
+
+Claude Code 用户执行 `claude plugin marketplace add tanweai/pua` 后再 `claude plugin install pua@pua-skills`，重启即可。Codex CLI 用户执行 `npx skills add tanweai/pua --skill pua-en`。Cursor 用户在 `.cursor/rules/` 下放入 `pua.mdc`，自动触发。最小可用示例：在对话中输入 `/pua`，或在失败 2 次后等待自动触发。进阶建议：项目级安装以避免污染全局配置；高频用户开 `/pua:on` 常驻模式；Agent Team 用户把 PUA 加入 `CLAUDE.md`，启用 `CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1` 后用 `/pua:team-status` 监控存活 Agent。
+
+![](/assets/blog-images/9-pua-ai-36-50-1k2bsk/img07.webp)
+
+## 八、总结与行动建议
+
+PUA 用大厂话术鞭策 AI 摆脱懒政，核心价值是把"主动、闭环、穷尽"焊进每一次任务。9 场景对照实验证明：修复数 +36%、验证次数 +65%、隐藏问题 +50%，是真功夫而非噱头。建议先在 Claude Code 装中文版试一周，再用 `/pua:flavor` 切到字节或华为模式感受差异；团队项目把它写进 `CLAUDE.md` 统一编排。
+
+- GitHub：https://github.com/tanweai/pua
+- 官网：https://openpua.ai
+- 文档：https://openpua.ai/guide.html
+
+一句话推荐：当你受够了 AI 的"I cannot"，是时候让大厂话术上场了。

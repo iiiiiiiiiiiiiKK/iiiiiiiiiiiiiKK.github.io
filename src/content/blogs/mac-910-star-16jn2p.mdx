@@ -1,0 +1,148 @@
+---
+title: "Mac 卡顿却没证据？试试这款 910 Star 的开源录制工具"
+publishedAt: "2026-04-24"
+summary: "Mac 卡顿却没证据？试试这款 910 Star 的开源录制工具"
+image: "/assets/blog-images/mac-910-star-16jn2p/img01.webp"
+tags: ["开源", "视频", "效率"]
+author: "Adam"
+---
+![](/assets/blog-images/mac-910-star-16jn2p/img01.webp)
+
+选择标题（3 选 1）
+
+Mac 卡顿却没证据？试试这款 910 Star 的开源录制工具
+
+0 成本让卡顿「回放」：Mac Performance Monitor 上手指南
+
+不用活动监视器也能回溯历史：开源菜单栏性能神器
+
+# Mac 卡常顿，试试这个开源菜单栏工具：Mac Performance Monitor
+
+## 一、开篇：如果有个工具能替你做完这一步…
+
+你是不是也经历过这种场景：写代码写到一半，风扇突然狂转；导出视频时进度条卡住，Mac 烫得像暖手宝；电池明明还有 60%，系统却提示「剩余 2 小时」。这时候你想知道「到底是谁在吃资源」，却只能打开「活动监视器」看一眼瞬时数据——等它消失了，又没有半点历史记录可查。
+
+市面上的 macOS 性能工具不少，但要么收费昂贵，要么数据上传云端，要么只能看不能录。等你真想把「那次卡顿」复盘一遍，证据早就没了。Mac Performance Monitor（以下简称 MPM）想要解决的，就是「看得见当下的 Mac + 回得去历史的现场」这一对需求。
+
+![](/assets/blog-images/mac-910-star-16jn2p/img02.webp)
+
+## 二、项目简介：它到底是什么？
+
+Mac Performance Monitor 是一款原生 macOS 性能监测与录制工具，主语言 Swift，GitHub Stars 已达 910。它以菜单栏形式常驻，覆盖 CPU、内存、GPU、网络、磁盘、电池、传感器六大维度，并把每一帧采样持久化到本地数据库，让你能「回到问题发生的那一刻」。
+
+核心关键词四个：**原生（Native）、可录制（Recorder）、本地化（Local-first）、开源免费（OSS）**。当前 2.2 版本新增 GPU 历史带宽、Ask 本地问答预览、进程使用时间线、保存的时间范围等特性；已通过 Apple 公证，支持 macOS 15+ 的 Apple Silicon 设备。同时也提供 Homebrew Cask 安装：`brew install --cask mac-performance-monitor`。
+
+## 三、核心功能深度解析
+
+### 1. Explorer：把「那一刻」拖回眼前
+
+Explorer 是 2.0 重头戏：你选定一个时间点，把想看的指标拖进来，就能同时比较最多 8 个进程——即便它们已经退出。鼠标悬停时共享光标在多张图表之间联动；按住 Command 收藏并滚动滚轮可围绕指针缩放，普通滚动则仍是页面滚动。点击可「钉住」一个时刻，方便对照源码值、时间戳、已知上下限与已存机器数据。
+
+传统工具往往「看现在」很强，「回过去」为零。Explorer 的差异在于：缩放不会凭空捏造细节，老数据保留原有分辨率，新增数据按新规则记录，让历史形状保持稳定。
+
+### 2. 基于「变化」的告警：不再是固定阈值
+
+很多工具只看「swap 大不大」就弹警报，实际体验是「一直叫，叫到你关掉」。MPM 2.0 引入自适应告警规则：它看的是 swap 是否「持续增长」、是否带来分页压力，是否还在恶化——这意味着系统不会因为偶尔一个高峰反复打扰你。
+
+进程增长检查会拒绝陈旧读数和已经平稳下来的增长；小问题只静默记录，不扣「内存泄漏」的帽子。还有一个独立的「快速增长」检查可以在不等待 20 分钟的前提下捕捉失控进程。告警状态完全本地，与完整历史录制彼此独立。
+
+### 3. Ask 本地问答与 AI Agent 协作
+
+2.2 新增的 Ask About This Mac 让你用大白话提问：「为什么我的 Mac 变慢了？」或在 Memory、Battery 卡片上直接点。MPM 会先看自己的读数与历史，再交给 macOS 27 的端侧模型用日常语言解释，并在每条结论后附上对应的图表链接。**整个过程数据不离开 Mac**，即使关闭 Apple Intelligence，区域摘要也能用。
+
+更硬核的问题可以转给 Claude Code、Codex 等 AI Agent：MPM 自带只读 MCP server，一行命令接入：
+
+```sh
+claude mcp add --scope user mac-performance-monitor -- "/Applications/Mac Performance Monitor.app/Contents/MacOS/mpm" mcp
+```
+
+执行 `mpm help` 查看命令行用法。Agent 会读取录制历史，你给它什么，它就发什么——这条边界写进了文档。
+
+![](/assets/blog-images/mac-910-star-16jn2p/img03.webp)
+
+### 4. 全维度监测：把每一度、每一瓦都拉成曲线
+
+- **进程**：排序、筛选、单进程 CPU/内存历史、文件描述符、磁盘 I/O、Rosetta 状态；右键可选 Usage Timeline 看采样运行历史。
+- **能耗**：电池健康、充电、功率流、温度、风扇、最耗电进程；2.1 起所有六张能耗卡片可展开为大图，Health 与 Cycles 按电池分别保留多年日历史。
+- **网络**：上下行速率、网卡详情、按应用追踪流量。
+- **磁盘**：吞吐量、IOPS、服务时间、驱动健康、卷空间、I/O 最多的进程；Disk Map 提供树状图扫描与快速预览。
+- **GPU**：设备与单进程活动、功耗、显存、温度上限；2.2 把 GPU 内存与 awake 时间纳入录制，ANE Time/ANE Power 独立成图。
+- **硬件**：芯片、内存、显示器、存储、外设的可搜索清单，支持按需刷新或导出报告。
+
+![](/assets/blog-images/mac-910-star-16jn2p/img04.webp)
+
+### 5. 隐私与签名
+
+MPM 明确**不使用任何使用统计或分析上报**，录制数据与告警证据都留在本机；导出的 CSV、trace 文件、报告、截图才会离开你的 Mac。更新检查、模型下载、签名内容下载与网络工具会发请求，但不会上传录制历史。安装包经过 Developer ID 签名并通过 Apple 公证，更新走 Sparkle 通道。
+
+## 四、技术亮点与性能数据
+
+- **Swift 6 + Apple Silicon 原生**：核心构建与测试基于 Swift 6，App Bundle 需要 Xcode 27 以承载 App Intents 与 macOS 27 SDK；运行在 macOS 15+ Apple Silicon。
+- **GRDB.swift + Sparkle 生态**：底层存储用 GRDB.swift（MIT），自动更新走 Sparkle（MIT），本地推理复用 MLX 与 llama.cpp。
+- **本地化优先**：内置英语、简体中文、德语、法语，翻译通过 Crowdin 协作；新字符串由 AI 翻译后等待母语审阅。
+- **自适应告警**：增长型规则替代固定阈值，避免「一直在叫」的疲劳告警；告警状态与历史录制解耦。
+- **多语言 CLI**：`mpm help` 暴露命令行入口，MCP server 让 AI Agent 以只读身份读取历史。
+
+## 五、适用场景与人群
+
+**适合**：
+- 长期被「Mac 卡顿但找不到证据」折磨的开发者与运维；
+- 跑本地大模型（Ollama / MLX / LM Studio）想对比 GPU 与 ANE 功耗的用户；
+- 关注电池健康、想区分「短时高峰」与「长期衰退」的笔记本用户；
+- 需要把现场复盘交给 AI Agent 但不想让数据上云的隐私敏感型团队。
+
+**不太适合**：只想看个 CPU 占用的轻度用户（活动监视器就够），以及仍在使用 Intel Mac 或 macOS 14 及以下系统的老设备（最低门槛 macOS 15 + Apple Silicon）。
+
+## 六、竞品对比
+
+| 维度 | Mac Performance Monitor | iStat Menus | Activity Monitor | Etar Mac
+|---|---|---|---|---|
+| 价格 | 免费开源 | 付费 | 系统自带 | 免费开源
+| 历史录制 | 内置可调采样率 | 仅瞬时 | 仅瞬时 | 基础
+| AI/Agent 集成 | 本地 Ask + MCP | 无 | 无 | 无
+| 隐私 | 无遥测，本地存储 | 闭源 | 闭源 | 视实现
+| 公证签名 | Developer ID + 公证 | 是 | 系统组件 | 视实现
+
+MPM 的差异化在于「免费 + 历史 + 本地 AI + MCP」，把「看得见」与「回得去」同时做透。
+
+## 七、如何快速上手
+
+**安装（任选其一）**：
+
+```sh
+brew install --cask mac-performance-monitor
+```
+
+或前往 [Releases](https://github.com/Zesty0wl/mac-performance-monitor/releases/latest) 下载 `MacPerformanceMonitor.pkg`，双击安装。
+
+**从源码构建**：
+
+```sh
+git clone --branch main https://github.com/Zesty0wl/mac-performance-monitor.git
+cd mac-performance-monitor
+swift build
+swift test
+Scripts/run.sh
+```
+
+**最小可用示例**：
+1. 打开应用，先在 Settings > Recording 选一个合适的采样粒度（默认已够日常）；
+2. 菜单栏图标单击看实时读数，长按或右键进入 Dashboard / Explorer；
+3. 复盘一次卡顿时，在 Explorer 里「钉住」事件时刻，叠加相关进程，再导出 CSV 给同事。
+
+**进阶建议**：想用 AI Agent 时，先装 MCP（命令见上文），再决定把哪段历史交给它——Agent 读到什么就会发什么。
+
+## 八、总结与行动建议
+
+Mac Performance Monitor 的核心价值可以浓缩为一句话：**把「现在的 Mac」与「过去的 Mac」放进同一个窗口，并且全程留在本机。** 如果你正因为「找不到性能问题的元凶」而头疼，不妨先装一版，让它在背景录几天；等你再遇到卡顿，打开 Explorer 就能像翻监控录像一样找原因。
+
+- 仓库：https://github.com/Zesty0wl/mac-performance-monitor
+- 官网：https://macperformancemonitor.com
+- 文档：https://github.com/Zesty0wl/mac-performance-monitor/blob/main/docs/README.md
+- 安装：`brew install --cask mac-performance-monitor`
+
+如果你也受够了「卡完没证据」，不妨试试它——反正免费、开源、零遥测。
+
+![](/assets/blog-images/mac-910-star-16jn2p/img05.webp)
+
+#mac-performance-monitor #MacPerformanceMonitor #zesty0wl #命令行工具 #开发工具 #数据库 #开源项目 #GitHub

@@ -1,0 +1,260 @@
+---
+title: "私藏 6 个开源神器_服务器监控、PDF、Markdown、PPT 一次给你打包好"
+publishedAt: "2026-06-04"
+summary: "私藏 6 个开源神器:服务器监控、PDF、Markdown、PPT 一次给你打包好"
+image: "/assets/blog-images/6-pdf-markdown-ppt-39srzv/img01.webp"
+tags: ["开源", "写作", "文档"]
+author: "Adam"
+---
+![](/assets/blog-images/6-pdf-markdown-ppt-39srzv/img01.webp)
+
+选择标题（3 选 1）
+
+私藏 6 个开源神器:服务器监控、PDF、Markdown、PPT 一次给你打包好
+
+从续费漏掉到 PPT 难做,6 个开源项目一次解决
+
+这 6 个 GitHub 项目,让我每天少加两小时班
+
+## 一、开篇：从踩坑到真香,只差这一个项目
+
+做技术这几年,手头攒下的「到期日」越来越多:域名要续费、SSL 证书要换、几台 VPS 各自有不同的账单周期、团队的 SaaS 订阅更是一团乱麻。每个月初总有那么一两个服务因为忘记续费被停掉,看着监控告警一片红,只能默默续上。下次发誓要记,结果下下次又忘了。
+
+后来发现,真正缺的不是记性,而是一个能把这些「分散在各个后台、邮箱、短信里的到期日」拢到同一张日历视图、并主动推送到我眼前的工具。这一年里,我把私藏的几个开源项目翻出来挨个用了一遍,今天把其中 6 个最值得分享的整理成一篇,希望帮你少踩几个坑。
+
+![](/assets/blog-images/6-pdf-markdown-ppt-39srzv/img02.webp)
+
+## 二、项目速览
+
+| 仓库 | Stars | 主要语言 | 一句话定位 |
+|---|---|---|---|
+| ieax/renewhelper | 387 | Vue | 基于 Cloudflare Workers 的服务到期日提醒工具 |
+| huilang-me/CF-Server-Monitor | 2092 | JavaScript | 免费的多服务器实时监控探针 |
+| nyblnet/bento | 5158 | TypeScript | 装在一个 HTML 文件里的离线办公套件 |
+| alexishida/Moji | 481 | TypeScript | 像打开 PDF 一样打开 Markdown 的桌面应用 |
+| SteveTheKiller/KillerPDF | 3950 | C# | 自带 PDF 2.0 引擎的免费 PDF 编辑器 |
+| zarazhangrui/frontend-slides | 29602 | JavaScript | 给 Coding Agent 用的网页 PPT 生成技能 |
+
+## 三、项目解析
+
+### ieax/renewhelper — 一个装在 Cloudflare 上的「到期日管家」
+
+**RenewHelper** 解决的就是开头那个痛点:把所有周期性订阅、域名、服务器、证书的到期日,塞进一个部署在 Cloudflare Workers 上的面板里,自动算农历/公历周期,通过 Telegram、Bark、钉钉、飞书、邮件等十几个渠道推送提醒,还能生成 `.ics` 订阅链接同步到 iOS/Google Calendar。**v2.x 起加入了资金流向看板**,把账单金额和实际支出分开统计,支持多币种自动汇率换算。整套前后端完全分离,不依赖任何 CDN 就能独立跑起来,也可以 Docker 部署在本地。
+
+技术亮点在于用 Cloudflare Workers + KV 这种纯 Serverless 架构承载状态,**免费额度对个人用户足够**,无需购买 VPS;Cron 触发器按 `0,30 * * * *` 每半小时巡检一次到期项,到期自动续期或标记禁用。
+
+**适合谁:**
+
+- 手头域名、VPS、SaaS 订阅超过 5 个的个人开发者
+- 想白嫖 Cloudflare 免费额度、又不想自己写定时任务的人
+
+**不适合谁:**
+
+- 团队级别的资产和合同管理(数据模型偏个人)
+- 需要复杂审批流和角色权限的企业场景
+
+**最小上手**
+
+推荐一键部署,点 README 里的 `Deploy to Cloudflare Workers` 按钮授权 GitHub 即可。==注意:必须在 Worker 设置里把 KV 命名空间绑定到变量名 `RENEW_KV`,否则数据存不进去==。
+
+部署完成后访问 Worker 域名,默认密码 `admin`,登录后立即改掉。
+
+```
+0,30 * * * *
+```
+
+把这条 Cron 表达式填进 `Triggers → Cron Triggers`,定时巡检就生效了。
+
+*开源地址:* **https://github.com/ieax/renewhelper**
+
+### huilang-me/CF-Server-Monitor — 免费的多服务器监控面板
+
+如果你既想知道每台服务器还活着、又想看历史 CPU/内存/网络曲线,还不想为此开一台 VPS,**CF-Server-Monitor** 就是为你准备的。它把监控面板、API、数据库和实时推送全塞进 Cloudflare:数据落 D1,实时推送走 Durable Objects + WebSocket,前端是 Vue。服务器端只装一个轻量 Agent(Go 写的,默认 60 秒上报一次),**单向上报,没有 WebSSH、没有远程命令下发**,安全模型比传统主控式探针干净一截。
+
+默认 60 秒间隔大约能撑 60 台机器,改成 120 秒可翻倍。Agent 支持 Linux、Alpine、OpenWrt、群晖 DSM、飞牛 fnOS、macOS、Windows,**支持非 root 安装**(`systemd --user`),普通用户就能跑起来。
+
+**适合谁:**
+
+- 有多台 VPS/家庭服务器,想统一在一个面板看健康度的人
+- 对安全和隐私敏感、不想用「主控+被控」架构的用户
+
+**不适合谁:**
+
+- 需要进程级监控、日志聚合、APM 的运维团队
+- 想用现成 SaaS、不愿意在每台机器装 Agent 的人
+
+**最小上手**
+
+把仓库连接到 Cloudflare Workers 是一步到位的方式:登录 Cloudflare 后台 → `Workers & Pages → Create application → Create Worker`,把代码粘进去,再在 D1 里建好数据库、填好 `API_SECRET` 即可。
+
+服务器端用官方安装命令拉起 Agent:
+
+```bash
+curl -sSL https://raw.githubusercontent.com/huilang-me/cfsm-agent/main/install.sh | bash -s -- --server https://your-worker.workers.dev --secret YOUR_API_SECRET
+```
+
+==注意:Agent 安装时会向 Worker 校验 `API_SECRET`,密钥要和后台一致==。
+
+*开源地址:* **https://github.com/huilang-me/CF-Server-Monitor**
+
+### nyblnet/bento — 一个 HTML 文件装下的整套办公套件
+
+**Bento** 走的路子和上面几个完全相反:它不部署在任何服务器上,文件本身就是软件。打开一份 `.bento.html`,里面自带查看器、演示器和编辑器——双击就能编辑,F5 就能演示,邮件附件发出去,对方也不需要装任何东西。**整个文件约 560 KB**,渲染器、动画引擎、图表引擎、协作 CRDT 全塞在里头。
+
+文件顶部是一个明文 JSON 块,数据就是 JSON,没有任何二进制格式。这种「View-source 透明」的姿态带来两个好处:一是 AI Agent 可以直接读写这份 JSON 来改幻灯片(项目自带 Claude Code 技能);二是离线优先,打开 Offline 模式后,同步、协作、下载都会被硬阻断,数据完全不出本机。
+
+**适合谁:**
+
+- 受够了 PPT/Keynote 兼容性,想用「单文件 + 任意浏览器」做演示的人
+- 想把幻灯片交给 AI Agent 改稿,而不是自己手动调样式的用户
+- 对「本地优先」和「可读源码」有执念的人
+
+**不适合谁:**
+
+- 团队依赖 Office 365 协同编辑、版本历史的传统办公场景
+- 需要嵌入复杂 VBA 宏或第三方 Office 插件的场景
+
+**最小上手**
+
+去 Releases 页面下载 `Bento_Slides.bento.html`,双击就能在浏览器里打开编辑。
+
+装 Claude Code 技能后,可以一键让 Agent 改稿:
+
+```
+/plugin marketplace add nyblnet/bento
+```
+
+然后告诉 Agent 你的需求:
+
+```
+帮我把这页的饼图换成柱状图,数据保留
+```
+
+*开源地址:* **https://github.com/nyblnet/bento**
+
+### alexishida/Moji — 像打开 PDF 一样打开 Markdown
+
+用 Markdown 写文档的人多半踩过同一个坑:写完发给别人,对方没装编辑器,看到的就是一坨原始符号。**Moji** 是一个 Electron 桌面应用,目标就是「双击 `.md` 就开,所见即所得」。它基于 Electron + React + TypeScript 构建,内置编辑器(CodeMirror 6)、预览器、目录导航、搜索替换、HTML/PDF/PNG 导出,以及完整的 Mermaid 流程图/时序图渲染(支持 7 种图,渲染后可缩放、拖动、导出 PNG)。
+
+针对大文档做了不少工程优化:主进程流式分块读取,Markdown 在 Web Worker 里解析,超过 20 MB 自动开启块级虚拟化。**多标签 + 脏标记 + 未保存确认**这些细节也都到位,不是「又一个写着玩的 Markdown 编辑器」。
+
+**适合谁:**
+
+- 日常写 Markdown 文档/笔记/技术博客的人
+- 需要把 `.md` 一键导出成 PDF/HTML 发给非技术同事的用户
+
+**不适合谁:**
+
+- 想要 Vim/Emacs 风格纯键盘操作的重度用户
+- 团队级协作文档(它定位是个人写作工具)
+
+**最小上手**
+
+去 Releases 下载对应平台安装包:
+
+```
+https://github.com/alexishida/Moji/releases/download/v1.0.7/Moji.Setup.1.0.7.exe
+```
+
+macOS/Linux 同页面有 DMG、AppImage、deb 可选。装好后双击 `.md` 直接打开,顶部工具栏切换「编辑 / 预览 / 拆分」三种模式。
+
+```
+Ctrl + \
+```
+
+这组快捷键可以一键切换拆分预览,左右栏比例会自动记忆。
+
+*开源地址:* **https://github.com/alexishida/Moji**
+
+### SteveTheKiller/KillerPDF — 自带 PDF 2.0 引擎的免费编辑器
+
+Windows 上能编辑 PDF 的软件本来就不多,免费的更少。**KillerPDF** 直接做了个开源版本:自带 PDFium 渲染、PDF 2.0 / PDF/A / PDF/UA 引擎(独立成 `KillerPDF.Engine` .NET 库,可以单独引用),支持文本注释、绘图、签名、表单填写、合并/拆分/旋转/裁剪/重排、两份 PDF 并排对比、Tesseract 内置 OCR(离线、可下载额外语言包)。**所有处理都在本地完成,没有遥测、没有账户**。
+
+更硬核的是,每个版本都用 2,900 个 PDF 的 veraPDF 合规语料跑回归测试,零回归是硬要求,工程态度相当扎实。同时提供标准安装包和便携版,便携版自带运行时,扔 U 盘里就能跑。命令行也齐全,所有核心操作都能在终端 headless 执行。
+
+**适合谁:**
+
+- Windows 用户,日常要处理 PDF(合同、扫描件、表格)的人
+- 不想订阅 Adobe Acrobat、又被在线 PDF 工具的隐私问题困扰的人
+- 想要命令行批量处理 PDF 的人
+
+**不适合谁:**
+
+- macOS / Linux 用户(目前只发 Windows 版)
+- 需要云协作和多人批注的企业团队
+
+**最小上手**
+
+Releases 页面下载安装版或便携版,打开直接拖文件进窗口。命令行批量合并也很顺手:
+
+```
+KillerPDF.exe --merge out.pdf a.pdf b.pdf scan.jpg
+```
+
+扫描件想变成可搜索 PDF,用 OCR 子命令:
+
+```
+KillerPDF.exe --ocr scan.pdf searchable.pdf --lang eng
+```
+
+==注意:额外 OCR 语言包是按需下载的,首次使用需要联网==。
+
+*开源地址:* **https://github.com/SteveTheKiller/KillerPDF**
+
+### zarazhangrui/frontend-slides — 让 Coding Agent 帮你做 PPT
+
+这个仓库的 Star 数已经接近 3 万,形态比较特别:**它是一个给 Coding Agent 用的 Skill,不是传统软件**。装到 Claude Code、Codex、Kimi Code、Cursor、Aider 等任意能读文件+跑命令的 Agent 上之后,你只要说「帮我做一个 AI 创业公司的 pitch deck」,Agent 就会先生成 3 种视觉风格预览让你挑,挑完再生成完整 HTML 演示文稿。
+
+整套幻灯片是**单个 HTML 文件,内联 CSS/JS,零依赖、零 npm、零构建工具**。核心卖点是「Anti-AI-Slop」:内置多套经过筛选的设计风格,专门避开「紫渐变 + 白底」这种通用 AI 美学。还可以把现有 `.pptx` 转成网页版,保留所有图片和内容。
+
+**适合谁:**
+
+- 已经在用 Coding Agent 写代码、想顺手让它做演示文稿的人
+- 非设计师、但需要做出不像 AI 味的对外材料的人
+- 想把 PPT 转成可托管的网页版,方便分享的人
+
+**不适合谁:**
+
+- 不会用任何 Coding Agent 的纯 Office 用户
+- 需要在 PowerPoint 里精修到像素级的演示设计师
+
+**最小上手**
+
+Claude Code 用户走市场源方式安装,这两条命令要分开发:
+
+```
+/plugin marketplace add https://github.com/zarazhangrui/frontend-slides
+```
+
+```
+/plugin install frontend-slides@frontend-slides
+```
+
+其他 Agent(Codex、Cursor 等)直接把仓库链接发给 Agent:
+
+```
+请使用这个 skill: https://github.com/zarazhangrui/frontend-slides
+```
+
+装好后直接说需求:
+
+```
+我想做一个关于边缘计算的 8 页技术分享,风格偏冷静
+```
+
+Agent 会先生成 3 个视觉预览让你挑,然后产出完整 HTML。
+
+*开源地址:* **https://github.com/zarazhangrui/frontend-slides**
+
+![](/assets/blog-images/6-pdf-markdown-ppt-39srzv/img03.webp)
+
+## 四、总结与行动建议
+
+如果只能先装两个,我建议:**RenewHelper + frontend-slides**。前者当天就能解决「域名/服务到期漏续」的痛点,后者让你手头的 Coding Agent 直接变成一个 PPT 设计师,投入产出比最高。其余四个按需深入:
+
+- 有多台 VPS 想统一监控 → 装 **CF-Server-Monitor**
+- 写 Markdown 文档 → 试 **Moji**
+- 重度 PDF 用户 → 装 **KillerPDF**
+- 受够 PowerPoint 兼容性 → 试试 **Bento**
+
+#AI视频剪辑 #脚本化视频 #口播视频 #Renewhelper #CfServerMonitor #Bento #Moji #Killerpdf #FrontendSlides #cf-server-monitor

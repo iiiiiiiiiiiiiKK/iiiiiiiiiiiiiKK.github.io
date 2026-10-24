@@ -1,0 +1,137 @@
+---
+title: "OpenHiggsfield AI：被多平台订阅逼疯的人，终于有了开源解药"
+publishedAt: "2026-05-12"
+summary: "OpenHiggsfield AI：被多平台订阅逼疯的人，终于有了开源解药"
+image: "/assets/blog-images/openhiggsfield-ai-fztjjw/img01.webp"
+tags: ["AI", "开源", "视频"]
+author: "Adam"
+---
+![](/assets/blog-images/openhiggsfield-ai-fztjjw/img01.webp)
+
+选择标题（3 选 1）
+
+OpenHiggsfield AI：被多平台订阅逼疯的人，终于有了开源解药
+
+38 个图像视频模型塞进一条 Prompt 栏：OpenHiggsfield AI 把工作台压缩到极致
+
+不用再为每个 AI 模型开一套账号：OpenHiggsfield AI 把 Studio 拆给你看
+
+# 一、开篇：从踩坑到真香，只差这一个项目
+
+做内容创作的团队，多半都经历过这种崩溃：想试一款新的视频生成模型，结果每个平台一套 UI、一套登录、一套订阅；好不容易跑出来一段作品，截图存了一堆文件夹，下次想复用同款参数，只能凭记忆再调一遍。更糟的是，平台随时改价、随时下架模型，作品链接说失效就失效。一边是高昂的订阅成本，一边是随时可能蒸发的工作流——这就是很多人一边骂、一边又离不开 Higgsfield AI 的原因。
+
+直到 GitHub 上出现了一个 4.1K Stars 的开源平替：OpenHiggsfield AI。它把 38 个图像与视频模型塞进同一个工作台，一个 Gallery 做归档，浏览器打开就能跑。最关键的是：免费、自托管、Key 归你。
+
+![](/assets/blog-images/openhiggsfield-ai-fztjjw/img02.webp)
+
+# 二、项目简介：一句话说明它是什么
+
+OpenHiggsfield AI 是一个面向图像与视频生成的开源 Studio，主打「一条 Prompt 栏、一个模型目录、一个作品 Gallery」。它在 GitHub 上已收获 4.1K Stars，基于 Next.js 16 App Router、React 19、Zustand 和原生 CSS 构建，部署在 Vercel 上，定位是「Higgsfield AI 的免费开源替代」。
+
+三个关键词概括核心特性：
+
+- **统一工作台**：图像生成和视频生成共用同一套提示词栏，选什么模型就出什么模态。
+- **38 模型目录**：8 个图像模型 + 30 个视频模型，包括 Soul 2、Seedance 2.5、Kling 3、Wan、Flux、Ideogram、Recraft、LTX、MiniMax、PixVerse、Grok、Qwen 等主流选手。
+- **作品 Gallery**：所有生成结果按原比例瀑布流归档，支持复用、收藏、批量下载与撤销删除。
+
+# 三、核心功能深度解析
+
+### 1. 一个 Prompt 栏同时驱动图像与视频
+
+传统做法是给图像和视频各搭一套界面。OpenHiggsfield 直接合并：选模型决定出图还是出片，按 `⌘/Ctrl + Enter` 提交。模型目录支持搜索，Soul 2、Seedance 2.5 Edit/Extend、Kling 3 Turbo/Std/Pro/4K/Motion 等子版本一目了然。这种「模型即模态」的设计，让创作者把注意力集中在 Prompt 本身，而不是切换工具。
+
+### 2. 每个模型自带设置面板
+
+很多聚合工具的痛点是「设置项对不齐」：A 模型支持 4K、B 模型支持音频，你得在 UI 里硬编码一堆并行列表。OpenHiggsfield 的做法是把设置权交给模型本身——长宽比、分辨率、时长、输出格式、音频、批量数、提示词增强，每个模型声明自己的允许列表，UI 只渲染模型声明的字段。新增模型只需要在 `src/generation/catalog/` 里加一条记录，工作台会自动出现它的设置面板。
+
+### 3. 媒体输入按角色管理
+
+视频模型常常需要起始帧、结束帧、参考图、参考视频、参考音频，每种角色有不同的数量上限。OpenHiggsfield 把这些角色抽成统一接口：上传文件走 Vercel Blob 拿到公开 URL，组装到生成请求里；历史作品和上传素材统一进 Asset Picker，两栏共用一个素材库，按角色过滤。这一套对 Kling 的 4K Motion、Seedance 的 Extend 这类需要参考素材的模型尤其友好。
+
+### 4. 实时运行生命周期
+
+提交后会立刻在网格里开一个骨架占位，服务器每 4 秒轮询一次状态，10 分钟超时；每个结果在自己的时钟上「绽放」到位。支持批量最多 4 个结果，支持失败/NSFW/取消状态留痕并可一键重试。这种把异步生成做成「活的进程」的细节，明显是给长时间迭代的人设计的。
+
+### 5. Gallery 不是文件夹，是数据库
+
+四个 Tab：图像、视频、素材（所有完成品）、收藏。瀑布流按真实长宽比渲染，加载时渐变占位。每张瓷砖支持复用、收藏、删除、多选；点击进入 Viewer 看完整 Prompt、模型、参数、时间戳，一键复制 Prompt 或下载。删除有 6 秒撤销窗口，进度条像沙漏一样往下漏——这种细节只有真正每天用的人才会加。
+
+![](/assets/blog-images/openhiggsfield-ai-fztjjw/img03.webp)
+
+# 四、技术亮点与性能数据
+
+技术栈方面，OpenHiggsfield 用 Next.js 16 App Router 跑在 Vercel，React 19 做视图层，原生 CSS 写样式（不依赖 Tailwind 等原子化方案），Zustand 管状态。架构上有几个亮点：
+
+- **目录即真理**：模型目录是唯一事实源，新增模型无需改 Studio 代码；
+- **Server Action 隔离**：浏览器从不直接对话生成 API，全部走 Server Action，避免 Key 泄露；
+- **五个 Zustand Store**：按图像/视频的 Prompt 和媒体分组，外加 `settings[modelId]`，没有「一个模型一个 Store」的膨胀问题；
+- **IndexedDB 持久化**：历史记录 60 条上限，收藏永不过期；
+- **Vercel Blob 直传**：上传走 `/api/blob` 拿 scoped token，避免大文件挤占 Server Action 带宽。
+
+设计语言上，Studio 走暗色基底 + 单一柠檬绿 `#d1fe17` 强调色，Inter 字体贯穿；强调色只用于状态指示（选中、主操作、运行中），不参与装饰，让生成内容成为画面唯一的色彩。这种克制对长时间工作的人非常友好。
+
+# 五、适用场景与人群
+
+**适合谁**：
+
+- 同时使用多个图像/视频模型的创作者，需要统一工作流而不是切换平台；
+- 对订阅价格敏感的个人开发者或小团队，想要「一次接入、按量付费」；
+- 重视数据自主权的工作室，希望作品历史保存在自己浏览器而不是平台服务器；
+- 想快速试新模型的早期采用者，新模型接入只需要改目录文件。
+
+**不适合谁**：
+
+- 只用单一模型（如只跑 Midjourney）的轻度用户，一个原生客户端就够用；
+- 需要离线部署或私有网络环境的团队，目前托管版走 Vercel，自托管需要自己适配生成 API；
+- 对 UI 美学有强定制需求且不愿改源码的人。
+
+![](/assets/blog-images/openhiggsfield-ai-fztjjw/img04.webp)
+
+# 六、竞品对比
+
+| 维度 | OpenHiggsfield AI | Higgsfield AI（闭源） | ComfyUI / SD WebUI |
+| --- | --- | --- | --- |
+| 开源 | ✅ MIT 友好 | ❌ 闭源 | ✅ 开源 |
+| 模型数 | 38 个（图像+视频） | 主要自家模型 | 取决于本地插件 |
+| 部署方式 | 浏览器 / Vercel | 仅官方 | 本地为主 |
+| 上手成本 | 低（一个 Prompt 栏） | 低 | 高（节点连线） |
+| 适合场景 | 多模型横向对比、批量出片 | 单平台深度用户 | 研究、训练、定制工作流 |
+| Key 归属 | 用户自带 | 平台账号 | 本地推理无需 Key |
+
+简单说：OpenHiggsfield 卡在「多模型聚合 + 低门槛」这个生态位，ComfyUI 偏研究向，Higgsfield AI 偏绑定自家模型。它不是要取代任何一方，而是给「我想一次试遍所有模型」的人一个清爽的工作台。
+
+![](/assets/blog-images/openhiggsfield-ai-fztjjw/img05.webp)
+
+# 七、如何快速上手
+
+本地启动仅需三步：
+
+```bash
+pnpm install
+pnpm dev            # http://localhost:3000
+```
+
+打开 Studio，点击右上角 **Add key**，把你的平台 Key 按 `id:secret` 格式粘贴进去即可。环境变量只需两个：`HF_API_BASE_URL`（生成 API 源）和 `OPEN_HIGGSFIELD_READ_WRITE_TOKEN`（Vercel Blob 读写 Token）。
+
+不想本地部署，也可以直接访问 [openhiggsfield.ai](https://openhiggsfield.ai)，Studio 本身免费，只需自带 Key。常用命令一览：
+
+| Command | What it does |
+| --- | --- |
+| `pnpm dev` | 开发服务器（端口 3000） |
+| `pnpm build` | 生产构建 |
+| `pnpm start` | 启动生产服务 |
+| `pnpm brand` | 重新生成 `public/` 下的图标和 OG 卡 |
+
+进阶建议：先在 Gallery 里逛几个 Starter Prompt 找感觉，再尝试 Kling 3 Motion 这种需要起止帧的模型；批量出片用 `Shift+点击` 多选后一键下载。
+
+![](/assets/blog-images/openhiggsfield-ai-fztjjw/img06.webp)
+
+# 八、总结与行动建议
+
+OpenHiggsfield AI 的核心价值，是把「碎片化的多模型创作」收拢成一个统一工作台：一条 Prompt 栏、一个模型目录、一个作品 Gallery，外加开源、可自托管、Key 归你。它适合那些已经踩过多个平台切换成本、开始思考工作流可移植性的人。
+
+如果你也厌倦了为每个模型单独付费、单独学 UI、单独备份作品，不妨试试它。仓库地址：[wide-trace/open-higgsfield](https://github.com/wide-trace/open-higgsfield)，托管版入口：[openhiggsfield.ai](https://openhiggsfield.ai)。一条命令 `pnpm dev`，就能开始你今天的下一批出片。
+
+![](/assets/blog-images/openhiggsfield-ai-fztjjw/img07.webp)
+
+#open-higgsfield #OpenHiggsfield #wide-trace #AI视频剪辑 #脚本化视频 #口播视频 #开源项目 #GitHub

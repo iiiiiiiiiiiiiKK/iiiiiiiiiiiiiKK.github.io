@@ -1,0 +1,93 @@
+---
+title: "游戏装了五六个启动器？试试这个 Linux 本地游戏聚合库 Omakade"
+publishedAt: "2026-04-11"
+summary: "游戏装了五六个启动器？试试这个 Linux 本地游戏聚合库 Omakade"
+image: "/assets/blog-images/linux-omakade-12vxw9/img01.webp"
+tags: ["系统"]
+author: "Adam"
+---
+![](/assets/blog-images/linux-omakade-12vxw9/img01.webp)
+
+选择标题（3 选 1）
+
+游戏装了五六个启动器？试试这个 Linux 本地游戏聚合库 Omakade
+
+Omakade 上手：少装一库软件，让 Linux 游戏入口从 6 个变 1 个
+
+没删一个 Steam，却把全平台游戏收进同一个主题：Omakade 怎么做到的
+
+# Omakade：把 Linux 上散落的游戏，统一到一个跟主题一起呼吸的本地库里
+
+## 一、开篇：游戏太多，启动器太乱
+
+你电脑上装了 Steam、Heroic、Lutris、Faugus，战网和 GOG 还各占一摊；再算上 RetroArch、PCSX2、RPCS3 这些模拟器，每个应用里都躺着一堆游戏，每张封面都是不同的视觉风格。结果就是：想找个游戏玩，要在五六个启动器之间来回切；想看这个月打了多少小时，得逐个去翻统计；想给女朋友展示一下收藏的美术感，屏幕却像一个杂物间。这是 Linux 游戏玩家最真实的日常。Omakade 想做的事情，就是把这一切收进一个本地优先、统一视觉、能用键盘也能用手柄的库里。
+
+![](/assets/blog-images/linux-omakade-12vxw9/img02.webp)
+
+## 二、项目定位：本地优先的游戏聚合库
+
+Omakade 是一个面向 Linux（特别是 Omarchy）的桌面端游戏聚合客户端，用 C++ 编写，目前在 GitHub 上拿到 432 颗星。它的核心定位有四件事：把多个启动器与模拟器里"已安装"的游戏合并到同一界面；跟随 Omarchy 主题呈现统一的视觉风格；支持键盘、鼠标、手柄三种输入；所有数据本地存储，不强制账号或 API key。这是一个独立社区项目，不是 Omarchy 官方应用，但和 Omarchy 的桌面主题结合得相当紧密。
+
+## 三、核心功能深度解析
+
+### 1. 一库聚合 Steam、Heroic、Lutris、Faugus、Battle.net、GOG
+Omakade 会自动扫描上述启动器已安装的游戏，统一以同一种卡片样式呈现。官方 README 强调：账号、下载、更新、DRM、云存档、兼容性设置仍然留在原启动器里——Omakade 只做"调度"，不做"替换"。这意味着你不用担心破坏 Steam 的 Proton 配置或 Heroic 的登录态。它还提供"Steam 与 Heroic 拥有但未安装"的可选视图，方便你回看一眼库里还有什么存货。
+
+### 2. 覆盖十款模拟器的 Console 库
+模拟器用户最头疼的是：RetroArch、PCSX2、RPCS3、PPSSPP、Ryujinx、Cemu、melonDS、shadPS4、Dolphin、Xenia，每一个都有自己的前端。Omakade 把这些核心（core）也纳入同一个浏览器，支持自定义封面、收藏、标签、筛选器。它还附带存档备份功能，避免哪天升级内核把存档折腾没了。
+
+### 3. 手柄优先的 Couch Mode 与 Game Mode
+按 F11 或手柄 Start 键即可进入全屏的 Couch Mode，UI 元素放大，适合客厅场景。再进一层是 Game Mode：你可以指定一块独立显示器和音频输出作为"游戏专用"，退出游戏后系统自动回到桌面——相当于一个轻量级的客厅机模式。Omakade 还内置 Sunshine/Moonlight 串流导出，把本机游戏串流到其他设备。
+
+### 4. 元数据、统计与年度回顾
+Omakade 可选启用游玩时长记录、会话历史、统计图表，并生成一张"Year in Review"图片。它会拉取 Steam 成就、RetroAchievements，可选接入 IGDB、SteamGridDB、ProtonDB 来补全信息与封面。Favorites、Collections、Tags、过滤条件、自定义封面与"随机挑一个"功能，让它从聚合工具升级为真正的个人游戏库。
+
+![](/assets/blog-images/linux-omakade-12vxw9/img03.webp)
+
+## 四、技术亮点与性能数据
+
+Omakade 用 C++ 编写，本地数据存放在 `~/.local/share/omakade/`，配置在 `~/.config/omakade/config.toml`，封面缓存在 `~/.cache/omakade/`。这种 XDG 标准的本地化方案让备份、迁移、清理都极简——打包这三个目录就能完整带走一个游戏库。可选凭证走系统 Secret Service，避免明文存放 Steam 或 IGDB 的 token。CI 流程通过 GitHub Actions 跑通，license 为 GPL-3.0-or-later。已安装游戏发现与核心浏览均可在离线、无账号、无 API key 状态下工作——这是它区别于"云同步型"游戏库的根本属性。
+
+## 五、适用场景与人群
+
+场景一：使用 Omarchy 或 Arch 系发行版的玩家，希望一站式查看所有已安装游戏。场景二：模拟器收藏家，同时用着多款前端，需要统一管理与存档备份。场景三：客厅 PC 用户，依赖手柄 + 独立显示器 + 串流设备打造主机式体验。它不适合纯 Windows 用户、对启动器配置毫无保留的极客（你可能更愿意自己写脚本），也不适合追求云同步与跨设备无缝衔接的玩家——Omakade 是本地优先，不是云优先。
+
+![](/assets/blog-images/linux-omakade-12vxw9/img04.webp)
+
+## 六、竞品对比
+
+| 项目 | 定位 | 视觉统一 | 模拟器覆盖 | 手柄/客厅模式 | 本地优先 |
+|-----|------|---------|-----------|------------|---------|
+| **Omakade** | Linux 聚合 + 主题统一 | 跟随 Omarchy | 10 款核心 | Couch + Game Mode | 强 |
+| Heroic / Lutris | 启动器替代 | 各家自带 | 较少 | 弱 | 中 |
+| Pegasus / ES-DE | 模拟器前端 | 自定义主题 | 多 | 强 | 强 |
+| Steam Big Picture | Steam 自带 | Steam 风格 | 弱 | 强 | 中 |
+
+相比 Heroic、Lutris 这些"启动器替代"，Omakade 不接管你的 Steam 账号和下载；相比 Pegasus、EmulationStation 这类模拟器前端，它又能把 Steam 商业游戏一起管起来。这种"轻调度、广覆盖、强本地"的位置，是它的差异点。
+
+## 七、如何快速上手
+
+Omarchy 用户一行搞定：
+
+```bash
+sudo pacman -S omarchy/omakade
+```
+
+若希望跟随作者的签名仓库（更新更及时），可先添加仓库再安装：
+
+```bash
+curl -fsSL https://pkgs.btso.dev/install.sh | bash
+sudo pacman -S btsouth/omakade
+```
+
+装好后从应用菜单启动 Omakade，或在终端运行 `omakade`。首次启动会自动扫描已安装游戏；想先看效果可以跑 `omakade --demo` 加载一个虚构库。常用快捷键：`Ctrl+F` 搜索、方向键导航、`F11` 切 Couch Mode、`Ctrl+D` 进设置。模拟器、Game Mode、IGDB/SteamGridDB 接入与备份恢复的细节，可参考 `docs/GUIDE.md` 与 `docs/GAME-MODE.md`。
+
+![](/assets/blog-images/linux-omakade-12vxw9/img05.webp)
+
+## 八、总结与行动建议
+
+Omakade 的核心价值，是把 Linux 上碎片化的游戏入口收拢进一个跟随主题、可用手柄、纯本地存储的统一库。它不抢你的启动器、不动你的账号、不偷你的云存档，只负责"陈列 + 调度"。如果你是 Omarchy 用户、模拟器玩家、或想搭一台客厅 PC，不妨从 `pacman -S omakade` 开始，再按需打开 Couch Mode、Game Mode 与游玩时长记录。项目仓库：[btsouth/omakade](https://github.com/btsouth/omakade)，官网与演示见 [btsouth.github.io/omakade](https://btsouth.github.io/omakade/)。让你的 Linux 游戏库，重新像一个整体。
+
+![](/assets/blog-images/linux-omakade-12vxw9/img06.webp)
+
+#omakade #Omakade #btsouth #前端开发 #Web开发 #游戏开发 #开源项目 #GitHub

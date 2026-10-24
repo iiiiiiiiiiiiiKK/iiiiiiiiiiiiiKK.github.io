@@ -1,0 +1,155 @@
+---
+title: "959 Stars 的 Go 工具：termshot 让终端截图效率提升 10 倍"
+publishedAt: "2026-09-29"
+summary: "你刚在终端里跑出一个漂亮的 ls -la 输出，想分享给同事，却只能先截屏、裁剪、再发到群里。截图总是带着窗口边框、背景杂乱，甚至不小心暴露了敏感信息。更糟糕的是，你试着用 Carbon 在线工具，但需要复制粘贴、上传，…"
+image: "/assets/blog-images/959-stars-go-termshot-10-lx8q2j/img01.webp"
+tags: ["开源", "开发", "终端"]
+author: "Adam"
+---
+![](/assets/blog-images/959-stars-go-termshot-10-lx8q2j/img01.webp)
+
+## 一、开篇：为什么你需要这个工具？
+
+你刚在终端里跑出一个漂亮的 `ls -la` 输出，想分享给同事，却只能先截屏、裁剪、再发到群里。截图总是带着窗口边框、背景杂乱，甚至不小心暴露了敏感信息。更糟糕的是，你试着用 Carbon 在线工具，但需要复制粘贴、上传，还担心隐私泄露——整个过程至少浪费 30 秒。如果每次分享都要这样，一年下来你可能浪费几小时。
+
+现在，一个本地运行的 Go 工具能帮你解决：直接运行命令，输出一张即拿即用的高保真截图，无需上网、无需裁剪、无需手动调整。
+
+![](/assets/blog-images/959-stars-go-termshot-10-lx8q2j/img02.webp)
+
+## 二、项目简介：一句话说明它是什么
+
+`termshot` 是一个 Go 编写的命令行工具，它能捕获终端命令的输出（包括 ANSI 颜色和样式），并渲染成一张带有窗口装饰的 PNG 截图。
+
+核心特性：**本地化**（无需网络）、**高保真**（保留所有 ANSI 格式）、**可定制**（窗口样式、边距、列宽）、**支持管道和编辑**。
+
+目前 GitHub Stars 959，版本 0.2.5，采用 Apache-2.0 许可证，由 homeport 团队维护。
+
+![](/assets/blog-images/959-stars-go-termshot-10-lx8q2j/img03.webp)
+
+## 三、核心功能深度解析
+
+### 1. 直接运行命令并截图
+
+最常用的用法：`termshot ls -a` 会在当前目录生成 `out.png`。`termshot` 会在伪终端中执行命令，捕获全部输出，然后渲染成图片。
+
+```sh
+termshot -c "ls -la"  # -c 显示命令本身
+```
+
+对比传统截屏：你不需要手动截取、调整窗口大小，输出自动适配内容。
+
+### 2. 支持管道和复杂命令
+
+当命令包含 `|` 或 `>` 时，可以用双引号包裹整个命令消除歧义：
+
+```sh
+termshot -- "ls -1 | grep go"
+```
+
+这比 Carbon 方便得多：无需复制粘贴，直接截图。
+
+### 3. 编辑输出（`--edit`）
+
+在生成截图前，`termshot` 会打开 `$EDITOR` 让你编辑原始输出（比如删除密码、URL）。你可以修改后保存，再生成截图。
+
+### 4. 定制外观
+
+- `--show-cmd`：在截图顶部显示执行的命令。
+- `--columns`：强制列宽，避免输出过长。
+- `--margin` 和 `--padding`：调整窗口四周的空白。
+- `--no-decoration` / `--no-shadow`：去掉窗口装饰或阴影，适合嵌入文档。
+
+这些选项让截图适用于不同场景：博客文章需要简洁，而社交媒体可能需要带命令的完整截图。
+
+### 5. 输出到剪贴板（`--clipboard`）
+
+在部分平台上，你可以直接把截图保存到剪贴板，省去保存文件再粘贴的步骤。
+
+### 6. 读取原始文件（`--raw-read`）
+
+如果你已经有一个包含 ANSI 输出的文本文件，可以用 `--raw-read` 直接渲染，跳过命令执行。
+
+![](/assets/blog-images/959-stars-go-termshot-10-lx8q2j/img04.webp)
+
+## 四、技术亮点与性能数据
+
+`termshot` 的核心创新在于**伪终端捕获 + ANSI 解析器**。它创建一个伪终端执行命令，从而获得完整的终端控制序列。然后解析这些序列（包括颜色、粗体、下划线等），在内存中渲染为像素图，最终输出 PNG。
+
+- 性能：由于是 Go 原生编译，执行速度很快，通常在 1 秒内生成截图（取决于输出长度）。
+- 跨平台：支持 macOS 和 Linux（通过 Homebrew 或二进制）。
+- 生态兼容：可以与任何输出 ANSI 颜色的命令配合（如 `ls --color=auto`、`git diff`、`fzf` 等）。
+- 创新点：相比 Carbon 等在线工具，`termshot` 是一个独立的 CLI 工具，可集成到 CI/CD 脚本、自动化测试中。
+
+![](/assets/blog-images/959-stars-go-termshot-10-lx8q2j/img05.webp)
+
+## 五、适用场景与人群
+
+### 适合谁？
+
+- **开发者**：写博客或文档时，需要插入终端截图。`termshot` 生成无窗口边框、可定制的截图，直接嵌入 Markdown。
+- **运维人员**：记录命令输出、分享错误日志，用 `--edit` 快速擦除敏感信息。
+- **技术博主/YouTuber**：制作教程时，用 `--show-cmd` 展示命令，用 `--no-decoration` 获得干净截图。
+- **开源项目维护者**：在 README 中展示命令输出，例如 `termshot lolcat -f <(figlet -f big termshot)` 效果图。
+
+### 不适合谁？
+
+- 需要复杂语法高亮（如根据语言关键词着色）的用户——`termshot` 只忠实还原终端输出，不会对文本进行二次高亮。
+- 必须使用 Windows 的用户——目前只提供 Darwin 和 Linux 二进制。
+
+![](/assets/blog-images/959-stars-go-termshot-10-lx8q2j/img06.webp)
+
+## 六、竞品对比
+
+| 特性 | termshot | Carbon | CodeKeep | 手动截屏 |
+|------|----------|--------|----------|----------|
+| 运行方式 | 本地 CLI | 浏览器 | 浏览器 | 系统工具 |
+| 是否需要网络 | 否 | 是 | 是 | 否 |
+| 保留 ANSI 颜色 | 完美 | 需手动粘贴 | 需手动粘贴 | 特定工具 |
+| 支持管道 | 原生 | 无 | 无 | 无 |
+| 编辑输出 | 支持 | 需手动 | 需手动 | 需截图后编辑 |
+| 隐私安全 | 完全本地 | 上传服务器 | 上传服务器 | 本地 |
+| 可集成 CI/CD | 是 | 否 | 否 | 否 |
+
+**为什么选择 termshot？** 如果你需要频繁分享终端输出，而且注重隐私和效率，`termshot` 是唯一能一键生成“终端模拟截图”的本地工具。Carbon 更适合展示单行代码，但无法处理复杂的 ANSI 输出。
+
+## 七、如何快速上手
+
+### 安装
+
+**macOS / Linux（Homebrew）**：
+
+```sh
+brew install homeport/tap/termshot
+```
+
+**其他系统**：从 [Releases](https://github.com/homeport/termshot/releases) 下载对应平台的二进制，放到 PATH 中。
+
+### 最小可用示例
+
+```sh
+termshot ls -la
+```
+
+你会看到当前目录下多了一个 `out.png`，打开它：
+
+![](/assets/blog-images/959-stars-go-termshot-10-lx8q2j/img07.webp)
+
+### 进阶建议
+
+- 使用 `--filename` 指定输出路径：`termshot -f myimage.png -- "ls -a"`。
+- 结合 `--edit` 删除敏感信息：`termshot -e -- "cat /etc/passwd"`。
+- 在脚本中使用：`termshot -c --no-shadow -- "echo Hello"`，然后直接上传到图床。
+
+## 八、总结与行动建议
+
+`termshot` 是一个轻量级、高性能的工具，它将终端命令输出转化为可直接使用的截图，彻底告别了“截图-裁剪-上传”的繁琐流程。它的核心价值在于：**本地、快速、可定制、隐私安全**。
+
+建议你：
+
+1. 立即安装体验：`brew install homeport/tap/termshot`。
+2. 在你的博客或文档中，用 `termshot` 代替手动截图。
+3. 如果你在 CI/CD 中需要生成截图，试试 `termshot` 配合 `--raw-read`。
+
+项目链接：[GitHub: homeport/termshot](https://github.com/homeport/termshot)（959 Stars，Go 语言）。
+
+一句话推荐：**生成终端截图，不必再打开浏览器。**

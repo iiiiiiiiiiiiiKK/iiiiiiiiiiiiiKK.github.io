@@ -1,0 +1,116 @@
+---
+title: "写完技术博客，卡两小时的就只剩那张 AI 丑图"
+publishedAt: "2026-03-30"
+summary: "写完技术博客，卡两小时的就只剩那张 AI 丑图"
+image: "/assets/blog-images/ai-7yve27/img01.webp"
+tags: ["AI", "Agent", "开源"]
+author: "Adam"
+---
+![](/assets/blog-images/ai-7yve27/img01.webp)
+
+选择标题（3 选 1）
+
+写完技术博客，卡两小时的就只剩那张 AI 丑图
+
+一句话生成品牌一致的架构图：diagram-design 把设计师桌面搬进对话
+
+没有 Figma 也能交付编辑级配图：57K Star 的 Agent 画图方案
+
+# 当 AI 生成的图表丑到设计无法过审——这个开源项目给出了答案
+
+## 一、开篇：写完架构说明后，总有一张图能卡住你两小时
+
+技术博主小周最近在写一篇系统架构文章。文字部分 30 分钟就写完了，真正让他崩溃的是配图：让 Claude 画一张「前端 → 后端 → 数据库 → Redis 缓存」的架构图，结果出来的是一堆圆角矩形加默认色块，跟整篇文章的极简排版格格不入。丢给设计师，设计师回了一句：把 Figma 文件发我，改一下再排期。两周后才能拿到一张图。
+
+这不是个别现象。让 AI 画图，写出来都「能用」，但都「没法直接发」。圆角阴影默认色，节点满到溢出，每个组件都想强调，结果谁都看不清。Mermaid 自动布局省事，但风格一换主题就崩；draw.io 自由度高，每个框都得手动对齐。57K 颗 Star 的 `cathrynlavery/diagram-design` 直面这个问题：让 Agent 把图直接画成「单一 HTML + 内联 SVG」文件，匹配你的品牌色，4px 网格对齐，CI 检查重叠和裁剪。
+
+## 二、项目定位：把「画图」这件事从设计师桌面挪到对话里
+
+diagram-design 是一个面向 AI 编程助手的 Agent Skill，覆盖 Claude Code、Codex、GitHub Copilot、Cursor、Factory Droid、Pi 等主流宿主。核心定位一句话：让 Agent 用一句人话输出 44 种（README 主标题 45、表格 44，仍以仓库当前数据为准）可发布的编辑级图表，输出为单个自包含 HTML 文件，无阴影、无 Mermaid 风格残留。
+
+三个关键词：**编辑级排版（editorial design）**、**品牌一致（brand-matched）**、**自带可访问性（accessible by default）**。里程碑数据：57K+ Stars，skills.sh 高频安装，CI 全绿，覆盖十款以上 Agent 宿主。
+
+## 三、核心功能深度解析
+
+### 1. 44 种图表类型，覆盖技术表达的全部场景
+
+从架构图、时序图、状态机、ER 图，到层叠图、四象限、桑基图、鱼骨图、Wardley 地图，再到用户体验旅程、服务蓝图、数据库 schema、UML 类图——技术写作里能想到的图基本都在。Line 自动覆盖 slopegraph、ridgeline、streamgraph、bump；Scatter 覆盖 bubble 与 beeswarm；Treemap 覆盖 marimekko。架构图还支持行政带嵌套与流量盒、单图同时表达「组件 + 区域 + 权限」。
+
+每种类型出三种静态变体：极简浅色、极简深色、全编辑版。浏览器直接打开，没有构建步骤、JavaScript 依赖或外部图片。
+
+### 2. 品牌自动对齐：一句「Onboard to https://yoursite.com」搞定
+
+这是项目最值钱的特性。Agent 会抓取你的站点首页，提取主色板与字体栈，映射到语义角色：paper、ink、muted、accent、link。给你出一份 diff，确认后写入 `references/style-guide.md`。之后每一张图都用你网站的 CTA 色作为强调色，用 `<body>` 字体作为节点标签字体。
+
+内置对比度门禁：写入前先校验 WCAG AA，9–12px 字号下不达标会自动建议替换值并解释。默认的「黑+橘」配色也跑同一个 CI 合约，浅色与深色双底都过线。
+
+### 3. 可访问性与可移植性默认开启
+
+每张图的 SVG 都带 `role="img"`、解析型 `aria-labelledby`、首子节点 `<title>`/`<desc>`。ID 按图与变体加前缀，多张 SVG 内联到同一页面不会撞 ID。可控字体网络请求：默认走 Google Fonts（Instrument Serif + Geist + Geist Mono），设成 `system` 后整张图零网络请求。
+
+### 4. 导入导出：盘活存量图形资产
+
+支持从 Mermaid、draw.io、Excalidraw 文件反向重绘，输出为编辑级风统一份。同时可导出为 SVG 或 PNG，配合 `/export-diagram` 命令直接交付。
+
+## 四、技术亮点与性能数据
+
+- **4px 网格 + CI 防重叠**：Agent 摆位遵循 4px 网格，CI 流水线检查节点重叠与裁切问题，PR 阶段就能拦截「节点压节点」的丑图。
+- **全静态、单文件、无 JS**：HTML + 内联 SVG，无构建步骤、无运行时依赖、无外部图引用，邮件里直接嵌入。
+- **一次渲染多格式**：同一份资产既能在浏览器展示，又能导出 PNG/SVG，还能内联到 React/Markdown 文档。
+- **生态广覆盖**：Claude Code 插件市场、Codex CLI、GitHub Copilot、Cursor、Factory Droid、Pi、Claude Cowork 组织市场、Kiro、OpenCode 全部支持，跨客户端共享 `~/.diagram-design/profiles/` 配置。
+
+## 五、适用场景与人群
+
+**适合**：技术博主写架构图解、产品经理出方案对比图、数据团队画架构 delta 与数据流、咨询顾问产客户提案配图。
+
+**特别适合**：品牌识别度强、对外内容质量要求高的团队。一次 onboarding 永久受益。
+
+**不适合**：每 sprint 都在改的文档内嵌图、需要文本 diff review 的流程文档、需要拖拽式交互编辑的场景。这些仍是 Mermaid 与 draw.io 的主场。
+
+## 六、竞品对比
+
+| | Mermaid/PlantUML | draw.io/Excalidraw | diagram-design |
+|---|---|---|---|
+| 制作方式 | 写文本 DSL | 手动拖拽 | 对 Agent 说一句话 |
+| 布局 | 自动（主题固定） | 完全手动 | Agent 摆位 + 4px 网格 + CI 防重叠 |
+| 外观 | 渲染器内置主题 | 自由画风 | 单一编辑级风，可贴合品牌 |
+| 产物 | 可 diff 文本 | `.drawio`/`.excalidraw` | 单 HTML + 内联 SVG，可导出 PNG/SVG |
+| 修改 | 改文本 | 改画布 | 再问 Agent，或改 SVG |
+| 已有图 | — | — | 可重绘 Mermaid/draw.io/Excalidraw |
+
+值得注意的是 README 自己也坦率列出了两个短板：输出质量依赖模型；同一句话两次跑可能摆位不同。
+
+![](/assets/blog-images/ai-7yve27/img02.webp)
+
+## 七、如何快速上手
+
+```bash
+npx skills add cathrynlavery/diagram-design
+```
+
+在 Claude Code 里装好插件市场后，开启自动更新，跟着运行 `/reload-plugins`。
+
+最小可用用法——直接跟 Agent 讲人话：
+
+- 「用一张架构图画我的应用：前端、后端、数据库、Redis 缓存。」
+- 「给我画个四象限，Q2 项目按影响力 vs 难度分布。」
+- 「画一张 Bearer 鉴权在 401 时刷新令牌的时序图。」
+
+Agent 会自己挑类型、陈述计划、产出单个 `.html` 文件，双击就能打开。想统一品牌就再加一句：「onboard diagram-design to https://yoursite.com」。
+
+想本地预览完整图库：克隆仓库后打开 `skills/diagram-design/assets/index.html`，每种图都带浅色/深色/全编辑版切换。
+
+## 八、总结与行动建议
+
+diagram-design 的核心价值不是「多了一种画图工具」，而是把「画图」从一次设计师排期变成一段对话。57K 颗 Star 说明这不是小众需求——大量开发者都需要把「能用的图」升级到「能发的图」。
+
+使用建议：先用默认风格跑一张感受一下；如果你或团队有对外内容资产，紧接着做 onboarding 把品牌色锁进 style-guide；多个客户并行的话给每个客户建独立 profile。
+
+入口都给你准备好了：仓库 `github.com/cathrynlavery/diagram-design`，官网 `diagramdesign.dev`，图库 `cathrynlavery.github.io/diagram-design/`。如果你也曾被 AI 自动图丑到拒绝发布——不妨试试它。
+
+![](/assets/blog-images/ai-7yve27/img03.webp)
+
+#diagram-design #DiagramDesign #cathrynlavery #AI视频剪辑 #脚本化视频 #口播视频 #开源项目 #GitHub
+
+![](/assets/blog-images/ai-7yve27/img04.webp)
+

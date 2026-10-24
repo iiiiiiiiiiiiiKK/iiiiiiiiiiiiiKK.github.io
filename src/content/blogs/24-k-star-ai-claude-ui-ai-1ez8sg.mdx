@@ -1,0 +1,87 @@
+---
+title: "24K Star 的反 AI 神器：让 Claude 写 UI 终于不像 AI 写的了"
+publishedAt: "2026-09-20"
+summary: "用 Claude、Cursor、Codex 写 UI 已经成常态，但只要你用过就懂那种羞耻感：紫色渐变背景、玻璃拟态卡片、emoji 三件套、居中加粗巨标题，整页看上去就是「默认 LLM 长这样」。开发者吐槽它是 AI …"
+image: "/assets/blog-images/24-k-star-ai-claude-ui-ai-1ez8sg/img01.webp"
+tags: ["AI", "开源", "写作"]
+author: "Adam"
+---
+![](/assets/blog-images/24-k-star-ai-claude-ui-ai-1ez8sg/img01.webp)
+
+## 一、开篇：为什么你需要这个工具？
+
+用 Claude、Cursor、Codex 写 UI 已经成常态，但只要你用过就懂那种羞耻感：紫色渐变背景、玻璃拟态卡片、emoji 三件套、居中加粗巨标题，整页看上去就是「默认 LLM 长这样」。开发者吐槽它是 AI slop（AI 残渣），用户在浏览器里一眼划走。GitHub 上随便搜 `AI generated UI`，收藏量最高的全是「怎么把 AI 味洗掉」。问题不在模型智商，而在于所有 LLM 都收敛到了同一片高概率输出——它越「稳」，就越像别人。Hallmark 做的事很直接：把这个「安全区」砸掉，强制让每次产出走不一样的结构、主题和排版指纹。
+
+## 二、项目简介：一句话说明它是什么
+
+Hallmark 是一个给 Claude Code、Cursor、Codex 用的反 AI slop 设计技能包。它内置 **21 套主题**、**57 道 slop 检测闸门**、**4 个动词指令**，每次接到需求都会重新挑选宏观结构、配色锚点和字体配对，并在交付前做一次「自我批评」。当前 GitHub Stars **24,222**，MIT 协议，由 Together AI 出品，定位是「让 AI 写的页面不再像 AI 写的」。
+
+![](/assets/blog-images/24-k-star-ai-claude-ui-ai-1ez8sg/img02.webp)
+
+## 三、核心功能深度解析
+
+### 1. 四种动词，覆盖四种使用姿势
+
+默认状态下 Hallmark 直接根据需求生成新 UI；输入 `hallmark audit <target>`，它对现有代码做反模式评分并输出修改清单但**不改任何一行**；`hallmark redesign <target>` 则保留文案、信息架构和品牌，扔掉结构后用全新指纹重建；`hallmark study <截图|URL>` 提取你欣赏的设计 DNA——宏观结构、字体配对、色彩锚点——同时拒绝像素级克隆和付费模板，并可输出可移植的 `design.md` 给其他 AI 工具接力。四个动词把「写、改、审、学」拆得很干净。
+
+### 2. 21 套主题 + Custom 分支
+
+Hallmark 内置 Hum、Cobalt、Carnival、Lumen、Riso、Press 等 21 个主题，每个主题都是一套完整的排版、配色、留白规则。Brief 进来后它会先匹配最贴的那一套，避免「换皮」感。更狠的是 Custom 分支：当 brief 带着现有主题覆盖不了的创意意图时，它会**从零度身定制**调色板、字体、布局，跳过模板但仍跑完同样 57 道闸门。Custom 是个安静分支，普通 brief 永远碰不到它——这是为了防止过度发挥。
+
+### 3. 57 道 slop 闸门 + 交付前自我批评
+
+这是 Hallmark 最值钱的部分。它把「AI 味」拆成 57 条可检测的反模式：紫蓝渐变、玻璃拟态、居中巨标题、emoji 装饰、模糊光斑、过度圆角等等，每条都有判据。生成结束后再追加一次 pre-emit self-critique，对照闸门清单自查，不通过就改。两层机制叠加之后，输出端看到的就不只是「看起来还行」，而是「每条规则都被点名过」。
+
+![](/assets/blog-images/24-k-star-ai-claude-ui-ai-1ez8sg/img03.webp)
+
+### 4. 反默认分布：不同 brief 出不同形状
+
+官方演示里同一工具、同一个 Hallmark，针对酸面包 App、内容提取 API、唱片厂牌 EP、AI 推理工具、茶饮菜单、蜂蜜农场、Riso 印刷展、独立字体工作室、SaaS 产品页、差旅预订、摩洛哥时装、开发者基础设施等十几个不同 brief，产出了**结构、字体、配色完全不同的页面**——不是同一模板换色，是真的从宏观结构就分叉。每个页面都是单文件 HTML+CSS，CSS 注释里盖了所用宏观结构的戳，审计可追溯。
+
+![](/assets/blog-images/24-k-star-ai-claude-ui-ai-1ez8sg/img04.webp)
+
+## 四、技术亮点与性能数据
+
+Hallmark 本质是一组结构化 prompt 规则 + Markdown 参考手册，主要语言是 CSS（主题样式资产）。架构上有三个亮点：第一，**规则外置**，核心规则集在 `SKILL.md` 和 `references/` 下纯文本维护，任何 IDE Agent 都能直接消费；第二，**主题可组合**，21 套主题是离散资产，可单独抽取再拼；第三，**协议可移植**，通过 `design.md` 把学习到的设计 DNA 导出，其他 AI 工具接力无需重跑整个流程。它兼容 Claude Code、Cursor、Codex 三大主流 Agent，覆盖目前 90% 以上的 AI 编程用户。
+
+![](/assets/blog-images/24-k-star-ai-claude-ui-ai-1ez8sg/img05.webp)
+
+## 五、适用场景与人群
+
+**场景一：独立开发者交付产品落地页**。周末做的小工具需要一个能拿出手的 hero 页，Hallmark 默认动词一次成型。**场景二：设计/前端团队做 AI 协作规范**。把 `SKILL.md` 沉淀到团队知识库，统一「AI 写 UI 的下限」。**场景三：把已有页面脱 AI 味**。`audit` 出改造清单，`redesign` 一次性换结构换皮。**场景四：跨工具接力**。`study` 一个心仪站点，导出 `design.md`，丢给任意 LLM 复刻气质。
+
+适合：被 AI slop 困扰的前端、独立开发者、产品经理、需要快速出 demo 的团队。不适合：硬性要求像素级还原参考站点的场景、对视觉一致性极强且只能靠模板保证的中后台系统。
+
+## 六、竞品对比
+
+| 维度 | Hallmark | shadcn/ui 模板 | 直接写 Prompt | Tailwind UI 套壳 |
+|---|---|---|---| ---|
+| 反 AI slop | 57 闸门+自评 | 无 | 靠运气 | 无 |
+| 主题多样性 | 21 套+Custom 分支 | 单一体系 | 不可控 | 单一体系 |
+| 结构指纹 | 每次重选宏观结构 | 固定模板 | 默认高概率 | 固定模板 |
+| 跨 Agent | Claude/Cursor/Codex | 通用组件 | 取决于模型 | 通用组件 |
+| 审计可追溯 | CSS 注释盖章 | 否 | 否 | 否 |
+
+核心区别：其他方案提供的是「更好的默认」，Hallmark 提供的是「拒绝默认」的机制——它不接受 LLM 训练分布里的高概率解。
+
+## 七、如何快速上手
+
+一行安装：
+
+`npx skills add nutlope/hallmark`
+
+之后按 IDE 选择落点：Claude Code 放 `~/.claude/skills/hallmark/`，Cursor 用 `.cursor/rules/hallmark.mdc`（只放 `SKILL.md` 正文，去掉 frontmatter），Codex 个人用 `~/.codex/skills/hallmark/`，项目级放 `.codex/skills/hallmark/`。想更新重跑同一行命令即可。
+
+最小用法：在 Agent 对话框里直接描述 brief，Hallmark 默认接管；要审计写 `hallmark audit ./src/landing.tsx`，要重做写 `hallmark redesign ./src/landing.tsx`，要学习外部设计就丢一张截图或一个 URL 过去。进阶玩法是读 `docs/recipes.md` 和 `docs/study-examples.md`，里面是经过验证的工作流配方。
+
+![](/assets/blog-images/24-k-star-ai-claude-ui-ai-1ez8sg/img06.webp)
+
+## 八、总结与行动建议
+
+Hallmark 的核心价值一句话：把「AI 写的 UI」从贬义词拉回中性词。它通过外置规则集、57 道闸门、21 套主题加 Custom 分支，强制让每次产出走出 LLM 的默认分布。建议三步走：先用默认动词跑一次自己的产品页感受差异，再用 `audit` 审一份旧页面看哪些条目被点名，最后用 `study` 学一个心仪站点的 DNA 并导出 `design.md` 沉淀到团队。
+
+- GitHub：https://github.com/Nutlope/hallmark
+- 在线演示：https://www.usehallmark.com
+- 安装命令：`npx skills add nutlope/hallmark`
+
+一句话推荐：如果你受够了 AI 写 UI 一股「同款紫渐变」，Hallmark 是目前最干净的解药。

@@ -1,0 +1,109 @@
+---
+title: "AI 衣橱管家来了：1.8k Stars 的开源工具，让 GPT 帮你「读懂」衣柜"
+publishedAt: "2026-09-15"
+summary: "每天早上打开衣柜，你是不是都觉得「没衣服穿」？明明塞了一柜子，最后还是穿那几件。问题不在衣服少，而在你没把它们「数字化」。传统衣橱 App 让你手动拍、自动裁、逐张分类，耗时耗力，最后变成另一个「吃灰」的 App。"
+image: "/assets/blog-images/ai-1-8-k-stars-gpt-ziz4ap/img01.webp"
+tags: ["AI", "开源", "效率"]
+author: "Adam"
+---
+![](/assets/blog-images/ai-1-8-k-stars-gpt-ziz4ap/img01.webp)
+
+## 一、开篇：为什么你需要这个工具？
+
+每天早上打开衣柜，你是不是都觉得「没衣服穿」？明明塞了一柜子，最后还是穿那几件。问题不在衣服少，而在你没把它们「数字化」。传统衣橱 App 让你手动拍、自动裁、逐张分类，耗时耗力，最后变成另一个「吃灰」的 App。
+
+更糟的是，市面上的虚拟试穿工具大多要上传你的全身照到云端，隐私风险让人望而却步。当下 AI 出图能力已经卷到飞起，能不能让 GPT 直接「看懂」你相册里的穿搭照，把衣服一件件抠出来，顺带生成模特试穿图？Wardrobe 给出了答案。
+
+![](/assets/blog-images/ai-1-8-k-stars-gpt-ziz4ap/img02.webp)
+
+## 二、项目简介：一句话说明它是什么
+
+Wardrobe（GitHub：tandpfun/wardrobe，⭐ 1.8k，JavaScript，MIT）是一个本地优先的 AI 衣橱管理工具，核心特性四个关键词：**GPT 视觉识别、自动抠图、模特试穿、本地存储**。它用 OpenAI Responses API 自动识别照片里的衣物，用 Images API 抠出干净的产品图，再用模型参考图生成虚拟穿搭 lookbook。整个流程不依赖云端衣橱服务，原始图、任务记录、生成图、JSON 数据库全留在本地 `data/` 目录。
+
+## 三、核心功能深度解析
+
+### 1. 智能衣物识别与抠图
+
+传统做法是手动框选衣物边界，Wardrobe 直接调用 OpenAI Responses API，让 GPT 一次性识别图中所有服装品类（T恤、外套、裤子、配饰），再调用 Images API 生成白底产品图。对比 Figma 的手动抠图或 Remove.bg 单图处理，Wardrobe 支持批量导入，单次任务可处理数十件衣物。
+
+### 2. 模特试穿生成
+
+这是最亮眼的功能。用户提前准备一张 `data/model-reference.png` 作为模特参考，Wardrobe 会用 `gpt-image-2` 模型（默认 high 质量）把抠出的衣物「穿」到模特身上，生成编辑级预览图。比起手动 PS 或 Midjourney 单图合成，Wardrobe 把模特形象固定下来，保证整套 lookbook 风格统一。
+
+### 3. Codex 技能工作流
+
+项目内置两条 Codex 技能：`import-clothes` 和 `generate-outfits`。前者负责导入、抠图、试穿、审核、写入 `data/library.json`；后者负责根据已有衣橱生成整套搭配 idea。Agent 模式下，用户只需告诉 Codex「从 ~/Pictures/outfits 导入衣物并生成模特图」，全程自动化。
+
+### 4. 本地优先的数据架构
+
+原图、生成图、任务日志、JSON 数据库全在 `data/` 下，拖拽、粘贴、编辑、审核、重新生成、审批全在 Web UI 完成。无外部数据库依赖，迁移只需拷贝文件夹。
+
+![](/assets/blog-images/ai-1-8-k-stars-gpt-ziz4ap/img03.webp)
+
+## 四、技术亮点与性能数据
+
+- **模型配置**：视觉模型 `gpt-5.4-mini`，图像模型 `gpt-image-2`，质量档位 `high`，可根据成本需求切换到 `low/medium`。
+- **运行要求**：Node 22+，启动只需 `npm install && npm run dev`，默认端口 5173。
+- **架构亮点**：前后端一体化，前端负责交互，后端通过 OpenAI API 串联识别-抠图-试穿三阶段；任务结果本地落盘，断点续传友好。
+- **生态兼容性**：支持 Codex CLI、Codex Desktop、Web UI 三种入口；`.agents/skills/` 目录遵循 Agent Skills 规范，可被其他 Agent 复用。
+- **安全策略**：默认关闭导入器，必须配置 `OPENAI_API_KEY` 并放置模特参考图后才能启用，避免误调用产生 API 费用。
+
+![](/assets/blog-images/ai-1-8-k-stars-gpt-ziz4ap/img04.webp)
+
+## 五、适用场景与人群
+
+**场景一：个人数字衣橱建设**。适合想把相册里的穿搭照系统化管理的用户，一次导入长期使用。
+
+**场景二：穿搭博主内容生产**。每天要产出大量 lookbook 的博主，可用 `generate-outfits` 批量生成搭配灵感。
+
+**场景三：服装电商素材整理**。小批量服装卖家，把平铺图或模特图批量导入，自动产出白底产品图与统一模特预览图。
+
+**适合**：Node 开发者、Codex 重度用户、对隐私敏感的本地优先主义者。**不适合**：完全不想配 API Key 的纯小白、只想要现成 SaaS 的用户。
+
+## 六、竞品对比
+
+| 维度 | Wardrobe | Whering | Acloset | Remove.bg |
+|-----|----------|---------|---------|-----------|
+| 衣物识别 | GPT 自动批量 | 手动 + AI 辅助 | 手动 + AI 辅助 | 不支持 |
+| 模特试穿 | 内置，统一模特 | 无 | 基础试穿 | 无 |
+| 数据存储 | 本地 JSON + 文件 | 云端 | 云端 | 云端 |
+| 开源 | MIT | 否 | 否 | 否 |
+| Agent 集成 | Codex 双技能 | 无 | 无 | 无 |
+
+选 Wardrobe 的理由：开源、本地可控、Agent 可编排、试穿风格统一。
+
+![](/assets/blog-images/ai-1-8-k-stars-gpt-ziz4ap/img05.webp)
+
+## 七、如何快速上手
+
+**安装步骤**：
+
+```bash
+git clone https://github.com/tandpfun/wardrobe.git
+cd wardrobe
+npm install
+cp .env.example .env
+```
+
+在 `.env` 中填入 `OPENAI_API_KEY`，并把你的全身 PNG 照片放到 `data/model-reference.png`，然后执行 `npm run dev`，浏览器打开 `localhost:5173`。
+
+**最小可用示例**：拖一张穿搭照到网页，按提示确认识别结果，点击「生成模特图」，即可看到白底产品图与试穿预览。
+
+**进阶建议**：
+
+1. 先用 5-10 张照片跑通流程，确认模型参考图质量与生成风格。
+2. 把整个 `data/` 目录加入 Git 仓库，方便多设备同步。
+3. 在 Codex 中使用 `$generate-outfits 5` 一键生成 5 套搭配方案。
+
+![](/assets/blog-images/ai-1-8-k-stars-gpt-ziz4ap/img06.webp)
+
+## 八、总结与行动建议
+
+Wardrobe 把 AI 视觉能力封装成一个本地化、可编排的衣橱工具，核心价值在于「识别-抠图-试穿」三合一 + 数据自主可控。它不是又一个需要手动维护的衣橱 App，而是给 Agent 和开发者准备的「衣橱操作系统」。
+
+使用建议：先小批量测试 API 成本，确认风格后再大批量导入；模特参考图建议选正面、全身、纯色背景的 PNG，效果最稳。
+
+项目链接：GitHub 仓库 `https://github.com/tandpfun/wardrobe`，灵感来源可在 X.com 查看 `@cdngdev` 的原始推文。一句话推荐：让 GPT 帮你「读懂」衣柜，每天出门前多 10 分钟。
+
+![](/assets/blog-images/ai-1-8-k-stars-gpt-ziz4ap/img07.webp)
+

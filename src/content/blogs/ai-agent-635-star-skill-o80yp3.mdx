@@ -1,0 +1,97 @@
+---
+title: "AI Agent 画的图表为什么总是「能看不能读」？这个 635 Star 的 Skill 给出了答案"
+publishedAt: "2026-09-30"
+summary: "公众号编辑盯着 Excel 表格里 200 行调研数据，要在明早 8 点前赶出一篇带 5 张图表的长文；产品经理要把 Q3 周报做成一份能在 10 秒内让老板看懂排名、变化和异常的可视化；研究人员在写论文时希望每一根 t…"
+image: "/assets/blog-images/ai-agent-635-star-skill-o80yp3/img01.webp"
+tags: ["AI", "Agent", "开源"]
+author: "Adam"
+---
+![](/assets/blog-images/ai-agent-635-star-skill-o80yp3/img01.webp)
+
+## 一、开篇：为什么你需要这个工具？
+
+公众号编辑盯着 Excel 表格里 200 行调研数据，要在明早 8 点前赶出一篇带 5 张图表的长文；产品经理要把 Q3 周报做成一份能在 10 秒内让老板看懂排名、变化和异常的可视化；研究人员在写论文时希望每一根 tick、每一个百分点都对应真实的样本单位，而不是被花哨的渐变色和 3D 柱状图掩盖真相。这些场景有一个共同痛点：AI Agent 能吐出图表代码，但代码背后的「视觉语法」是混乱的——颜色乱选、单位丢失、留白随意、动效冗余，结果就是「能看」但「没法读」。Lieflat Charts 正是为解决这个痛点而生。
+
+## 二、项目简介：一句话说明它是什么
+
+Lieflat Charts 是一套遵循 Agent Skills 格式的数据可视化 Skill，专为 AI Agent 设计，目标是让 Agent 把原始数据快速生成精致、可交互、具备编辑感的 HTML 图表。它内置 49 个图型模板，覆盖「慢读」与「快读」两种阅读速度。仓库目前已获得 635 Stars，最新版本 2026.8.6 新增彩色模式（青瓷蓝、椰林绿、编辑部红），并支持在 Moxt、Claude Code、Codex 等兼容 SKILL.md 的 AI Agent 中调用。
+
+![](/assets/blog-images/ai-agent-635-star-skill-o80yp3/img02.webp)
+
+## 三、核心功能深度解析
+
+### 1. 双阅读速度的视觉体系：Lupi 与 Glance
+
+Lieflat Charts 把图表分为两类阅读场景。Lupi 系列（包括 Editorial 和 Basics）面向愿意停留 30 秒以上的读者，使用发丝线、留白、账本式导轨和旁注，把每个数据点对应到真实单位，适合年报、论文、公众号长文。Glance 系列则面向 10 秒快读场景，用粗柱、大数字、色块和清晰排序提前聚合信息，让读者几秒内抓住高低、变化与异常，适合周报、汇报、dashboard。两套体系共享同一份 Mono 视觉语法（纸灰 + 炭黑 + 中间灰阶），互不冲突。
+
+### 2. 49 个图型模板 + 数据契约索引
+
+项目提供 49 个图型，包括 15 个 Lupi Editorial、13 个 Lupi Basics、18 个 Glance、3 个 Interactive 交互大图。每张图在 `catalog.md` 中都有独立的数据契约索引，Agent 会先判断「这张图要回答什么问题」，再选择图型，最后才动手画图。这与传统图表库「先挑模板再塞数据」的逻辑正好相反。
+
+### 3. 三套彩色预设 + Custom 色板
+
+2026.8.6 版本新增彩色模式。青瓷蓝（Porcelain）适合有序数据和单序列；椰林绿（Palm）用低饱和绿黄色系区分少量无序类目；编辑部红（Wire）在黑灰阶上加一个荧光橙视线落点，用于受控强调。Agent 会根据数据结构自动选择色彩系统；用户明确给出品牌色或色值时，也能建立对比度合格的 Custom 色板。同一份 HTML 或同一组图只使用一种色彩系统，避免视觉噪音。
+
+### 4. 真实单位作为视觉原子
+
+Lieflat Charts 强调「一格是一个百分点，一根 tick 是一个人，一条 hairline 是一天」。它拒绝用装饰性渐变、阴影、3D 效果伪造密度，而是把标题、旁注、来源、留白、动效都视为图表的组成部分。这让生成的图表既能在公众号长文里阅读，也能单独作为一张可视化海报存在。
+
+![](/assets/blog-images/ai-agent-635-star-skill-o80yp3/img03.webp)
+
+## 四、技术亮点与性能数据
+
+Lieflat Charts 的架构核心是 `mono-tokens.js`（共享视觉 token）和 `color-presets.js`（三套内置彩色预设），所有模板共享同一套设计 token，确保跨图型的视觉一致性。实现层采用分层策略：Lupi Editorial 全部手写 SVG，Lupi Basics 在简单场景手写 SVG、F13 Treemap 使用 ECharts，Glance 系列通过 CDN 加载 Chart.js 或 ECharts，Interactive 大图（Force Graph、Circular、Path）同样基于 ECharts / SVG。项目附带 `scripts/validate.mjs` 发布前检查脚本，保证模板在离线 / 在线环境下都能正确渲染。
+
+相比同类 Agent Skills，Lieflat Charts 的差异化在于「先判断数据契约，再选图型」的决策流程。它不只是一个图表模板集合，而是一套完整的视觉语法系统，把图型选择、编辑排版、浏览器交互、整页叙事放进同一个可复用 Skill。
+
+![](/assets/blog-images/ai-agent-635-star-skill-o80yp3/img04.webp)
+
+## 五、适用场景与人群
+
+**场景一：公众号长文与年报**。编辑 / 自媒体作者拿到一份调研数据或年报 PDF，需要 5 张带中文标注、能讲清独立结论的图表。适合用 Lupi Editorial 模板，配合青瓷蓝或编辑部红预设。
+
+**场景二：周报与汇报**。产品 / 运营经理要在 10 秒内让老板看懂数据排名、变化、异常。适合用 Glance 系列，配合椰林绿区分类目或编辑部红突出关键指标。
+
+**场景三：论文与学术发表**。研究人员希望每个 tick、每个数据点都对应真实样本单位，保留可数刻度。适合用 Lupi Basics 或 Lupi Editorial 的手写 SVG 模板，便于后期导出矢量图。
+
+**适合谁**：AI Agent 重度用户、公众号编辑、数据分析师、产品经理、研究人员。**不适合谁**：需要纯商业闭源部署的企业（项目采用 PolyForm Noncommercial License 1.0.0，商业使用需另行授权）；以及对图表数量有强制要求、但数据本身只能支撑 1–2 个结论的场景（Skill 默认不会为了凑数重复表达同一个结论）。
+
+## 六、竞品对比
+
+| 维度 | Lieflat Charts | 通用图表库（Chart.js / ECharts） | 其他 Agent Skills 图表模板 |
+|---|---|---|---|
+| 视觉语法 | 统一 Mono + 三套彩色预设，跨图型一致 | 仅提供默认主题，需自行定制 | 多为单一风格，缺乏系统 |
+| 数据契约 | 先判断问题 → 再选图型，49 个索引 | 用户手动选择 | 通常无索引 |
+| 阅读速度 | 同时支持 Lupi（慢读）与 Glance（快读） | 单一速度 | 单一速度 |
+| 单位保真 | 每个视觉元素对应真实数据单位 | 装饰性元素较多 | 视情况而定 |
+| Agent 集成 | 原生支持 Moxt、Claude Code、Codex | 需手动封装 | 部分支持 |
+| 商业许可 | PolyForm Noncommercial（需授权） | MIT / Apache 2.0 | 视项目而定 |
+
+## 七、如何快速上手
+
+**推荐方式：在 Moxt 中使用**。Lieflat Charts 在 Moxt 中完成设计、测试与持续迭代，Agent 能顺畅读取完整设计规范、调用模板、在同一工作区持续预览。访问 [Moxt Hub](https://moxt.ai/zh-CN/hub?view=skill&id=lieflat-charts) 即可一键启用。
+
+**安装到其他 Agent**：在 Claude Code 中执行 `npx skills add https://github.com/larashero3-dotcom/lieflat-charts --skill lieflat-charts`；Codex 用户把路径换成 `~/.codex/skills/lieflat-charts`。
+
+**最小可用示例**：安装后对 Agent 说：
+
+> 把这份调研数据做成适合公众号长文的 5 张中文版图表。默认先比较 Lupi Editorial 和 Lupi Basics 候选；两组都不适配时，再使用 Glance。
+
+Agent 会自动读取 `SKILL.md`、`catalog.md` 和 `templates/`，生成符合视觉语法的 HTML 图表。
+
+**进阶建议**：① 单个问题 1 张图，2–3 个结论 2–3 张图，完整文章 4–6 张图，单页默认最多 6 张；② 需要颜色时明确说「彩色风格」或指定品牌色，Agent 会自动选择合适的预设；③ 想要交互大图（Force Graph）时直接说「需要可拖拽的网络关系图」。
+
+![](/assets/blog-images/ai-agent-635-star-skill-o80yp3/img05.webp)
+
+## 八、总结与行动建议
+
+Lieflat Charts 的核心价值，是把「AI Agent 能画图」升级为「AI Agent 会用统一的视觉语法画图」。它解决了数据可视化中最容易忽视的两个问题：视觉一致性与数据保真度。无论是公众号长文、周报 dashboard，还是学术论文，这套 Skill 都能让你的图表同时满足「能看」和「能读」。
+
+**使用建议**：① 第一次使用先在 Moxt 中体验，零配置；② 数据量大、结论多时优先用 Lupi Editorial；③ 追求快读时直接选 Glance；④ 需要颜色时让 Agent 自动选，必要时手动指定品牌色。
+
+**项目链接**：
+- GitHub：https://github.com/larashero3-dotcom/lieflat-charts
+- Moxt 体验：https://moxt.ai/zh-CN/hub?view=skill?id=lieflat-charts
+- 文档：`SKILL.md`、`catalog.md`、`mono-tokens.js`
+
+一句话推荐：如果你受够了 AI Agent 吐出的「配色随机、单位丢失、留白随意」的图表，Lieflat Charts 就是那套让数据可视化回归编辑感的 Skill。

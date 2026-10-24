@@ -1,0 +1,115 @@
+---
+title: "AI 短剧做到崩溃？Toonflow 用一张画布把剧本、分镜、剪辑全装进去了"
+publishedAt: "2026-05-08"
+summary: "AI 短剧做到崩溃？Toonflow 用一张画布把剧本、分镜、剪辑全装进去了"
+image: "/assets/blog-images/ai-toonflow-gr0o0r/img01.webp"
+tags: ["AI", "视频", "前端"]
+author: "Adam"
+---
+![](/assets/blog-images/ai-toonflow-gr0o0r/img01.webp)
+
+选择标题（3 选 1）
+
+AI 短剧做到崩溃？Toonflow 用一张画布把剧本、分镜、剪辑全装进去了
+
+一个人就是一支剧组：Toonflow 把 AI 短剧制作压到 2 小时、成本约 130 元
+
+不用写一行 ComfyUI 胶水代码，Toonflow 用无限画布跑通了一整条 AI 短剧流水线
+
+# Toonflow：在无限画布上，一个人就能搭起一座 AI 短剧工厂
+
+## 一、开篇：剧本写了三小时，分镜还没动笔
+
+短剧创作者老周最近很崩溃。他在 Notion 里写完 12 集剧本，转头打开 ComfyUI 跑角色图，又切到剪映对镜头，最后用飞书表格管理三十多个素材库——一个 2 分钟的样片折腾了一周。AI 时代，工具变多了，但创作链路却被切得稀碎。
+
+Toonflow 想解决的就是这件事：把剧本、资产、镜头、视频片段全部塞进同一张无限画布，用 AI Agent 串起一整条短剧流水线。截至发稿，这个 Vue 编写的开源项目已在 GitHub 收获 16,942 Stars，获得 Gitee GVP 与 AtomGit G-Star 认证，并被趋势网站 Trendshift 持续收录。
+
+![](/assets/blog-images/ai-toonflow-gr0o0r/img02.webp)
+
+## 二、一句话看懂：这是个什么项目
+
+Toonflow 是开源 AI 短剧 / 漫剧创作平台，核心特性可以浓缩为四个关键词：**无限画布、可视化工作流、开放 Agent、跨平台桌面端**。基于 TypeScript + Vue 3 + Bun + Electrobun 构建，支持本地部署与 Docker 部署，已发布 20+ 版本、累计 213,765 行代码、800+ 次 Commits。
+
+## 三、核心功能深度解析
+
+### 1. 无限画布：一块白板装下整部剧
+
+传统创作工具按「时间线」组织内容，Toonflow 用无限画布组织创作。剧本段落、角色三视图、场景资产、视频片段、节点工作流全部拖到同一张画布上，自由布局、连线、批注。画布还提供深色 / 浅色双主题，并集成 AI 助手面板，写提示词、看生成结果不用切窗口。
+
+### 2. AI Agent + 可视化工作流：节点拖拽代替手写胶水代码
+
+Toonflow 把剧本拆解、角色一致性、镜头生成、视频合成等环节抽象成可视化节点，节点之间连线即可定义创作流水线。Agent 系统开放提示词、工具调用与 A2A 协议，支持自定义 Agent 行为；同时通过 MCP 连接外部工具与服务，把大模型的「能动性」做成可编排的工作流，而非黑盒。
+
+### 3. 多模型自由接入：不被任何一家 API 锁死
+
+平台原生支持 ComfyUI、本地 LLM，以及秘塔 MiniMax H3、APIMart、优云智算等第三方模型服务的接入。视频模型示例案例中使用 Seedance 2.0，图片模型用 GPT Image 2，语言模型用 Claude Opus 4.6——用户可随时替换为更便宜或更合适的模型。
+
+### 4. 插件市场与桌面端：创作不被浏览器绑架
+
+官方插件市场已上线，覆盖节点扩展、工具增强与玩法模板。基于 Electrobun 打包的跨平台桌面端（Windows / macOS）内置 WebView2 与 FFmpeg，开箱即用，无需额外配环境；macOS 端做了 Apple Silicon 原生适配，避免 Rosetta 转译带来的性能损失。
+
+![](/assets/blog-images/ai-toonflow-gr0o0r/img03.webp)
+
+## 四、技术亮点与性能数据
+
+**架构层面**，Toonflow 主仓库已是 Monorepo 结构，插件、SDK、Web、Server 一套代码打通；后续重构计划升级至 Drizzle ORM，支持本地 / PostgreSQL / MySQL 多数据库，降低二次开发门槛。运行环境基于 Bun 1.3.14 构建，配合内置 FFmpeg 完成视频合成，相较 Node 栈冷启动更快、依赖更精简。
+
+**生态兼容性**上，桌面端走 Electrobun，Web 端保留 Vue 3 + Vite 体系，创作资产可通过 Docker 命名卷 `toonflowData` 持久化，迁移或重建容器不会丢失项目。
+
+**真实案例数据**：官方记录的 2 分钟成片样片，制作周期约 2 小时，调用模型费用约 ¥130（视频约 ¥120、图片不足 ¥1、语言约 ¥10）。这个数字让「AI 短剧成本能不能打平人工」有了可参考的基准。
+
+![](/assets/blog-images/ai-toonflow-gr0o0r/img04.webp)
+
+## 五、适用场景与人群
+
+- **短剧 / 漫剧团队前期策划**：用无限画布快速搭剧本结构、做角色一致性图、跑 30 秒概念片拉投资。
+- **独立创作者 / 个人 IP**：一个人包揽剧本、绘图、视频剪辑，月度成本可控在几百元区间。
+- **AIGC 教程作者 / 自媒体**：把工作流模板沉淀成可复用的画布项目，直接给学员复用。
+- **企业内部培训内容生产**：把标准剧本模板下沉成插件，批量生成培训短片。
+
+不适合的群体：追求电影级 CG 精度的视觉特效工作室，以及对纯命令行工作流有强依赖的极简开发者——Toonflow 的价值在「整合」，而非单点性能压榨。
+
+## 六、竞品对比
+
+| 项目          | 形态                | 工作流组织方式       | 模型自由度           | 部署方式           |
+|---------------|---------------------|----------------------|----------------------|--------------------|
+| Toonflow      | 开源 + 桌面/Web 端  | 无限画布 + 节点      | 任意 API + ComfyUI   | 本地 / Docker / 服务器 |
+| ComfyUI       | 开源 + Web 端       | 节点工作流           | 主打本地扩散模型     | 本地 / Docker      |
+| LibTV         | 闭源 SaaS           | 画布                 | 平台内置模型         | 云端               |
+| TapNow        | 闭源 SaaS           | 画布                 | 平台内置模型         | 云端               |
+
+Toonflow 的差异化在于：既像 LibTV / TapNow 一样提供画布级创作体验，又像 ComfyUI 一样允许自由接模型，并通过 MCP + 插件市场把扩展能力开放给社区。
+
+![](/assets/blog-images/ai-toonflow-gr0o0r/img05.webp)
+
+## 七、如何快速上手
+
+**桌面端（推荐新手）**：前往 GitHub Releases 页面，下载 Windows 安装包或 macOS dmg，将 Toonflow 拖入「应用程序」即可运行；Windows 若闪退，手动补装 [WebView2 运行时](https://developer.microsoft.com/microsoft-edge/webview2/)。
+
+**Docker 部署**：
+
+```sh
+git clone https://github.com/HBAI-Ltd/Toonflow-app.git
+cd Toonflow-app
+docker compose up -d --build
+```
+
+启动后浏览器访问 `http://127.0.0.1:3000`，数据保存在 Docker 命名卷 `toonflowData`，备份只需 `docker compose cp`。**切勿执行 `docker compose down -v`，会清空数据卷。**
+
+**服务器部署**：在 Ubuntu / Debian 上安装 Bun 1.3.14 + FFmpeg，`bun run build:server && bun run start:server`，配合 systemd 做开机自启；远程访问可用 `ssh -N -L 3000:127.0.0.1:3000 user@host` 建隧道，避免把 3000 端口暴露公网。
+
+**进阶建议**：先在桌面端跑通一个 30 秒模板，熟悉节点连线逻辑；再切换到 Docker，把工作区挂载到 NAS 做团队共享；最后接入自有模型 API 与 MCP 服务，做定制化 Agent。
+
+![](/assets/blog-images/ai-toonflow-gr0o0r/img06.webp)
+
+## 八、总结与行动建议
+
+Toonflow 真正的价值，是把分散的剧本、绘图、视频工具收拢到同一张画布里，让「一个人就是一支剧组」成为可落地的配置。MIT 许可 + 插件市场 + 多模型接入，使它既适合个人创作者验证短剧 MVP，也方便企业团队做二次开发。
+
+**立刻试试**：访问 [github.com/HBAI-Ltd/Toonflow-app](https://github.com/HBAI-Ltd/Toonflow-app) 下载桌面端，或参考 [使用教程文档](https://qcn7xdsqgc4z.feishu.cn/docx/RXFqdgR2Xo0dXZxGfd0cZCGgnwf) 跑通第一个画布项目。官方插件市场与模型中转平台 [api.toonflow.net](https://api.toonflow.net/) 可按需接入。
+
+一句话安利：当别人还在 N 个软件之间反复横跳时，你已经在一张画布上把短剧做到上线了。
+
+![](/assets/blog-images/ai-toonflow-gr0o0r/img07.webp)
+
+#toonflow-app #ToonflowApp #hbai-ltd #AI视频剪辑 #脚本化视频 #口播视频 #开源项目 #GitHub

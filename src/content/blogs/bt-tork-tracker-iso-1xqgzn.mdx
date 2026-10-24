@@ -1,0 +1,120 @@
+---
+title: "终端里_养_一只 BT 小猫：tork 把搜索、Tracker、ISO 全打包了"
+publishedAt: "2026-04-20"
+summary: "终端里\"养\"一只 BT 小猫：tork 把搜索、Tracker、ISO 全打包了"
+image: "/assets/blog-images/bt-tork-tracker-iso-1xqgzn/img01.webp"
+tags: ["开源", "开发", "终端"]
+author: "Adam"
+---
+![](/assets/blog-images/bt-tork-tracker-iso-1xqgzn/img01.webp)
+
+选择标题（3 选 1）
+
+终端里"养"一只 BT 小猫：tork 把搜索、Tracker、ISO 全打包了
+
+少装 3 个服务：这只 Go 小猫把 BT 聚合搜索压进不到 200ms
+
+没开 Web UI，却管住了所有 Tracker：tork 的反常识 BT 玩法
+
+# 一只终端里的"猫"，把 BT 搜索、Tracker 合并、ISO 下载全包了
+
+翻遍 GitHub 上的 BT 客户端，大多长得像上世纪的下载工具——满屏按钮、悬浮弹窗、动不动就要登录账号。Linux 发烧友想在终端里干净利落地下载 Ubuntu、Debian 镜像，还得自己拼 qbittorrentnox、jackett、cross-seed 三件套。直到看见一只 ASCII 小猫的项目 tork，它的目标很直白：让搜索、Tracker 合并、SOCKS5 代理、官方 ISO 一站搞定。
+
+## 一、开篇：为什么你需要这个工具？
+
+用 qBittorrent 装 Jackett、写 RSS 规则、再加 cross-seed 自动辅种，是不少人的"标准动作"。这套组合搭起来要 1-2 小时，规则一多还得维护；更别说 macOS 用户想配 transmission-daemon + Sonarr/Radarr 时遇到的端口转发难题。学生党只想下一部 1080p 纪录片，硬要开一个 Web UI，全是噪音。tork 给出的答案是：把搜索、Tracker、代理、ISO 全塞进一个 TUI，启动不到 200ms，配置写在 `~/.tork/config.yaml`。
+
+## 二、项目简介：tork 是什么
+
+tork 是一个 Go 写的终端 BT 客户端 + 聚合搜索引擎，目前 GitHub 206 Stars。它做的事很克制：搜索 Knaben / YTS / Nyaa 等公共索引、把同一资源在多个索引里的 Tracker 合并起来、预览 magnet、代理可用 Tor、并提供一站式的官方 Linux ISO 下载。核心关键词是"轻量、聚合、隐私友好"。
+
+![](/assets/blog-images/bt-tork-tracker-iso-1xqgzn/img02.webp)
+
+## 三、核心功能深度解析
+
+### 1. 多索引聚合 + Tracker 合并
+
+tork 默认支持 Knaben、YTS、Nyaa，同时支持自定义 RSS 或 Torznab feed。最有价值的是 dedupe 行为：同一个磁力链在三个索引里出现时，tork 只占一行，结果尾部会标 `yts+2`，意思是"另外两个索引也收录了这个资源"。按下 `v` 切换到详细面板就能看到完整来源列表。下载开始时，tork 会用所有来源里合并的 Tracker 列表做 announce，比单一索引多出几条 swarm 路由，实测对死链场景帮助明显。
+
+### 2. Linux ISO 官方镜像一键抓取
+
+很多人下载 Ubuntu / Debian / Fedora 时最怕的就是镜像被劫持。tork 内置 Ubuntu、Debian、Fedora、Arch、NixOS、Proxmox 等官方下载入口，按 `i` 进 isos 页面，回车直下官方签名链接，省去逐个找镜像站、检查校验和的麻烦。
+
+### 3. 严格 SOCKS5 / Tor 代理
+
+`tork proxy tor` 一行命令即接入本地 Tor。tork 走严格模式：搜索、ISO 请求、HTTP Tracker、外发 TCP peer 全部走代理；同时主动关闭 DHT、uTP、UDP Tracker、入站 peer、端口映射、WebTorrent，从根源上避免"代理泄漏"。TUI 顶部的 `SOCKS strict` 徽章在通过 Tor Project 的 check service 验证后才会升级为 `((o)) Tor strict`。
+
+### 4. Autopilot 自然语言规划（开发中）
+
+`tork autopilot "all breaking bad seasons 1080p under 40GB"` 让小"猫"自己排计划。它会列出候选、解释原因，再让你确认是否加入队列；加 `--headless` 和 `--yes` 还能塞进 cron。
+
+![](/assets/blog-images/bt-tork-tracker-iso-1xqgzn/img03.webp)
+
+## 四、技术亮点与性能数据
+
+tork 的 BT 内核来自 anacrolix/torrent，作者在 `torrent_tuning` 段也只露出少量调参项（half_open、peer_high_water 等），其余保留库默认。直接 HTTP 下载走"先确认 server 支持 Range + 资源稳定再分片"的策略，单文件小于 10MB 或服务端不兼容就自动回退为单连接下载；分片支持断点续传，校验通过 SHA-1/256/512 完成，最终文件只有在 digest 核对成功后才出现在磁盘上，不会有"半截种子"。配置目录默认 0600 权限，敏感 URL 通过隐藏终端输入避免写入 shell history。整体启动时间在毫秒级，内存占用相比 transmission-daemon + Web UI 节约明显。
+
+![](/assets/blog-images/bt-tork-tracker-iso-1xqgzn/img04.webp)
+
+## 五、适用场景与人群
+
+- **Linux 发行版下载**：arch/nixos 用户换发行版或备份时，能用熟悉的快捷键抓官方 ISO。
+- **隐私敏感下载**：写论文做 OSINT 的同学需要走 Tor，又不想自己写 iptables 规则。
+- **HTPC / 服务器低占用**：老硬件或 NUC 上不想跑 Docker 套件，tork 单二进制 + 配置文件就能常驻。
+- **不太适合**：重度自动化辅种、抢首发热门资源、需要 Web UI 远程管理的场景，这时仍是 qBittorrent + cross-seed 更顺手。
+
+![](/assets/blog-images/bt-tork-tracker-iso-1xqgzn/img05.webp)
+
+## 六、竞品对比
+
+| 维度 | tork | qBittorrent + Jackett | transmission-daemon |
+|---|---|---|---|
+| 界面 | 纯 TUI | Web UI | Web UI / CLI |
+| 多索引聚合 | 内置 dedupe + Tracker 合并 | 需要 cross-seed | 无 |
+| 代理支持 | 严格 SOCKS5/Tor 模式 | 需手动设置 | 普通代理 |
+| 资源占用 | 极低 | 中等 | 中等 |
+| ISO 官方源 | 内置 | 需 RSS | 无 |
+
+tork 的优势在"轻量 + 聚合 + 隐私"三位一体；劣势是 GUI 缺失，自动化生态仍在完善。
+
+![](/assets/blog-images/bt-tork-tracker-iso-1xqgzn/img06.webp)
+
+## 七、如何快速上手
+
+macOS 用户：
+
+```
+brew tap melqtx/tap && brew install tork
+```
+
+Arch 与 Nix：
+
+```
+yay -S tork
+nix run github:melqtx/tork
+```
+
+直接 Go 安装（1.26+）：
+
+```
+go install github.com/melqtx/tork/cmd/tork@latest
+```
+
+首次启动按 `?` 看快捷键面板。体验 Tor 代理：
+
+```
+tork proxy tor
+tork doctor --proxy-check
+```
+
+配置文件 `~/.tork/config.yaml` 默认是模板化注释，按需启用 `metadata_cache` 或 `health` 周期自检即可。
+
+## 八、总结与行动建议
+
+tork 把"搜索 → Tracker 合并 → 严格代理 → 官方 ISO"塞进了一只 Go 写的 ASCII 小猫壳里，对终端党、隐私敏感用户、轻量服务器尤其友好。项目仍在快速迭代，Autopilot 子命令已经在路上，但默认行为已经足以替代多数"BT 下载 + 索引聚合"的胶水脚本。
+
+如果你也厌倦了在 qBittorrent + Jackett + cross-seed 之间反复折腾，不妨开一只"猫"试试：仓库地址 `github.com/melqtx/tork`，MIT 协议，欢迎提 Issue 与 PR。
+
+> ⚠️ 仅下载你有权获取与分享的内容，如官方 Linux ISO、公共领域媒体、自有文件。代理≠匿名。
+
+#tork #Tork #melqtx #命令行工具 #开发工具 #开源项目 #GitHub

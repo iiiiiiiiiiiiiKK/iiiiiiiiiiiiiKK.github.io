@@ -1,0 +1,138 @@
+---
+title: "看见别人 App 的功能想抄过来？试试这款 31 万 Star 的逆向 Agent 工具 REA"
+publishedAt: "2026-04-03"
+summary: "看见别人 App 的功能想抄过来？试试这款 31 万 Star 的逆向 Agent 工具 REA"
+image: "/assets/blog-images/app-31-star-agent-rea-4n5ikd/img01.webp"
+tags: ["AI", "Agent", "开源"]
+author: "Adam"
+---
+![](/assets/blog-images/app-31-star-agent-rea-4n5ikd/img01.webp)
+
+选择标题（3 选 1）
+
+看见别人 App 的功能想抄过来？试试这款 31 万 Star 的逆向 Agent 工具 REA
+
+从 3000 行汇编到可运行代码：REA 把逆向工程接入 Claude Code/Cursor 的 MCP
+
+不需要读源码也能复刻功能：REA 让 AI Agent 直接拆解原生二进制
+
+# 看见一个功能就能复刻？REA 把逆向工程塞进了 AI Agent 的工具箱
+
+## 一、开篇：如果你看到一个功能，5 分钟就能知道它怎么实现的…
+
+刷到 Notion 的剪贴板富文本粘贴机制，想在自己的产品里复刻一份；玩到 DX-Ball 里精妙的声相定位，想搞清楚那段 16 位代码到底怎么算的；面对一个 30MB 的 Electron 安装包，想拿到 IPC 通道全部路由表。你是不是也曾卡在"看一眼源码"这一步？
+
+传统逆向工程的学习曲线陡得劝退 90% 的开发者：要装 Hopper/Ghidra/IDA，要啃反编译出来的伪代码，要把汇编逻辑逆推回高级语言，再翻译成可运行的实现。一个"我想理解"的念头，往往在配置环境阶段就被磨没了。
+
+REA（Reverse Engineer Anything）的出现，直接把这整套流程接进了 Claude Code、Cursor、Codex、Gemini CLI 这些 AI Agent 里。你对 Agent 说一句"帮我搞清楚这个 App 的搜索是怎么做的，把证据贴出来，再写一份给我集成"，剩下的全部由 Agent + REA 协作完成。
+
+## 二、项目简介：它到底是什么？
+
+REA 是一个本地运行的 MCP（Model Context Protocol）服务器，定位是「一个 MCP，打通二进制、应用、运行时行为三类逆向场景」。通过单一接口，它把 20+ 种目标（原生二进制、Electron、APK、固件、SQLite、流量包、PCAP、逻辑信号…）的逆向能力暴露给 AI Agent。
+
+核心标签：**本地分析**、**证据驱动**、**Agent 原生**、**通用逆向**。项目采用 MIT 协议，TypeScript 编写，npm 分发，安装只需一行 `npx rea-agents setup`。GitHub 31 万 Star 的体量让它成为逆向工程 Agent 化的代表性项目，配套 DX-Ball、Notion、TH04 三个完整案例。
+
+![](/assets/blog-images/app-31-star-agent-rea-4n5ikd/img02.webp)
+
+## 三、核心功能深度解析
+
+### 1. 原生二进制逆向：Hopper / Ghidra / IDA 全打通
+
+REA 不重新发明反编译器，而是把 Hopper、Ghidra、IDA 作为「Provider」挂载进来。Agent 调用 MCP 工具，REA 在后台拉起 Hopper Disassembler，让 Ghidra Headless 分析器出报告，或把任务交给 IDA Pro 的 decompiler；返回的不是裸汇编，而是带证据链的伪代码、调用图和符号表。Hopper 还支持 macOS 上一键可视化联动，逆向现场可以肉眼盯着看。
+
+### 2. JavaScript / Electron 应用解析：解压 ASAR 即可读
+
+对 Electron 这种「Web + 原生」混合体，REA 静态解压 ASAR 包、解析模块依赖、提取 source map、列出 IPC 通道、画出 preload 与 main 进程的边界。最终返回的是结构化的模块清单和 IPC 路由表，不需要执行目标应用，证据直接来自文件本身。Notion 案例里 Agent 就是顺着这条路径追到了富文本粘贴链路。
+
+### 3. 动态行为捕获：进程、ADB、抓包三件套
+
+仅静态分析不够时，REA 可以拉起原生 PTY 跑目标应用、把交互与文件系统改动记录下来；接 adb 直接操控真机或模拟器，导出日志、截屏、APK；接 TShark 解 PCAP，接 sigrok-cli 解逻辑信号录音。Evidence 一并附在每条结论后面，Agent 拿到的是带上下文的结果，不是孤立的数据。
+
+### 4. 异构二进制格式：Go、Rust、WASM、EVM 全静态分析
+
+Go 二进制里嵌入的编译器版本、模块、build 设置；Rust 二进制里 cargo-auditable 的 crate 名、版本、源码、依赖边；WASM 验证、节区、import/export WAT 表；EVM 字节码里的 selector、byte offset、参数与 mutability 推断——这些都无需调用 Hopper/Ghidra，REA 自带的静态分析器就能出报告。
+
+![](/assets/blog-images/app-31-star-agent-rea-4n5ikd/img03.webp)
+
+## 四、技术亮点与性能数据
+
+- **覆盖面**：单一 MCP 同时覆盖原生二进制、Electron、APK、固件、SQLite、PCAP、.NET、WASM 等 20+ 目标类型，是目前逆向 MCP 工具里覆盖最广的开源方案。
+- **Provider 抽象**：把 Hopper、Ghidra、IDA、Kuna、Rizin、objdump 设计成可插拔 Provider，大二进制场景可通过 `REA_GHIDRA_STARTUP_TIMEOUT_MS` / `REA_HOPPER_STARTUP_TIMEOUT_MS` 调启动超时。
+- **DX-Ball 案例复现**：声相定位的逆向结果跑通 3,205 个原始 x86 用例，复刻函数与编译产物 63 字节完全一致；这是少有的量化基准。
+- **安全边界**：分析全程本地运行，结果（含证据与未知项）只回传给 Agent；商业反编译器（IDA Pro/Hopper/JEB）的许可证由用户自备，REA 不附带 key、不打包破解。
+- **更新体验**：`rea update` 走校验更新流程，stdout/stderr 限 4 MiB，verbose 模式有 backpressure 保护；Bun 全局更新需 1.2.17+。
+
+## 五、适用场景与人群
+
+**3 个典型场景：**
+
+1. **功能复刻**：把竞品的某个交互效果逆向出自己的实现，避免从零猜需求（Notion 富文本粘贴、VS Code 命令面板皆可走这条路径）。
+2. **历史软件考古**：DOS、PC-98 时代游戏的算法复原（TH04 案例），或闭源商业软件内部机制研究，用于教育与软硬件保护研究。
+3. **安全审计与互操作性分析**：EVM 字节码反编译、PCAP 与抓包分析、Android 应用 manifest 与代码审计。
+
+**适合谁：** 安全研究员、Electron 桌面应用开发者、对老软件算法复原有需求的极客，以及所有把 Claude Code/Cursor 当主力编码助手的工程师。
+
+**不适合谁：** 完全不会写代码、只想一键破解付费软件的人——REA 不附许可密钥，也不为任何非法用途背书。
+
+## 六、竞品对比
+
+| 维度 | **REA** | Ghidra 脚本 | IDA + 插件 | 闭源逆向 SaaS |
+|------|---------|-------------|-----------|--------------|
+| Agent / MCP 集成 | 原生 MCP，Claude/Cursor/Codex 即装即用 | 需自写 LLM 胶水 | 需自写 LLM 胶水 | 通常走 Web UI，少有 MCP |
+| 目标覆盖 | 20+ 类型统一接口 | 仅原生二进制 | 仅原生二进制 | 多偏 Web/移动，云端依赖 |
+| 证据返回 | 每条结论附证据链 | 自行组织 | 自行组织 | 黑盒，缺可审计证据 |
+| 本地化 | 完全本地 | 完全本地 | 完全本地 | 通常上传云端 |
+| 协议 | MIT | Apache 2.0 | IDA Free 限定 / Pro 商业 | 闭源 |
+
+简言之：Ghidra/IDA 强在二进制深度，REA 强在把这种深度通过 MCP 喂给 Agent，并覆盖周边格式。
+
+![](/assets/blog-images/app-31-star-agent-rea-4n5ikd/img04.webp)
+
+## 七、如何快速上手
+
+**环境前置：** Node.js 22.19+ / 24.11+ / 26+，对应系统的 npm。Linux 上若做固件、JADX 或 Electron 分析，需 `procps` 兼容的 `ps`。
+
+**1. 安装 + 注册 Agent**
+
+一行命令把 MCP 服务器与配套技能（Skills）注入到目标 Agent，支持 Claude Code、Codex、Cursor、Gemini CLI、Grok Build：
+
+`npx rea-agents setup`
+
+按交互选择 Agent，确认要写入的配置（会自动备份原文件），完成后重启 Agent。原生分析需要已有的 Hopper/Ghidra/IDA，setup 可在用户授权下安装 Hopper 试用版。
+
+**2. 第一次提问**
+
+对 Agent 直接说：`理解 Notes App 的搜索机制，把证据贴出来，并给我项目实现一个类似功能。`（把 Notes 替换成你的目标应用名即可。）
+
+**3. 命令行场景**
+
+对解压后的 Electron 应用目录：
+
+`npx -y rea-agents@latest analyze-javascript-application /absolute/path/to/app --json`
+
+定期需要的话，安装全局命令：`npm install --global rea-agents`，然后 `rea --help` / `rea update`。
+
+**4. 进阶建议**
+
+- 大二进制调高 `REA_GHIDRA_STARTUP_TIMEOUT_MS` / `REA_HOPPER_STARTUP_TIMEOUT_MS`。
+- 想用 JEB 跑 Android：先启动 JEB 客户端的 MCP 服务，再设 `REA_JEB_MCP_URL`。
+- Windows 上 Hopper 跑不动的话，可以试实验性的 Ghidra 路径（docs/windows-ghidra-p0.md）。
+
+![](/assets/blog-images/app-31-star-agent-rea-4n5ikd/img05.webp)
+
+## 八、总结与行动建议
+
+REA 的核心价值是把逆向工程这条高高在上的技术路线，压扁成 Agent 能调用的一组 MCP 工具，并强制每条结论带证据——这是它和「套壳 AI 反编译」类玩具的最大差别。从 DX-Ball 算法的逐字节复现，到 Notion 富文本粘贴链路的贯通，案例级别的可信度已经被验证。
+
+**使用建议：** 先把 `npx rea-agents setup` 跑通，挑一个你熟悉的 Electron 应用或 npm 包做第一次试刀；Bit 起来后再去啃闭源二进制。商业反编译器的 License 自己合规（Hopper、IDA Pro、JEB），REA 不附任何授权。
+
+**项目入口：**
+
+- 仓库：`https://github.com/morluto/rea`
+- 官网与指南：`https://rea.tools/`
+- 案例集合：`https://rea.tools/showcase/`
+- npm：`rea-agents`
+
+一句话推荐：**如果你已经习惯让 Agent 写代码，那就让它也帮你读代码——读二进制那种。**
+
+#rea #Rea #morluto #AI智能体 #AI工作流 #自动化 #开源项目 #GitHub

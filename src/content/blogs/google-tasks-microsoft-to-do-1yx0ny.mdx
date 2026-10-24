@@ -1,0 +1,125 @@
+---
+title: "Google Tasks 和 Microsoft To Do 还在手动搬运？这个自托管项目替你打通"
+publishedAt: "2026-07-07"
+summary: "Google Tasks 和 Microsoft To Do 还在手动搬运？这个自托管项目替你打通"
+image: "/assets/blog-images/google-tasks-microsoft-to-do-1yx0ny/img01.webp"
+tags: ["数据", "系统"]
+author: "Adam"
+---
+![](/assets/blog-images/google-tasks-microsoft-to-do-1yx0ny/img01.webp)
+
+选择标题（3 选 1）
+
+Google Tasks 和 Microsoft To Do 还在手动搬运？这个自托管项目替你打通
+
+一行命令把 Google Tasks 与 Microsoft To Do 双向同步：Tasks–To Do Sync 上手指南
+
+没装服务器、没建数据库，却把 Google Tasks 和 Microsoft To Do 双向跑通
+
+## 一、开篇：你还在为这件事头疼吗？
+
+你手上同时挂着 Google Tasks 和 Microsoft To Do 两个清单，对吧？
+
+任务在 Android 上被 Gemini 顺手记进 Google Tasks，回到 Mac 又得在 Microsoft To Do 里手动复制一遍；在 Outlook 里勾掉的待办，第二天打开 Gmail 侧栏一看——还在那儿戳你。Gemini、Gmail、Outlook、Apple Reminders，每个生态都把自己那一环做得很顺，唯独 Google Tasks 和 Microsoft To Do 之间那一道桥，没人替你搭。
+
+更让人纠结的是数据归属。把任务交给一个托管同步服务，等于把每天的待办交给第三方保管；可自己写脚本又得维护 OAuth、定时器、状态映射，还要处理循环触发和误删恢复——多数人卡在这一步就放弃了。
+
+Tasks–To Do Sync 想解决的，就是这道缺口。
+
+![](/assets/blog-images/google-tasks-microsoft-to-do-1yx0ny/img02.webp)
+
+## 二、一句话看懂：这是个什么项目
+
+Tasks–To Do Sync 是一个**自托管、跑在你自己的 Google Apps Script 里的双向同步引擎**，专门把 Google Tasks 和 Microsoft To Do 维持在同一个状态。
+
+核心关键词：**自托管 · 双向同步 · Google Apps Script · MIT 协议**。一条 `npx tasks-todo-sync init` 命令就能起项目；每 10 分钟自动跑一次同步，普通改动 0–10 分钟内可见；引擎、凭证、状态全部留在你自己的 Apps Script 工程里，没有订阅、没有中间数据库。仓库自带 417 个自动化测试 + GitHub CI + CodeQL + 真实账号验证，质量门槛已经拉起来了。
+
+## 三、核心功能深度解析
+
+### 1. 双向全字段同步，状态而非“触发器”
+
+它直接同步的不是“事件”，而是**任务状态**。创建、编辑、完成/重开、备注（纯文本投影）、截止日期（仅日期，Google Tasks 不带时间字段）、子任务与清单、个人列表配对、删除、移动列表——都在同步矩阵里。换句话说，你在 Google Tasks 里勾掉一项，10 分钟内 Microsoft To Do 那边也会一起划掉；反之亦然。
+
+### 2. 配对算法而非临时硬塞规则
+
+Zapier、Make 这类通用自动化平台，本质是“触发—动作”配方，适合每次都不同的轻量场景。但任务同步是**状态问题**：列表和任务要在两端维持稳定的映射关系。Tasks–To Do Sync 走的就是这条路——自动发现可配对的个人列表、维护稳定的任务 ID 映射，处理重命名、删除墓碑、冲突检测，所以一次操作不会反过来触发自己、把已完成的任务“复活”。
+
+### 3. 自托管 & 零中间数据库
+
+引擎、凭证、状态文件全在你自己的 Apps Script 项目里。删除任务默认开启，但留有恢复记录；移动任务有“move journal”做持久日志，并支持实时重新校验。换句话说，就算同步中途出问题，你也能从审计轨迹里恢复，而不用等厂商客服。
+
+### 4. 一行命令完成部署
+
+```bash
+npx tasks-todo-sync init
+```
+
+这条命令会创建你的私有 Apps Script 项目、推送发行版、打开设置向导。之后只需：Google 登录授权 → Microsoft 走 Device Code Flow（无需 Azure 后台、无需自管密钥）→ 点击 Activate。每一步都是“点一下”，不是“配半小时”。
+
+![](/assets/blog-images/google-tasks-microsoft-to-do-1yx0ny/img03.webp)
+
+## 四、技术亮点与性能数据
+
+- **同步频率**：私有 Trigger 每 10 分钟触发一次；普通变更 0–10 分钟内可见，少数带守护的操作可能多花一个周期收敛。
+- **测试覆盖**：417 个自动化测试 + GitHub CI + CodeQL + 真实账号验证，文档里提供完整的工程审计报告（`docs/audit.md`）和字段兼容矩阵（`docs/field-compatibility.md`）。
+- **架构选择**：基于 Google Apps Script 的 serverless 运行时，免运维、免服务器账单。代价是大文件增量处理受限——作者也把它写进了 Roadmap，准备升级为更丰富的诊断 + 增量差分处理。
+- **生态兼容**：直接对接 Google Tasks ↔ Microsoft To Do；周边 Gemini / Gmail / Android / Outlook / Microsoft 365 Copilot / Apple Reminders 都通过各自原生集成接入，不绕路。
+- **安全姿态**：MIT 协议、自管凭证、支持 Advanced Entra 自托管 OAuth（自定义 Client ID / Secret / Redirect URI）。
+
+## 五、适用场景与人群
+
+**适合谁**：
+
+- **跨生态重度用户**：Android + Microsoft 365 组合，每天在两端来回切换的人；
+- **隐私敏感的个人/团队**：不愿把任务清单交给第三方托管服务、但又没精力自己造轮子；
+- **IT/开发爱好者**：愿意跑一次 `npx` 命令、对 OAuth 不畏惧的人；
+- **现有 Apple Reminders 工作流**：如果你已经用 Apple 设备同步 Microsoft To Do，这套方案能把 Google Tasks 也并入同一个个人闭环。
+
+**不适合谁**：需要**企业级团队工作流**（Microsoft To Do 的“分配的 To Do”/企业计划暂不在范围）、需要**附件双向同步**（Roadmap 中的 Google Drive 附件保险柜还未上线），或完全不愿碰任何命令行的人——后续的无终端/无 Node.js onboarding 路径还在 Roadmap 里。
+
+![](/assets/blog-images/google-tasks-microsoft-to-do-1yx0ny/img04.webp)
+
+## 六、竞品对比
+
+| 维度 | Tasks–To Do Sync | Zapier / Make | 自写脚本 |
+|---|---|---|---|
+| 部署方式 | 一行 `npx` 命令 + 向导 | 注册账号、配 Trigger/Action | 自己写 OAuth + Trigger + 状态机 |
+| 数据归属 | 你的 Apps Script 项目，无中间库 | 厂商 SaaS，任务经过第三方 | 你的服务器/账号 |
+| 同步模型 | 状态映射（任务全生命周期） | 事件触发—动作 | 自己实现 |
+| 误删/冲突恢复 | 内置墓碑 + 移动日志 | 通常无 | 自己写 |
+| 维护成本 | 跟随发行版升级 | 订阅 + 配方维护 | 长期自维护 |
+| 测试与审计 | 417 测试 + 工程审计 | 平台通用 SLA | 看个人 |
+
+简言之：Zapier/Make 灵活但跑的是“配方”，自写脚本自由但要长期维护；Tasks–To Do Sync 选择在“同步引擎”这个垂直点上深挖，把状态生命周期、守护删除、移动日志这些坑预先填好。
+
+## 七、如何快速上手
+
+**最小可用路径**：
+
+1. 在本地终端执行 `npx tasks-todo-sync init`；
+2. 按向导完成 Google 账号授权（首次会遇到「Unverified app」提示，按 Advanced → Go to project → Allow 走一次即可，这是 Apps Script 个人项目的标准流程）；
+3. 在 `microsoft.com/link` 输入短码，走 Device Code Flow 连接个人 Microsoft To Do（无需 Azure 后台配置）；
+4. 在向导里点 Activate，自动调度 10 分钟 Trigger、跑一次健康检查，同步就开始了。
+
+**进阶路径**：
+
+- 想完全摆脱 Device Code？文档 `docs/deployment.md` 提供自管 Entra OAuth（自定义 Client ID / Secret / Redirect URI）和手动 clasp 工作流；
+- 想了解同步边界？看 `docs/audit.md`（已验证行为、限制、暂缓项）和 `docs/field-compatibility.md`（字段兼容矩阵）；
+- 遇到问题先查 [Quick start](docs/quick-start.md) 和 [Deployment guide](docs/deployment.md)，再开 Issue。
+
+## 八、总结与行动建议
+
+Tasks–To Do Sync 解决的是一个很具体、但被忽视的问题：在 Google Tasks 和 Microsoft To Do 之间架一座**自托管、状态一致、可恢复**的桥。它不抢你的数据、不收订阅费，用一行命令和四步向导就能跑起来，且测试与审计文档齐全。
+
+**值得一试的理由**：你每天都在双端切换，那 10 分钟延迟的同步窗口、删除守护、移动日志、字段兼容矩阵，比一次次手动搬运强太多。
+
+- 仓库：https://github.com/simonchai-tw/tasks-todo-sync
+- 官网：https://simonchai-tw.github.io/tasks-todo-sync/
+- npm：https://www.npmjs.com/package/tasks-todo-sync
+- 快速上手：https://github.com/simonchai-tw/tasks-todo-sync/blob/main/docs/quick-start.md
+- 工程审计：https://github.com/simonchai-tw/tasks-todo-sync/blob/main/docs/audit.md
+- License：MIT
+
+如果你已经被双端待办折腾过，今晚就值得跑一次 `npx tasks-todo-sync init`。
+
+#tasks-todo-sync #TasksTodoSync #simonchai-tw #开源项目 #GitHub

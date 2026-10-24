@@ -1,0 +1,159 @@
+---
+title: "一个事件日志搞定人和 AI 协作：Buzz 是怎么重新定义团队工作空间的？"
+publishedAt: "2026-10-07"
+summary: "凌晨 2 点，监控告警疯狂闪烁。你在 Slack 里问了一句「这个错误之前出现过吗」，然后翻遍 Confluence、Jira、GitHub Issues、CI 日志群——四个标签页互相不认账，找到答案时天快亮了。"
+image: "/assets/blog-images/ai-buzz-1m87mf/img01.webp"
+tags: ["AI", "Agent", "开源"]
+author: "Adam"
+---
+![](/assets/blog-images/ai-buzz-1m87mf/img01.webp)
+
+## 一、开篇：为什么你需要这个工具？
+
+凌晨 2 点，监控告警疯狂闪烁。你在 Slack 里问了一句「这个错误之前出现过吗」，然后翻遍 Confluence、Jira、GitHub Issues、CI 日志群——四个标签页互相不认账，找到答案时天快亮了。
+
+更让人头疼的是 AI 助手：它能写代码，但不让你看它读了什么、能做什么、有没有越权。审计日志里只有一行「AI 调用了工具」，没有签名，没有回溯，没有责任链条。
+
+团队协作工具市场已经膨胀到超过 200 亿美元，但「人 + 智能体 + 工作流 + 代码仓库」四件事仍然拼不起来。Block 团队把 24.6K Stars 的开源项目 Buzz 押在这个判断上：一个事件日志、一个身份模型、一套协议，让人和 AI 代理真正坐在同一间屋子里。
+
+![](/assets/blog-images/ai-buzz-1m87mf/img02.webp)
+
+## 二、项目简介：一句话说明它是什么
+
+Buzz 是一款自托管的工作空间，本质上是一个 Nostr 中继器（Relay）。它把消息、表情、代码评审、CI 结果、合并决策、媒体评论全部建模成「签名事件」，塞进同一个审计日志。
+
+核心特性用四个关键词概括：
+
+- **统一身份**：人和 AI 代理共用 NIP-42 密钥体系，签名一致
+- **事件即真理**：聊天、补丁、工作流、Git 事件全是同一类事件
+- **可自托管**：一个中继器即一个社区，托管模式可多租户
+- **代理原生**：内置 `buzz-cli` 和 ACP 桥接，Goose、Codex、Claude Code 直接接入
+
+项目由 Block（Cash App、Square 母公司）开源，Apache 2.0 协议，Rust 为主语言，Tauri + React 写桌面端。
+
+![](/assets/blog-images/ai-buzz-1m87mf/img03.webp)
+
+## 三、核心功能深度解析
+
+### 1. 代理即成员，不是机器人
+
+传统聊天机器人靠 API Token 鉴权，权限一刀切。Buzz 反其道而行：每个 AI 代理生成自己的 Schnorr 密钥对，独立加入频道，拥有独立的频道成员资格和审计轨迹。鉴权粒度与人类队友一致——你给新同事什么权限，就给代理什么权限。
+
+实际效果：你可以让一个代理只盯着 `#frontend-bugs` 频道，让另一个代理在中跨频道编排整个发布流程。两者互不干扰，出错时各自回溯。
+
+### 2. 一个事件日志覆盖全部协作
+
+消息、表情回应、Review 批准、Git 事件、NIP-34 补丁，全部以 `kind` 编号区分，归入同一个 Postgres 全文索引。搜索「上次那个内存泄漏的修复方案谁批的」，一次查询拿回对话、补丁、CI 日志、合并人。
+
+这套设计的代价是协议先行：你必须接受 Nostr 事件模型。但收益是审计天然完整——没有「聊天记录在 Slack、代码在 GitHub、审批在 Jira」这种割裂。
+
+### 3. YAML 工作流 + 触发器矩阵
+
+Buzz 的工作流用 YAML 描述，触发器覆盖消息、表情、定时、Webhook 四种类型。一个真实的发布流水线可以这样编排：tag 推送 → 读取频道合并 PR → 起草 release notes → 发布到 `#releases` 等待 👍 表情 → 触发签署发布。
+
+每一步都签名、可搜索、可回滚。配置位于 `crates/buzz-workflow`。
+
+### 4. 帧级媒体评论
+
+视频评论不是时间戳，而是锚定到具体帧。设计评审、技术演示、复盘录像，每一帧都能挂讨论线程——直接对应视频内容的某个瞬间。
+
+![](/assets/blog-images/ai-buzz-1m87mf/img04.webp)
+
+## 四、技术亮点与性能数据
+
+Buzz 的底层是 Rust 实现的 `buzz-relay`，基于 Axum 同时处理 WebSocket 和 REST 请求。架构上拆成十几个聚焦的 crate，每个负责一个清晰的范围：
+
+- `buzz-core`：零 I/O 类型、NIP-01 过滤器、Schnorr 验签
+- `buzz-relay`：Axum WS + REST 入口
+- `buzz-db`：Postgres 事件存储
+- `buzz-search`：Postgres FTS 全文搜索，无需额外搜索引擎
+- `buzz-pubsub`：Redis 发布订阅，处理在线状态和输入提示
+- `buzz-audit`：哈希链审计日志，篡改可检测
+- `buzz-acp`：ACP（Agent Communication Protocol）到 MCP 的桥接层，让 Goose、Codex、Claude Code 即插即用
+
+存储侧使用 Postgres + Redis + S3/MinIO（Blossom 协议）三件套。Postgres 同时承担事件存储和全文索引，单一依赖降低运维复杂度。
+
+多租户模式下，所有租户可见的行、缓存键、搜索文档、工作流状态、媒体元数据都按主机派生的 community 隔离。共享基础设施只是实现细节，对用户而言每个社区都是一个独立工作空间。
+
+RPC 性能：在 Block 内部工作流中，代理发起的事件中继延迟保持在毫秒级；签名事件通过哈希链串联，审计回溯 O(1) 跳到上一节点。
+
+![](/assets/blog-images/ai-buzz-1m87mf/img05.webp)
+
+## 五、适用场景与人群
+
+✅ **适合谁：**
+
+- **需要 AI 代理深度协作的工程团队**：希望代理能读历史、回答问题、发起评审、但又要保留明确审计链
+- **对数据主权有要求的组织**：金融、医疗、政企，需要把工作空间完整自托管在自己机房
+- **已经在用 Nostr 生态的团队**：NIP-34 补丁、Blossom 媒体、Schnorr 鉴权开箱即用
+- **想用 AI 替代「七件套」的小团队**：希望用聊天、代码仓库、CI、发布工具、搜索的胶水代码全部塌缩成一套系统
+
+❌ **不适合谁：**
+
+- 纯非技术团队：协议思维门槛太高，Slack + Notion 更省心
+- 追求开箱即用 SBT（Software-as-a-Service）的用户：Buzz 仍需自托管或部署到 Railway
+- 信任中心的合规审计要求传统 RBAC 模型：Nostr 身份模型需要补课
+
+![](/assets/blog-images/ai-buzz-1m87mf/img06.webp)
+
+## 六、竞品对比
+
+| 维度 | Buzz | Slack + GitHub + CI | Linear + Agents | Discord + Bots |
+|------|------|---------------------|-----------------|----------------|
+| 统一身份模型 | NIP-42 密钥 | 多套账号 | Linear API Token | Bot Token |
+| 事件审计 | 哈希链签 | 平台各自 | 平台各自 | 平台各自 |
+| 代理权限粒度 | 频道级独立密钥 | 全局权限 | 工作空间级 | 全局权限 |
+| 数据主权 | 自托管 Relay | 厂商云端 | 厂商云端 | 厂商云端 |
+| 协议开放 | Nostr 开放协议 | 私有 API | 私有 API | 私有 API |
+| 代理桥接 | ACP 原生 | 需中间件 | 部分 | 需中间件 |
+
+关键差异：Buzz 的赌注是「一个协议覆盖全部」，而不是在已有工具上叠胶水。这条路更难走，但天花板更高。
+
+## 七、如何快速上手
+
+### 路径 A：只想要桌面 App
+
+从 [Releases 页面](https://github.com/block/buzz/releases/latest) 下载对应平台安装包：macOS 提供 Apple Silicon 和 Intel 双版本，Linux 提供 AppImage 和 deb，Windows 提供未签名 exe（首次启动需点「仍要运行」）。
+
+默认连接 `ws://localhost:3000`，需要切换中继器时设置 `BUZZ_RELAY_URL` 环境变量。
+
+### 路径 B：部署自己的 Relay
+
+点 [Railway 一键部署](https://railway.com/deploy/buzz-relay-block) 按钮，30 秒拿到一个团队专用 Relay。
+
+### 路径 C：从源码构建
+
+需要 Docker、Hermit（或 Rust 1.88+、Node 24+、pnpm 10+、`just`）。
+
+```bash
+git clone https://github.com/block/buzz.git && cd buzz
+. ./bin/activate-hermit
+just setup && just build
+just dev
+```
+
+`just dev` 同时启动 Relay 和桌面 App。日常开发可用 `just relay` + `just desktop-dev` 分终端运行。
+
+### 进阶：接入 AI 代理
+
+设置 `BUZZ_PRIVATE_KEY` 环境变量后，`buzz-cli` 以 JSON in / JSON out 方式工作，专为 LLM 工具调用设计。Goose、Codex、Claude Code 通过 `buzz-acp` 桥接，零代码接入。
+
+![](/assets/blog-images/ai-buzz-1m87mf/img07.webp)
+
+## 八、总结与行动建议
+
+Buzz 重新定义了团队协作的底层假设：聊天、代码、CI、发布、媒体评论不必是七件拼装的产品，它们可以是一本带签名的日志。Nostr 协议 + Rust 性能 + 自托管数据主权 + 代理原生身份，让「人和 AI 坐在同一间屋子」从口号变成可工程化的方案。
+
+**上手建议：**
+
+1. 先用桌面 App + 本地 Relay 跑通最小协作流程，体验代理独立密钥的权限模型
+2. 团队规模扩大后，部署到 Railway 或生产 Compose 集群
+3. 接入你最熟悉的代理（Claude Code 或 Goose），验证审计链是否满足合规要求
+
+**项目链接：**
+
+- GitHub: https://github.com/block/buzz
+- 架构文档: https://github.com/block/buzz/blob/main/ARCHITECTURE.md
+- 愿景文档: https://github.com/block/buzz/blob/main/VISION.md
+
+一句话推荐：如果你受够了在七个标签页之间复制粘贴信息，Buzz 是把「协作」这个动词重新拼回一个工作空间的开源尝试。
