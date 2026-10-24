@@ -1,6 +1,7 @@
 import React from "react";
 import { getBlogPost, getBlogPosts } from "@/lib/mdx";
 import { MDXRemote } from "next-mdx-remote/rsc";
+import remarkGfm from "remark-gfm";
 import ScrollProgress from "@/components/ui/scroll-progress";
 import Link from "next/link";
 import { notFound } from "next/navigation";
@@ -110,6 +111,28 @@ const components = {
   strong: (props: any) => (
     <strong className="text-foreground font-semibold" {...props} />
   ),
+  // GFM 表格（由 remark-gfm 解析）。横向滚动容器 + 深色描边，长表格不会撑破版心。
+  table: (props: any) => (
+    <div className="my-8 overflow-x-auto rounded-xl border border-border/50">
+      <table className="w-full border-collapse text-sm font-sans" {...props} />
+    </div>
+  ),
+  thead: (props: any) => <thead className="bg-muted/40" {...props} />,
+  th: (props: any) => (
+    <th
+      className="text-left font-semibold text-foreground px-4 py-3 border-b border-border/50 whitespace-nowrap"
+      {...props}
+    />
+  ),
+  td: (props: any) => (
+    <td
+      className="text-muted-foreground px-4 py-3 border-b border-border/30 align-top leading-relaxed"
+      {...props}
+    />
+  ),
+  tr: (props: any) => (
+    <tr className="even:bg-muted/20 transition-colors hover:bg-muted/30" {...props} />
+  ),
 };
 
 export default async function BlogPost({ params }: { params: Promise<{ slug: string }> }) {
@@ -183,7 +206,11 @@ export default async function BlogPost({ params }: { params: Promise<{ slug: str
         {/* Article body */}
         <RevealAnimation delay={0.2}>
           <article className="prose prose-invert max-w-none">
-            <MDXRemote source={post.content} components={components} />
+            <MDXRemote
+              source={post.content}
+              components={components}
+              options={{ mdxOptions: { remarkPlugins: [remarkGfm] } }}
+            />
           </article>
         </RevealAnimation>
 
