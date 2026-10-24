@@ -1,5 +1,5 @@
 const config = {
-  title: "Adam | 扫地僧 · Full-Stack Builder",
+  title: "Adam | 扫地僧 · 游离在交易市场的独立创作者",
   description: {
     long: "Adam（扫地僧）的个人站点：金融与量化、跨境电商增长、全栈开发与 AI Agent 工具。这里是我做过的东西，也是我还在折腾的东西。",
     short:
@@ -21,7 +21,7 @@ const config = {
     "独立开发者",
   ],
   author: "Adam",
-  role: "扫地僧 · Full-Stack Builder",
+  role: "扫地僧 · 游离在交易市场的独立创作者",
   email: "changyuansex@gmail.com",
   site: "https://321.market",
 

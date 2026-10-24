@@ -116,6 +116,14 @@ const PROJECT_SKILLS = {
   mcp: textMark("MCP", "MCP"),
   dsh: textMark("DeepSeek Harness", "dsh"),
   staticSite: textMark("Static HTML", "HTML"),
+  vanilla: textMark("Vanilla JS", "JS"),
+  ws: textMark("WebSocket", "WS"),
+  recharts: textMark("Recharts", "Chart"),
+  canvas: textMark("Canvas 2D", "Canvas"),
+  playwright: textMark("Playwright", "PW"),
+  localFirst: textMark("Local-first", "Local"),
+  css3: textMark("CSS3", "CSS"),
+  ocr: textMark("OCR 识别", "OCR"),
 };
 
 export type Project = {
@@ -133,7 +141,7 @@ export type Project = {
 const projects: Project[] = [
   {
     id: "tradecat",
-    category: "Quant data platform",
+    category: "量化数据平台",
     title: "交易猫 TradeCat",
     src: `${BASE_PATH}/tradecat/landing.png`,
     screenshots: [],
@@ -176,198 +184,204 @@ const projects: Project[] = [
     },
   },
   {
-    id: "peach",
-    category: "Local-first app",
-    title: "Peach 蜜桃",
-    src: `${BASE_PATH}/peach/landing.png`,
+    id: "fullyhedged",
+    category: "交易终端",
+    title: "@oAdam TERMINAL",
+    src: `${BASE_PATH}/fullyhedged/landing.png`,
     screenshots: [],
     skills: {
-      frontend: [PROJECT_SKILLS.react, PROJECT_SKILLS.ts, PROJECT_SKILLS.tauri],
-      backend: [PROJECT_SKILLS.node, PROJECT_SKILLS.ffmpeg],
+      frontend: [PROJECT_SKILLS.vanilla, PROJECT_SKILLS.canvas, PROJECT_SKILLS.css3],
+      backend: [PROJECT_SKILLS.ws, PROJECT_SKILLS.ocr],
     },
-    github: "https://github.com/iiiiiiiiiiiiiKK/peach",
-    live: "https://peach.video",
+    github: "https://github.com/iiiiiiiiiiiiiKK/Fully-Hedged",
+    live: "https://fully-hedged.vercel.app",
     get content() {
       return (
         <div>
           <TypographyP className="font-mono text-2xl text-center">
-            给自己用的私人影片馆藏：本地硬盘、网盘和关注的创作者，放在一个地方看。
+            给自己造的交易舱：双所行情、动态风险敞口、强平预警，一屏看完。
           </TypographyP>
           <TypographyP className="font-mono">
-            单用户、本地优先的个人媒体系统。视频不搬家、不上传，索引跑在本地，
-            元数据自己攥着。
+            一个纯前端的加密货币实时监控与策略模拟终端。Binance / OKX
+            双所切换，70+ 币种 WebSocket 毫秒级推送，多空仓位独立与合并计算。
           </TypographyP>
           <ProjectsLinks live={this.live} repo={this.github} />
 
           <TypographyH3 className="my-4 mt-8">为什么要自己做</TypographyH3>
           <p className="font-mono mb-2">
-            现成的媒体库要么逼你把文件托管到别人的服务器上，要么把「你看了什么」
-            变成它的数据。Peach 的选择是：文件留在原地，库只记索引；断网也能用，
-            关掉联网也照样能翻。
+            交易所自带的仓位页面不会告诉你「再跌多少就爆」，也不会把净 Delta
+            和强平距离放在一起看。这个终端只解决一件事：把「危险还有多远」变成
+            一个随时可读的数字。
           </p>
 
-          <TypographyH3 className="my-4 mt-8">交付形态</TypographyH3>
+          <TypographyH3 className="my-4 mt-8">几个自己会用的细节</TypographyH3>
           <p className="font-mono mb-2">
-            Windows / macOS 双端安装包开箱即用，另有在线演示站。桌面端内嵌
-            FFmpeg 做转码、抽帧与封面生成，播放器直读本地文件。
+            OCR 识别截图里的仓位数据，省掉手抄均价和数量；战术模拟器实时推演
+            加仓后的均价与强平价变化；策略矩阵自动标注三级支撑与三级阻力；
+            三套主题（暗黑 / 明亮 / 像素）随时切换。
           </p>
         </div>
       );
     },
   },
   {
-    id: "worddna",
-    category: "Language learning",
-    title: "WordDNA",
-    src: `${BASE_PATH}/worddna/landing.png`,
+    id: "lifeledger",
+    category: "本地优先工具",
+    title: "人生账本 Life Ledger",
+    src: `${BASE_PATH}/lifeledger/landing.png`,
     screenshots: [],
     skills: {
       frontend: [
         PROJECT_SKILLS.react,
         PROJECT_SKILLS.ts,
         PROJECT_SKILLS.vite,
-        PROJECT_SKILLS.tailwind,
-        PROJECT_SKILLS.zustand,
-        PROJECT_SKILLS.pwa,
+        PROJECT_SKILLS.recharts,
       ],
-      backend: [],
+      backend: [PROJECT_SKILLS.localFirst, PROJECT_SKILLS.pwa],
     },
-    github: "https://github.com/iiiiiiiiiiiiiKK/WordDNA",
-    live: "https://worddna.321.market/",
+    github: "https://github.com/iiiiiiiiiiiiiKK/life-ledger",
+    live: "https://321.market/life-ledger/",
     get content() {
       return (
         <div>
           <TypographyP className="font-mono text-2xl text-center">
-            拆开一个单词，记住一整个词族 —— 词根词缀驱动的英语词汇平台。
+            把每天的时间当账记：时间资产、时间负债、时间净值、时间现金流。
           </TypographyP>
           <TypographyP className="font-mono">
-            不再一个词一个词地背，而是把同词根的词绑成一串：看到 spect，就能
-            顺出 inspect / respect / perspective / speculate。
+            一个记账工具，不是待办清单。待办记「我要做什么」，它记「我实际把时间
+            花在哪、值不值、耗不耗神」，然后把这笔投入转成四张报表。
           </TypographyP>
           <ProjectsLinks live={this.live} repo={this.github} />
 
-          <TypographyH3 className="my-4 mt-8">纯前端、可离线</TypographyH3>
+          <TypographyH3 className="my-4 mt-8">口径自己定</TypographyH3>
           <p className="font-mono mb-2">
-            React + TypeScript + Vite 全静态构建，数据随包一起发；PWA 装到桌面后
-            断网依旧可以练。状态用 Zustand 管，进度落在本地。
+            休息、娱乐、家庭陪伴默认是中性，系统不会替你判定成负债 —— 只有你亲手
+            把某个分类标为「负债」，它才计入负债。另加两条辅助指标：注意力成本
+            （Σ 时长 × 精力消耗 ÷ 3）与长期目标投入。
           </p>
 
-          <TypographyH3 className="my-4 mt-8">词族优先的复习模型</TypographyH3>
+          <TypographyH3 className="my-4 mt-8">数据不出浏览器</TypographyH3>
           <p className="font-mono mb-2">
-            以词根为复习单元，而不是以单词为单位 —— 答对一个词根，整个词族的
-            记忆一起被强化。
+            本地优先，无账号、无后端、无埋点。所有数字只来自你亲手写下的记录，
+            存在自己的浏览器里。
           </p>
         </div>
       );
     },
   },
   {
-    id: "weread",
-    category: "Agent skill / SDK",
-    title: "weread-omni",
-    src: `${BASE_PATH}/weread/landing.png`,
+    id: "baokuan",
+    category: "内容工具",
+    title: "爆款配图",
+    src: `${BASE_PATH}/baokuan/landing.png`,
     screenshots: [],
     skills: {
-      frontend: [PROJECT_SKILLS.ts, PROJECT_SKILLS.cli, PROJECT_SKILLS.mcp],
-      backend: [PROJECT_SKILLS.node, PROJECT_SKILLS.sdk],
+      frontend: [PROJECT_SKILLS.react, PROJECT_SKILLS.ts, PROJECT_SKILLS.canvas],
+      backend: [PROJECT_SKILLS.staticSite],
     },
-    github: "https://github.com/iiiiiiiiiiiiiKK/weread-omni",
-    live: "",
+    github: "https://github.com/iiiiiiiiiiiiiKK/baokuan-poster",
+    live: "https://321.market/baokuan-poster/",
     get content() {
       return (
         <div>
           <TypographyP className="font-mono text-2xl text-center">
-            微信读书的全能智能体技能和非官方 SDK —— 40 项读写操作，只有一套实现。
+            一句话变成配图 —— 中文文字排版工作台，预览即导出。
           </TypographyP>
           <TypographyP className="font-mono">
-            官方 Skill 只开放 6 项只读能力；weread-omni 把书架、搜索、统计、详情、
-            划线、推荐做全，再加写入划线与点评、导入 EPUB / PDF / MOBI / TXT /
-            AZW3、公众号文章、微信读书 AI。
+            写完一段话，不用再开设计软件调字距、找配色、对齐基线。10
+            套差异化模板，Canvas 单一渲染源，屏幕上看到什么，导出的 PNG 就是什么。
           </TypographyP>
           <ProjectsLinks live={this.live} repo={this.github} />
 
-          <TypographyH3 className="my-4 mt-8">三个入口，一套内核</TypographyH3>
+          <TypographyH3 className="my-4 mt-8">单一渲染源</TypographyH3>
           <p className="font-mono mb-2">
-            命令行每条命令都能吐 JSON；类型完整的 TypeScript SDK；以及仓库自带的
-            agent skill。三者共用同一层实现，行为不会漂移。
+            预览和导出走同一段 Canvas 绘制代码，不存在「预览好看、导出错位」——
+            这类工具最常见的翻车点直接被结构性地消掉了。
           </p>
 
-          <TypographyH3 className="my-4 mt-8">接入成本</TypographyH3>
+          <TypographyH3 className="my-4 mt-8">为中文排版做的取舍</TypographyH3>
           <p className="font-mono mb-2">
-            微信扫码即可用，无需申请 API Key。Node.js ≥ 22.13.0。
+            中文字重、行高、标点挤压和西文完全不是一套规则。模板里把这几项分别
+            当成独立参数处理，而不是指望浏览器默认表现。
           </p>
         </div>
       );
     },
   },
   {
-    id: "dshpurge",
-    category: "Developer tooling",
-    title: "dsh-purge",
-    src: `${BASE_PATH}/dshpurge/landing.png`,
+    id: "photostudio",
+    category: "开发者工具",
+    title: "开源项目照相馆",
+    src: `${BASE_PATH}/photostudio/landing.png`,
     screenshots: [],
     skills: {
-      frontend: [PROJECT_SKILLS.js, PROJECT_SKILLS.cli],
-      backend: [PROJECT_SKILLS.node, PROJECT_SKILLS.dsh],
+      frontend: [PROJECT_SKILLS.react, PROJECT_SKILLS.ts, PROJECT_SKILLS.canvas],
+      backend: [PROJECT_SKILLS.node, PROJECT_SKILLS.playwright],
     },
-    github: "https://github.com/iiiiiiiiiiiiiKK/dsh-purge",
-    live: "",
+    github: "https://github.com/iiiiiiiiiiiiiKK/open-source-photo-studio",
+    live: "https://321.market/open-source-photo-studio/",
     get content() {
       return (
         <div>
           <TypographyP className="font-mono text-2xl text-center">
-            DeepSeek Harness 的提示词工程插件：每个模型换一套提示词，可插拔。
+            输入仓库地址，自动产出中文介绍、亮点摘要和一张能发出去的展示图。
           </TypographyP>
           <TypographyP className="font-mono">
-            零依赖、无构建步骤的 Node.js 插件，装进 dsh 就能按模型切换提示词集合，
-            不用改宿主代码。
+            开源项目最难的一步往往不是写代码，是「怎么跟别人说清楚这是什么」。
+            给它一个 GitHub 仓库或官网地址，它会真的打开页面、截真图、读内容，
+            再套进模板出图。
           </TypographyP>
           <ProjectsLinks live={this.live} repo={this.github} />
 
-          <TypographyH3 className="my-4 mt-8">设计取向</TypographyH3>
+          <TypographyH3 className="my-4 mt-8">真截图，不是拼贴</TypographyH3>
           <p className="font-mono mb-2">
-            提示词与运行时彻底分离：提示词是数据，不是代码。换模型只需要换一份
-            profile，回滚就是把文件换回去。
+            用 Playwright 实际渲染目标站点再截图，六套模板 ×
+            三种比例，出来的图里是项目真实的样子，而不是占位框。
+          </p>
+
+          <TypographyH3 className="my-4 mt-8">一键导出</TypographyH3>
+          <p className="font-mono mb-2">
+            生成结果直接导出 PNG，可以贴进 README、社交媒体、或产品 Hunt
+            页面，不用再过一遍设计。
           </p>
         </div>
       );
     },
   },
   {
-    id: "zitie",
-    category: "Static site",
-    title: "KK 字帖",
-    src: `${BASE_PATH}/zitie/landing.png`,
+    id: "absurd",
+    category: "娱乐实验",
+    title: "离谱创业模拟器",
+    src: `${BASE_PATH}/absurd/landing.png`,
     screenshots: [],
     skills: {
-      frontend: [PROJECT_SKILLS.staticSite, PROJECT_SKILLS.js],
-      backend: [],
+      frontend: [PROJECT_SKILLS.react, PROJECT_SKILLS.ts],
+      backend: [PROJECT_SKILLS.staticSite],
     },
-    github: "https://github.com/iiiiiiiiiiiiiKK/zitie",
-    live: "https://zitie-acd.pages.dev/",
+    github: "https://github.com/iiiiiiiiiiiiiKK/absurd-startup-lab",
+    live: "https://321.market/absurd-startup-lab/",
     get content() {
       return (
         <div>
           <TypographyP className="font-mono text-2xl text-center">
-            零构建、可离线的汉字字帖生成器 —— 7919 个规范汉字随取随用。
+            下一个改变世界的项目，可能很荒唐。
           </TypographyP>
           <TypographyP className="font-mono">
-            基于《通用规范汉字表（2013）》：选字、选格、选体、标拼音、点笔顺，
-            一键打印或导出 PDF。
+            7200+ 组合的荒诞创业提案生成器：随机撞出一个你从没想过、但仔细想想
+            好像真能做的点子。
           </TypographyP>
           <ProjectsLinks live={this.live} repo={this.github} />
 
-          <TypographyH3 className="my-4 mt-8">零构建</TypographyH3>
+          <TypographyH3 className="my-4 mt-8">不需要 API Key</TypographyH3>
           <p className="font-mono mb-2">
-            没有打包步骤，一个静态服务器就能跑；所有能力都在浏览器里完成，
-            不上传任何字表。
+            全部组合在本地生成，点开就能玩，不登录、不填 Key、不发请求。
+            断网也能一直摇。
           </p>
 
-          <TypographyH3 className="my-4 mt-8">能做什么</TypographyH3>
+          <TypographyH3 className="my-4 mt-8">能带走</TypographyH3>
           <p className="font-mono mb-2">
-            一二三级字表 / 自定义 / 随机抽字，田字格、米字格、空白格，临写、描红、
-            空临三种模式，楷行隶宋黑五体，拼音标注与笔画筛选，A4 竖横排版，
-            批量导出 ZIP，点格演示笔顺。
+            看中的点子可以导出成海报、Markdown 或 JSON —— 拿去发朋友圈，或者
+            真的开工。
           </p>
         </div>
       );
