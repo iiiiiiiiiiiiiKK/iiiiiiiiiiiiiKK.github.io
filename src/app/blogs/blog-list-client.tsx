@@ -86,15 +86,15 @@ export default function BlogListClient({ posts }: { posts: Post[] }) {
           <div className="flex items-center gap-3 mb-6">
             <div className="h-px flex-1 max-w-[60px] bg-[hsl(20,100%,70%)]" />
             <span className="text-[hsl(20,100%,70%)] text-sm font-medium tracking-[0.2em] uppercase font-sans">
-              随笔
+              开源观察
             </span>
           </div>
           <h1 className="font-display text-3xl md:text-5xl leading-[0.95] tracking-tight">
-            想到就写，<br />
-            <span className="text-[hsl(20,100%,70%)]">写不下去就删</span>
+            挖到好东西，<br />
+            <span className="text-[hsl(20,100%,70%)]">就想讲清楚</span>
           </h1>
           <p className="mt-6 text-muted-foreground text-lg max-w-lg leading-relaxed font-sans">
-            做东西、拆东西，偶尔把过程记下来。
+            GitHub 上翻到的开源项目，我跑过、拆过、还留在机器上用的，写清楚它解决什么问题、谁该用、哪里不行。
           </p>
           <p className="mt-2 text-sm text-muted-foreground/70 font-sans">
             共 {posts.length} 篇 · 当前 {filtered.length} 篇

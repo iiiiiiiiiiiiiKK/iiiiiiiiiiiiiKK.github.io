@@ -3,8 +3,9 @@ import { getBlogPosts } from "@/lib/mdx";
 import BlogListClient from "./blog-list-client";
 
 export const metadata = {
-  title: "随笔 | Adam",
-  description: "想到就写。",
+  title: "开源观察 | Adam",
+  description:
+    "GitHub 上翻到的开源项目，跑过、拆过、还留在机器上用的，写清楚它解决什么问题、谁该用、哪里不行。",
 };
 
 export default function BlogPage() {
